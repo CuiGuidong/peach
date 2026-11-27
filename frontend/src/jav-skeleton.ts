@@ -1,7 +1,7 @@
 import { islandButton, islandGlyph, islandShortcutsEntry } from './island-skeleton';
 import { cardClass } from './react/components/card';
 import { cardRatio, gridLayout, javLayout, JAV_LAYOUTS } from './appearance';
-import { DISCOVERY_SORTS, RELEASE_SORTS } from './react/jav/discovery-sorts';
+import { DISCOVERY_SORTS, discoveryOrder, RELEASE_SORTS } from './react/jav/discovery-sorts';
 import { tierPlaceholdersHtml } from './catalog-filter-skeleton';
 import { FILTER_WAITING, catalogViewSkeletonHtml, facetFilterSkeletonFields, filterControlsSkeletonHtml, sortKeysSkeletonHtml } from './filter-controls-skeleton';
 import { listTableSkeletonHtml } from './catalog-content-skeleton';
@@ -54,7 +54,7 @@ export function discoveryCardSkeleton(ratio: number | string,
 // 抵消 JAV 正文的两侧内边距和分区间距，让头像排与首页的筛选浮层对齐。
 export const JAV_CATALOG_TIERS = '-mx-4 -mb-4';
 
-export const onlineCatalogTiersHtml = () =>
+export const javFacetTiersHtml = () =>
   `<div data-catalog-tiers="" data-loading="" class="${JAV_CATALOG_TIERS}" aria-hidden="true">
     <div data-catalog-tier="performers">${tierPlaceholdersHtml('performer')}</div>
     <div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div>
@@ -62,6 +62,9 @@ export const onlineCatalogTiersHtml = () =>
 
 export const javTagPlaceholdersHtml = () =>
   `<span data-catalog-placeholder="tag">${'<span></span>'.repeat(8)}</span>`;
+export const JAV_TAG_STRIP_SKELETON = 'jav-filter-tags';
+const javTagStripSkeletonHtml = () =>
+  `<div data-filter-tag-strip data-skeleton="${JAV_TAG_STRIP_SKELETON}" data-loading aria-hidden="true">${javTagPlaceholdersHtml()}</div>`;
 
 export function onlineCatalogCardsHtml(ratio: number): string {
   return `<div data-media-grid class="${JAV_RECOMMENDATION_GRID}" data-skeleton="jav-online-cards" aria-hidden="true">${discoveryCardSkeleton(ratio, { actions: ['w-24'] }).repeat(6)}</div>`;
@@ -83,13 +86,13 @@ function onlineCatalogPageSkeleton(): string {
     ? `<div data-catalog-table data-release-table class="min-w-0">${listTableSkeletonHtml(onlineTableSnapshot(), '', { separateCode: true })}</div>`
     : onlineCatalogCardsHtml(cardRatio(gridLayout({ active: true, home: false, portrait: false })));
   return `<section data-skeleton="jav-online" aria-busy="true" aria-label="${esc(t('catalog:javTabs.online'))}" class="flex min-w-0 flex-col gap-4">
-    ${onlineCatalogTiersHtml()}
+    ${javFacetTiersHtml()}
     <div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
       <div data-filter-row="top" class="flex h-12 min-w-0 items-center gap-1.5 overflow-visible overscroll-x-contain px-3 py-2">
         <div data-catalog-scroll><div data-catalog-views role="group" aria-label="${esc(t('catalog:javOnline.pageStatus'))}">
           ${ONLINE_STATUS.map(([key, label]) => `<button type="button" data-catalog-view="${key}" data-entity-tag="${key}" aria-pressed="${key === status}" ${FILTER_WAITING}>${esc(t(label))}</button>`).join('')}
           <span data-entity-sep="" aria-hidden="true"></span>
-        </div><div data-filter-tag-strip data-loading aria-hidden="true">${javTagPlaceholdersHtml()}</div></div>
+        </div>${javTagStripSkeletonHtml()}</div>
       </div>
       <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
         <span data-catalog-summary><span data-catalog-readout><span data-skeleton="count" class="skeleton-sheen inline-block h-3.5 w-28 rounded-md"></span></span></span>
@@ -108,7 +111,7 @@ export function javPageSkeleton(tab: string): string {
     : tab === 'releases' ? `<section class="flex min-w-0 flex-col gap-4">${releasesFilterSkeleton()}${catalogView() === 'list'
       ? `<div data-catalog-table>${listTableSkeletonHtml(releaseTableSnapshot())}</div>` : javContentSkeleton(tab)}</section>`
     : tab === 'online' ? onlineCatalogPageSkeleton()
-    : `<section class="flex min-w-0 flex-col gap-4">${javFilterSkeleton()}${catalogView() === 'list'
+    : `<section class="flex min-w-0 flex-col gap-4">${javFacetTiersHtml()}${javFilterSkeleton()}${catalogView() === 'list'
       ? `<div data-catalog-table>${listTableSkeletonHtml(discoveryTableSnapshot())}</div>` : javContentSkeleton(tab)}</section>`;
   return `<div class="peach-react"><div class="${JAV_PAGE_BODY}">${body}</div></div>`;
 }
@@ -124,7 +127,7 @@ export function releasesFilterSkeleton(): string {
   return `<div data-catalog-tiers="" class="${JAV_CATALOG_TIERS}" aria-busy="true"><div data-catalog-tier="performers" data-skeleton="tiers">${tierPlaceholdersHtml('performer')}</div><div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div></div>
   <div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
     <div data-filter-row="top" class="flex h-12 min-w-0 items-center overscroll-x-contain px-3 py-2 gap-1.5 overflow-visible">
-      <div data-catalog-scroll><div data-filter-tag-strip data-loading aria-hidden="true">${javTagPlaceholdersHtml()}</div></div>
+      <div data-catalog-scroll>${javTagStripSkeletonHtml()}</div>
     </div>
     <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
       <span data-catalog-summary><span data-catalog-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"></span></span></span>
@@ -135,12 +138,14 @@ export function releasesFilterSkeleton(): string {
 
 /** 首屏筛选控件使用首页的两排容器；标签和读数依赖查询。 */
 function javFilterSkeleton(): string {
-  const active = new URLSearchParams(location.search).get('scope') === 'library' ? 'library' : 'external';
+  const params = new URLSearchParams(location.search);
+  const active = params.get('scope') === 'library' ? 'library' : 'external';
+  const { sort, direction } = discoveryOrder(params);
   const scope = (key: string, label: string) => `<button type="button" data-catalog-view="${key}" data-entity-tag="${key}" data-entity-press="" aria-pressed="${key === active}">${label}</button>`;
   const size = (value: string, glyph: string) => `<span data-glass-segment="" ${javLayout() === value ? 'data-selected="true"' : ''} class="flex size-8 flex-none items-center justify-center rounded-lg text-(--glass-text)/62">${islandGlyph(glyph, 'size-4')}</span>`;
   return `<div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
     <div data-filter-row="top" class="flex h-12 min-w-0 items-center overscroll-x-contain px-3 py-2 gap-1.5 overflow-visible">
-      <div data-catalog-scroll><div data-catalog-views role="group" aria-label="${esc(t('catalog:javDiscover.scopeLabel'))}">${scope('external', t('catalog:javDiscover.external'))}${scope('library', t('catalog:javDiscover.library'))}</div></div>
+      <div data-catalog-scroll><div data-catalog-views role="group" aria-label="${esc(t('catalog:javDiscover.scopeLabel'))}">${scope('external', t('catalog:javDiscover.external'))}${scope('library', t('catalog:javDiscover.library'))}<span data-entity-sep aria-hidden="true"></span></div>${javTagStripSkeletonHtml()}</div>
     </div>
     <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
       <span data-catalog-summary><span data-catalog-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"></span></span>
@@ -149,7 +154,7 @@ function javFilterSkeleton(): string {
         ${catalogView() === 'cards' ? `<span data-entity-layout class="inline-flex w-max max-w-full flex-none items-center gap-0.5 rounded-lg">${size('big', 'maximize')}${size('small', 'layout-grid')}</span>` : ''}
         ${catalogViewSkeletonHtml()}
         <span data-entity-sep="" aria-hidden="true"></span>
-        ${sortKeysSkeletonHtml(DISCOVERY_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel, pressed: key === 'taste', dir: key === 'taste' ? 'desc' : '' })), 'discover', facetFilterSkeletonFields('jav-discover'))}
+        ${sortKeysSkeletonHtml(DISCOVERY_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel, pressed: key === sort, dir: key === sort ? direction : '' })), 'discover', facetFilterSkeletonFields('jav-discover'))}
       </span>
     </div>
   </div>`;

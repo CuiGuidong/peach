@@ -695,7 +695,7 @@
       "skippedBy": "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
       "skipped": "已有一轮在进行，本次跳过",
       "interrupted": "服务重启，这一轮没有跑完",
-      "unknownFollowup": "没有登记 {{task}} 这种后继",
+      "unknownFollowup": "未找到已登记的后续任务 {{task}}",
       "dispatchInterrupted": "资料派发被中断，正在重新安排",
       "stoppedEarly": "提前收工，退出码 {{code}}"
     }
@@ -854,7 +854,7 @@
     "offsiteFacesUnconfirmed": "馆外单人作品封面只截到 {{count}} 张脸，凑不齐两部互证",
     "sourceGalleryByCovers": "{{label}}（按封面人脸认定）",
     "sourceGalleryByGallery": "{{label}}（按图库互证认定）",
-    "sourceGallerySmall": "{{label}}（小图兜底）",
+    "sourceGallerySmall": "{{label}}（备用小图）",
     "sourceCover": "作品封面 {{code}}",
     "sourceOffsiteCover": "馆外单人作品封面 {{code}}（{{count}} 部互证）",
     "sourceSheet": "作品画面 {{code}}（{{count}} 部互证）",
@@ -864,8 +864,8 @@
     "skipped": "跳过 ",
     "skipNoSite": "{{count}} 部没有可问的官方站",
     "skipRecentMiss": "{{count}} 部那一站近期说过没有",
-    "skipPaused": "{{count}} 部因来源冷却",
-    "skipDeferred": "{{count}} 部联网名额用完留到下一轮",
+    "skipPaused": "{{count}} 部因来源暂不可用",
+    "skipDeferred": "{{count}} 部留到下一轮（已达到本轮查询次数上限）",
     "remainingNext": "还有 {{count}} 部待补，接着排下一轮",
     "remainingLater": "还有 {{count}} 部待补，等下一次处理",
     "seedAliases": "别名 {{count}}",
@@ -884,14 +884,14 @@
     "scheduled": "已安排 {{count}} 项处理",
     "videoUpgraded": "影片升级补全完成",
     "videosUpgraded": "影片升级补全完成 {{count}} 部",
-    "videosDeferred": "目录读不到或来源冷却，延后 {{count}} 部",
+    "videosDeferred": "目录无法读取或资料来源暂不可用，{{count}} 部已延后处理",
     "videosMalformed": "路径写法无法识别，失败 {{count}} 部",
     "dimensionsMeasured": "显示尺寸补测完成",
     "deferredBy": "已延后：{{reason}}",
     "deferMountMedia": "影片所在目录读不到，挂载恢复后再补全",
     "deferMountDimensions": "影片所在目录读不到，挂载恢复后再补测",
     "deferBilling": "计费来源的流量还没确认，稍后再补测",
-    "deferCooling": "资料来源正在冷却，来源放开后再补全",
+    "deferCooling": "资料来源暂不可用，恢复后再补全",
     "faceModelFetched": "已取得人脸模型",
     "matchModelFetched": "已取得人脸比对模型",
     "faceModelsReady": "人脸模型已就绪"
@@ -943,6 +943,8 @@
       "invalid_output": "模型没有返回可用结果，请更换模型或重试。",
       "usageUnavailable": "无法读取 AI 用量，请刷新页面后重试。",
       "permission_required": "请在 ChatGPT 授权页允许使用订阅额度。",
+      "oauthAuth": "Peach 无法读取或更新已保存的 ChatGPT 授权。请检查 Peach 数据目录的访问权限后重试。",
+      "oauthCallbackUnavailable": "Peach 无法启动本机授权监听，请重试连接 ChatGPT 订阅。",
       "expired": "连接或候选已过期，请重新生成或授权。",
       "unavailable": "此模型或订阅暂时无法完成请求。",
       "alreadySaved": "这份原文已有该语言的译文。",
@@ -1460,7 +1462,7 @@
       "backupExists": "同目录已有一份留档：{{name}}"
     },
     "javdbPublic": {
-      "budgetExceeded": "本轮作品资料预算已用完",
+      "budgetExceeded": "已达到本次查询的次数、流量或时间上限",
       "imageSourcePaused": "图片来源暂时不可用，请稍后重试",
       "sourcePaused": "作品资料来源暂时不可用，请稍后重试",
       "notFound": "JavDB 没有找到这个番号",
@@ -1607,17 +1609,17 @@
       "pathOutsideSource": "路径越出已声明的 PikPak 来源",
       "sampleOutsideRoot": "认证样本不属于已声明的 PikPak 媒体根",
       "prefixNotUnique": "请在推送发现中为该 PikPak 媒体根配置唯一的 CloudDrive 路径前缀",
-      "webdavResponseTooLarge": "WebDAV 响应超过预算",
+      "webdavResponseTooLarge": "WebDAV 返回的数据量超过上限",
       "webdavNoResponse": "WebDAV 请求未收到响应",
-      "webdavTreeTooLarge": "WebDAV 目录遍历超过预算或循环",
-      "webdavTooManyFiles": "WebDAV 文件成员超过预算",
+      "webdavTreeTooLarge": "查看 WebDAV 目录时超过扫描上限，或遇到了循环目录",
+      "webdavTooManyFiles": "WebDAV 目录中的文件数量超过上限",
       "targetParentNotDirectory": "目标父路径不是目录",
       "webdavMkcolFailed": "WebDAV 创建父目录失败：HTTP {{status}}",
       "crossParentRename": "官方接口只接受同父改名或保留名称的移动；跨父改名须先拆成两步",
       "moveNotExecuted": "官方接口拒绝或未执行移动，原件已确认留在原处",
-      "cloudPathTooDeep": "官方目录路径超过层级预算",
+      "cloudPathTooDeep": "云端目录嵌套层级超过上限",
       "cloudListingInvalid": "官方目录成员越界、重名或体积无效",
-      "cloudListingTooLarge": "官方目录成员超过预算",
+      "cloudListingTooLarge": "云端目录中的文件和子目录数量超过上限",
       "moveMismatch": "官方移动来源、父目录或文件名不符",
       "renameOutsideParent": "官方改名只支持已声明来源内的同父目录",
       "refreshFailed": "目录缓存刷新失败：{{status}}",
@@ -1635,7 +1637,7 @@
       "webdavSourceNotFound": "找不到 WebDAV 来源",
       "webdavTargetExists": "WebDAV 目标已存在",
       "cloudParentMissing": "官方父目录未列出所需目录",
-      "moveUnconfirmed": "移动状态未确认，保留意图回执并停止；不重复操作、不写数据库"
+      "moveUnconfirmed": "无法确认文件是否已移动，操作已停止。移动记录已保留，未再次移动文件或更新媒体库。"
     },
     "downloads": {
       "infohashInvalid": "磁力链接里的 infohash 不是 40 位十六进制或 32 位 base32",
@@ -1890,12 +1892,12 @@
       "accountSuspended": "{{label}} 账号被临时停用（站方判定浏览太快），{{time}} 自动恢复；停的是账号，换出口没用，Peach 先暂停向它请求",
       "geoRestricted": "{{label}} 不对当前出口所在的地区开放，请在代理里给它换一个它接受的地区的出口；暂停向它请求 {{minutes}} 分钟",
       "ipBanned": "{{label}} 封禁了当前出口 IP，暂停向它请求一段时间，也可以在代理里给它换一个出口",
-      "requestBudgetSpent": "本趟采集次数已用完，再跑一次接着采；已有图片保留",
-      "timeBudgetSpent": "本趟采集时间已用完，再跑一次接着采；已有图片保留",
-      "downloadBudgetSpent": "本趟下载量已用完，再跑一次接着采；已有图片保留",
-      "coolingDown": "来源正在冷却，请稍后重试；已有图片保留",
+      "requestBudgetSpent": "已达到本次查询次数上限。重新运行可继续，已有图片会保留。",
+      "timeBudgetSpent": "已达到本次查询的时间上限。重新运行可继续，已有图片会保留。",
+      "downloadBudgetSpent": "已达到本次下载流量上限。重新运行可继续，已有图片会保留。",
+      "coolingDown": "已暂时停止访问来源，请稍后重试。已有图片会保留。",
       "challengeTimedOut": "来源的人机验证超时，已有图片保留。等来源恢复后再试。若需手动验证，请先选「保留窗口」，再在运行 Peach 的电脑上切换到采集浏览器",
-      "rateLimited": "来源限流，已记录冷却时间；已有图片保留",
+      "rateLimited": "来源限制了请求频率，请稍后重试。已有图片会保留。",
       "coolingDownNamed": "{{label}} 暂停中，约 {{minutes}} 分钟后再试",
       "rateLimitedNamed": "{{label}} 限流，约 {{minutes}} 分钟后再试",
       "refusedNamed": "{{label}} 拒绝了当前出口的请求，多半是请求太频繁或出口被拦；暂停约 {{minutes}} 分钟，也可以在代理里给它换一个出口",
@@ -1904,10 +1906,10 @@
       "browserModeInvalid": "采集浏览器模式只收 {{choices}}"
     },
     "downloadPostprocess": {
-      "noLandingPath": "下载任务没有落地路径",
-      "noVideoInLanding": "落地目录里没有可识别的视频",
+      "noLandingPath": "下载服务未提供文件保存位置",
+      "noVideoInLanding": "下载目录里没有可识别的视频",
       "mainBoundToOtherCode": "正片已绑定其他番号：{{code}}",
-      "configMismatchProbe": "当前馆藏与媒体配置不一致，不能探测下载媒体",
+      "configMismatchProbe": "当前馆藏与媒体库设置不一致，无法读取下载文件的信息",
       "configMismatchCollect": "当前馆藏与媒体配置不一致，不能采集下载资料",
       "collectFailed": "资料采集失败",
       "organizeIncomplete": "文件整理未完成：{{reasons}}",
@@ -2371,8 +2373,8 @@
       "previewsNeedWriter": "生成预览图需要共享馆藏写入连接",
       "nfoCodeConflict": "文件名与 NFO 番号冲突，请复核",
       "notInLibrary": "所选影片不属于当前媒体库",
-      "deadlineRetryLater": "外部资料查询超出时间上限，可稍后重试",
-      "deadline": "外部资料查询超出时间上限",
+      "deadlineRetryLater": "读取外部资料超时，请稍后重试",
+      "deadline": "读取外部资料超时",
       "noAmaneSites": "这个番号的链上没有经 amane 桥问的站",
       "amaneBridgeFailed": "amane 桥：{{error}}",
       "amaneSitesSaidNo": "amane 桥问的几站都没有这个番号",
@@ -2416,7 +2418,7 @@
       "someCoverSourcesUnfetched": "封面已有；没答上的图源：{{problems}}"
     },
     "followStream": {
-      "coolingDown": "{{provider}} 限流冷却中，{{seconds}} 秒后再试",
+      "coolingDown": "{{provider}} 限制了请求频率，请在 {{seconds}} 秒后重试",
       "recentMiss": "上次读取来源媒体失败，请稍后再试",
       "noSuchMedia": "媒体序号不存在",
       "badMediaEntry": "媒体条目格式不符",
@@ -2585,7 +2587,7 @@
       "emptyGenre": "要收录的 genre 是空的"
     },
     "mediaProbe": {
-      "strmIsoNotProbed": "STRM 和 ISO 不执行视频探测"
+      "strmIsoNotProbed": "跳过读取 STRM 和 ISO 文件的视频信息"
     },
     "platform": {
       "windowsDirectoryUnavailable": "无法确定 Windows 系统目录"
@@ -2835,12 +2837,12 @@
       "placeholder": "来源给的是「准备中」占位图",
       "officialPlaceholderOnly": "官方封面地址只回「准备中」占位图：未发售的新作是官方还没出图，旧作多半已从官方下架",
       "mibNotJav": "韩国 MIB 不适用 JAV 封面来源",
-      "noCandidates": "所有渠道都没有候选",
+      "noCandidates": "没有找到可用的封面",
       "hostsUnreachable": "官方图片主机都连不上",
-      "deadline": "动作预算已用尽",
+      "deadline": "等待资料来源响应超时，请稍后重试",
       "dmmFailed": "DMM：{{error}}",
-      "coolingDown": "封面来源正在冷却，请稍后重试；已有图片保留",
-      "catalogUnfinished": "官方目录查询未完成，封面候选仍待确认",
+      "coolingDown": "已暂时停止访问封面来源，请稍后重试。已有图片会保留。",
+      "catalogUnfinished": "官方目录查询未完成，暂时无法确认是否有可用封面",
       "allAnimated": "官方候选都是动图",
       "downloadsFailed": "可用候选完整下载都失败",
       "sizeChanged": "尺寸变化：日志 {{expectedWidth}}x{{expectedHeight}}，当前 {{width}}x{{height}}",
@@ -2900,7 +2902,7 @@
       "loginRequired": "javdb 要求登录",
       "identityAmbiguous": "javdb 同番号对应多个作品，请核对来源身份：{{identities}}",
       "detailCodeMismatch": "javdb 详情页的番号与搜索结果不一致",
-      "budgetExceeded": "JavDB 作品资料查询超出本次预算"
+      "budgetExceeded": "JavDB 作品资料查询达到上限"
     },
     "onepondo": {
       "unrecognizedCode": "这个番号不是{{label}}的写法",
@@ -2952,7 +2954,7 @@
       "selfCheckUnfinished": "amane 运行环境自检未完成，请在来源和凭证中重试"
     },
     "performerAliasFollowup": {
-      "coolingDown": "来源正在冷却",
+      "coolingDown": "已暂时停止访问来源",
       "requestsUsedUp": "这一条的请求数用完了",
       "networkFailed": "网络请求失败：{{type}}",
       "rateLimited": "来源限流（429）",
@@ -3181,15 +3183,15 @@
       "resolveProgressLines": "查找关注来源：来源 {{current}}/{{total}} · {{provider}}（第 {{line}}/{{lines}} 行）"
     },
     "webJavDiscovery": {
-      "byteBudget": "本轮流量预算已用完",
+      "byteBudget": "已达到本次读取的流量上限",
       "cancelled": "已取消作品资料读取",
       "cancelling": "正在取消作品资料读取",
       "complete": "作品资料读取完成",
       "reading": "正在读取作品资料",
-      "requestBudget": "本轮请求预算已用完",
+      "requestBudget": "已达到本次读取的请求次数上限",
       "sourceCooldown": "来源暂时不可用，已停止读取",
       "stopped": "已停止读取作品资料",
-      "timeBudget": "本轮时间预算已用完",
+      "timeBudget": "已达到本次读取的时间上限",
       "unfetched": "作品资料采集失败"
     },
     "webLinks": {
@@ -3336,9 +3338,9 @@
       "stillOnDisk": "文件仍在盘上"
     },
     "webFeeds": {
-      "cooling": "来源 正在冷却，这一轮没有拉",
-      "deferredRest": "其余 {{count}} 个源顺延到冷却结束后再拉",
-      "sourceCooling": "{{source}} 正在冷却，这一轮没有拉"
+      "cooling": "已暂时停止访问来源，本次未检查更新",
+      "deferredRest": "其余 {{count}} 个来源将在恢复访问后检查更新",
+      "sourceCooling": "已暂时停止访问 {{source}}，本次未检查更新"
     },
     "webFollow": {
       "nameContainsEvidence": "规范化名称存在包含关系，仅供人工确认",
@@ -3426,7 +3428,7 @@
       "action": {
         "verifyToken": "核对 API 令牌",
         "findTarget": "查找目标目录",
-        "refreshLanding": "刷新落地目录",
+        "refreshLanding": "刷新下载目录",
         "readQuota": "查离线配额",
         "listOffline": "查离线任务",
         "createFolder": "新建目录",
@@ -4337,7 +4339,7 @@
         "serverError": "来源服务异常",
         "parseError": "资料解析失败",
         "notFound": "上次查询未命中",
-        "cooling": "来源正在冷却",
+        "cooling": "已暂时停止访问来源",
         "failed": "来源资料读取失败",
         "parsed": "资料解析通过",
         "parsedBefore": "曾解析成功，近期解析状态待复查",
@@ -4487,7 +4489,7 @@
         "session": "登录会话",
         "cdn": "图片 CDN"
       },
-      "cooldown": "来源正在冷却，请稍后重试。",
+      "cooldown": "已暂时停止访问来源，请稍后重试。",
       "proxy": "代理连接失败，请检查 Peach 代理。",
       "timeout": "来源连接超时，请稍后重试或检查连接方式。",
       "cdnUnreachable": "无法连接来源。{{hint}}",
@@ -4510,7 +4512,7 @@
         "ok": "可连接",
         "auth": "登录或人机验证",
         "http": "HTTP 错误",
-        "cooldown": "冷却",
+        "cooldown": "暂时停止访问",
         "network": "网络失败",
         "skipped": "未检查"
       }
@@ -4526,7 +4528,7 @@
       }
     },
     "followCheck": {
-      "coolingDown": "{{provider}} 限流冷却中，{{seconds}} 秒后再试，本次跳过"
+      "coolingDown": "本次跳过 {{provider}}。来源限制了请求频率，请在 {{seconds}} 秒后重试"
     },
     "followEvidence": {
       "runLabel": "删除旧快照",

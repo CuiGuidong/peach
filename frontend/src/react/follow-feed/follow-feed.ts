@@ -21,6 +21,18 @@ import { queryClient } from '../query';
 import type { FollowJobView } from '../../jobs';
 import { t } from '../../i18n';
 
+const pendingItemWrites = new Set<number>();
+
+export function beginFollowItemWrite(id: number): boolean {
+  if (pendingItemWrites.has(id)) return false;
+  pendingItemWrites.add(id);
+  return true;
+}
+
+export function finishFollowItemWrite(id: number): void {
+  pendingItemWrites.delete(id);
+}
+
 /* ── 地址栏那一组 ── */
 
 /** 状态那一排。已看那一档不摆：看过就归档，要再翻出来是「全部」的事。 */

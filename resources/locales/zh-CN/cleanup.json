@@ -18,7 +18,7 @@
     "groupDetail": "{{count, number}} 个 · 可回收 {{size}}",
     "keepAll": "都保留",
     "keepAllBody": "{{count, number}} 组（{{files, number}} 个文件）都保留，不删除任何文件，这些组不再出现在重复页。",
-    "keepAllRecovery": "可在「已保留」里取消，回执里也能撤销。",
+    "keepAllRecovery": "可在「已保留」里取消，也可以在结果提示中撤销。",
     "keepLargest": "留最大",
     "keepLongest": "留最长",
     "keepRule115": "115（没有则留最大）",
@@ -109,6 +109,8 @@
     "checkFailed": "检查失败",
     "checkLinks": "检查死链",
     "checkTaskLog": "请查看任务记录，核对已处理的链接。",
+    "checkStatusFailed": "链接检查状态读取失败",
+    "pruneStatusFailed": "链接清理状态读取失败",
     "checking": "检查中",
     "checkingLinks": "正在检查链接",
     "columnEntry": "Peach 资料",
@@ -175,6 +177,7 @@
     "statusUnavailable": "读不到媒体修复的状态"
   },
   "organize": {
+    "statusUnavailable": "无法读取文件整理任务的状态",
     "apply": "执行整理",
     "applyBodyAll": "将按模板整理「{{name}}」上的全部文件，可整批回滚。",
     "applyBodyPath": "将按模板整理「{{name}}」的「{{path}}」及子目录，可整批回滚。",
@@ -217,7 +220,6 @@
     "rowsFailed": "{{count, number}} 行未能处理",
     "running": "正在整理文件",
     "scopeHint": "填写路径时只整理该目录及其子目录。",
-    "settingsLoadFailed": "整理配置读取失败",
     "storageLabel": "整理哪个来源",
     "storagePrefix": "来源",
     "title": "整理"

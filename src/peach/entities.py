@@ -81,13 +81,15 @@ def studio_identity_ids(connection: Connection, name: str) -> set[int]:
         "WHERE e.kind='studio'") if studio_name_key(spelling) == key}
 
 
-def _ingest_name_id(connection: Connection, kind: str, name: str) -> int | None:
+def _ingest_name_id(connection: Connection, kind: str, name: str, *, match_aliases: bool = True) -> int | None:
     """入库名称先取精确规范名，再取唯一的登记身份。"""
     normalized = normalize_entity_name(name)
     exact = connection.execute("SELECT id FROM entity WHERE kind=? AND normalized_name=?",
                                (kind, normalized)).fetchone()
     if exact:
         return int(exact[0])
+    if not match_aliases:
+        return None
     if kind == 'studio':
         matches = studio_identity_ids(connection, name)
     elif kind in PERSON_ENTITY_KINDS or kind == 'tag':
@@ -761,9 +763,11 @@ def upsert_asset_entity(
     external_provider: str | None = None, external_id: str | int | None = None,
     metadata: dict | None = None, now: str | None = None,
     update_entity_metadata: bool = True,
+    preserve_tag_name: bool = False,
 ) -> int | None:
     """写入规范实体关系；调用方负责事务和兼容投影。"""
-    canonical = canonicalize_entity_name(kind, name)
+    original_tag = kind == 'tag' and preserve_tag_name
+    canonical = strip_zero_width(name).strip() if original_tag else canonicalize_entity_name(kind, name)
     if kind == 'creator' and not source.startswith(('user:','review:')):
         selected = _creator_ingest_identity(connection,canonical,asset_id)
         if selected != canonical:
@@ -796,7 +800,7 @@ def upsert_asset_entity(
         ).fetchone()
         entity_id = int(matched[0]) if matched else None
     if entity_id is None:
-        entity_id = _ingest_name_id(connection, kind, canonical)
+        entity_id = _ingest_name_id(connection, kind, canonical, match_aliases=not original_tag)
     if entity_id is None:
         connection.execute(
             "INSERT INTO entity(kind,canonical_name,normalized_name,metadata_json,created_at,updated_at) "
@@ -840,7 +844,7 @@ def upsert_asset_entity(
                  last_synced_at=excluded.last_synced_at""",
             (entity_id, external_provider, kind, str(external_id), payload, stamp),
         )
-    if kind == 'tag':
+    if kind == 'tag' and not original_tag:
         from .tag_management import rewrite_tag_projection
         chosen = connection.execute('SELECT canonical_name FROM entity WHERE id=?', (entity_id,)).fetchone()[0]
         for spelling in dict.fromkeys([str(name or ''), canonical]):

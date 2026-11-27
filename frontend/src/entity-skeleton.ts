@@ -5,10 +5,11 @@
  * 中间一道缝、四个角各一道弧。骨架是一段字符串，所以自己把外框和两个槽位的标记写全，
  * 几何与岛的浮层一一对齐，接管时不跳。
  */
+import { isPersonEntity } from './core/entity-links';
 import { t } from './i18n';
 
 export function entitySkeletonHtml(kind: string, head: string, body: string, top = '') {
-  const square = kind === 'studio' || kind === 'agency';
+  const square = !isPersonEntity(kind);
   const params = new URLSearchParams(location.search);
   const folders = params.get('browse') === 'folders' || !!params.get('folder');
   const content = folders ? `<div class="peach-react entity-folder-workspace" data-folder-workspace data-folder-browse><aside data-folder-tree-host><div class="flex flex-col gap-3"><span class="skeleton ui-configuration-skeleton-input"></span>${'<span class="skeleton" style="width:75%;height:32px"></span>'.repeat(8)}</div></aside><div class="min-w-0"><div data-folder-header-host><span class="skeleton" style="width:160px;height:32px"></span></div>${body}</div></div>` : body;

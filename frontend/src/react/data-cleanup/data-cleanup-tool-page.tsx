@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { errorMessage } from '../../api';
 import type { CleanupToolKey } from '../../cleanup-tools';
 import type { DataCleanupProps } from '../bundle';
 import type { WriterAccess } from '../router/shell-actions';
 import { Page } from '../components/page';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
-import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { MediaRepairCard } from '../media-repair/media-repair-card';
 import { fetchMediaSources, MEDIA_SOURCES_KEY } from '../media-sources';
 import { LinkManager } from './link-manager';
@@ -18,7 +17,7 @@ import { t } from '../../i18n';
 
 function ResourceSyncPage({ toast, writeAccess }: Pick<DataCleanupProps, 'toast'> & { writeAccess?: WriterAccess }) {
   const sources = useQuery({ queryKey: MEDIA_SOURCES_KEY, queryFn: ({ signal }) => fetchMediaSources(signal) });
-  if (sources.isError) return <Note tone="error" title={t('cleanup:resourceSync.storageLoadFailed')}>{errorMessage(sources.error)}</Note>;
+  if (sources.isError) return <QueryErrorNote titleKey="cleanup:resourceSync.storageLoadFailed" query={sources} />;
   if (sources.isPending) return <p role="status">{t('cleanup:resourceSync.storageLoading')}</p>;
   return hasResourceRoots(sources.data) ? <ResourceSyncCard toast={toast} writeAccess={writeAccess} />
     : <Fieldset layout="stack" label={t('cleanup:tools.resourceSync')}><FieldsetTitle>{t('cleanup:tools.resourceSync')}</FieldsetTitle>

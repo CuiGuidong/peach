@@ -20,7 +20,7 @@ import { MEDIA_SOURCE_ICONS } from '@peach/legacy/ui';
 import { settingsPath } from '@peach/history';
 import { ButtonLink } from '@/components/base/buttons/button';
 
-import { errorMessage } from '../../api';
+import { statsSkeleton } from '../../management-skeletons';
 import type { StatsProps } from '../bundle';
 import { BarCard } from '../charts/bar-card';
 import { CHART_COLORS } from '../charts/chart-card';
@@ -28,7 +28,7 @@ import { ActivityHeat } from '../charts/heat-card';
 import { cardClass } from '../components/card';
 import { EmptyState } from '../components/empty-state';
 import { ExpandableRanking } from '../components/expandable-ranking';
-import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { ConnectionStatus } from '../components/connection-status';
 import { StatusLabel } from '../components/status-label';
 import { Page } from '../components/page';
@@ -336,7 +336,8 @@ export function StatsPage(props: StatsProps) {
   if (!data) {
     return (
       <Page>
-        <Note tone="error" title={t('manage:stats.loadFailedTitle')}>{stats.error ? errorMessage(stats.error) : t('manage:stats.loadFailedHint')}</Note>
+        {stats.isPending ? <div data-skeleton="" dangerouslySetInnerHTML={{ __html: statsSkeleton() }} />
+          : <QueryErrorNote titleKey="manage:stats.loadFailedTitle" query={stats} />}
       </Page>
     );
   }
@@ -349,6 +350,7 @@ export function StatsPage(props: StatsProps) {
   const showBreakdowns = videos > 0 || data.top_tags.length > 0 || data.recent.length > 0 || data.tag_source.length > 0;
   return (
     <Page>
+      {stats.error ? <QueryErrorNote titleKey="manage:stats.loadFailedTitle" query={stats} /> : null}
       <Tabs defaultSelectedKey="inventory" className="flex flex-col gap-4">
         <TabList aria-label={t('manage:stats.viewsLabel')} className={STAT_STRIP}>
           <MetricTab id="inventory" label={t('manage:statsSkeleton.collection')} icon={RiDatabase2Line} accent={0}

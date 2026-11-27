@@ -4,8 +4,7 @@ import { ButtonLink } from '@/components/base/buttons/button';
 import type { ConfigurationGroupProps } from '../bundle';
 import { Credentials } from '../follow-manage/credentials';
 import { fetchCredentials, FOLLOW_CREDENTIALS_KEY } from '../follow-manage/follow-manage';
-import { Note } from '../components/note';
-import { errorMessage } from '../../api';
+import { QueryErrorNote } from '../components/query-error-note';
 import { credentialsSkeleton } from '../../configuration-skeleton';
 import { ConfigurationContents } from './configuration-contents';
 import { EntryLinksForm } from './entry-links-settings';
@@ -28,7 +27,7 @@ export function SourceSettings({ data, receipt, active, issues }: ConfigurationG
         {credentials.data
           ? <Credentials data={credentials.data} readOnly={Boolean(data.ledger_read_only)} toast={receipt} embedded />
           : credentials.error
-            ? <Note tone="error" title={t('settings:sourceSettings.credentialsFailed')}>{errorMessage(credentials.error)}</Note>
+            ? <QueryErrorNote titleKey="settings:sourceSettings.credentialsFailed" query={credentials} />
             : active ? <SectionSkeleton label={t('settings:sourceSettings.loadingCredentials')} html={credentialsSkeleton} /> : null}
       </> },
       { id: 'sources-follow-fetch', label: t('settings:followFetch.title'), content: <FollowPreferenceRows receipt={receipt} /> },

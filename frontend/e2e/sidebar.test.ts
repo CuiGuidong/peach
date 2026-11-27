@@ -479,7 +479,7 @@ describe('侧栏岛', () => {
     const opened = await visit(browser, '/', DESKTOP);
     const { page } = opened;
     try {
-      await expectBody(page, '首页', [page.locator('#drawer.open [data-sidebar-nav] [aria-pressed="true"]')]);
+      await expectBody(page, '首页', [page.locator('#drawer.open [data-sidebar-nav] [aria-current="page"]')]);
       await page.locator('#drawer [data-sidebar-group]').first().waitFor({ state: 'attached', timeout: 15_000 });
       await settle(page);
       await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -499,7 +499,7 @@ describe('侧栏岛', () => {
           const started = seen.size;
           await Promise.all([...seen].map((animation) => animation.finished));
           const now = document.querySelector('#drawer > [data-sidebar-glide]') as (HTMLElement & { __mark?: boolean }) | null;
-          const pressed = document.querySelector<HTMLElement>('#drawer [data-sidebar-nav] [aria-pressed="true"]')!;
+          const pressed = document.querySelector<HTMLElement>('#drawer [data-sidebar-nav] [aria-current="page"]')!;
           return {
             same: !!now?.__mark, started, cancelled, to: now!.getBoundingClientRect().top,
             pressedKey: pressed.dataset.nav, pressedTop: pressed.getBoundingClientRect().top,
@@ -541,7 +541,7 @@ describe('侧栏岛', () => {
       await page.locator('#filterBtn').tap();
       await page.waitForFunction(() => document.querySelector('#drawer')?.classList.contains('open'));
       const shown = await state();
-      assert.deepEqual([shown.inert, shown.expanded, shown.scrim, shown.left], [false, 'true', 'block', 12], '点开之后抽屉没有盖进来');
+      assert.deepEqual([shown.inert, shown.expanded, shown.scrim, shown.left], [false, 'true', 'block', 8], '点开之后抽屉没有盖进来');
 
       assert.equal(await page.evaluate(() => document.elementFromPoint(370, 420)?.id), 'scrim', '抽屉右边那一截点到的不是遮罩');
       await page.mouse.click(370, 420);

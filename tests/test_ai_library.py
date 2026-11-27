@@ -222,6 +222,25 @@ class AILibraryTests(unittest.TestCase):
             self.assertEqual(ai_usage.account_usage(self.state, "openai-oauth", 30), {"kind": "subscription"})
             self.assertEqual(ai_usage.account_usage(self.state, "openai", 30), {"kind": "admin_required"})
 
+    def test_account_usage_classifies_connection_timeout_and_http_error(self):
+        def timeout(request):
+            raise httpx.ReadTimeout("fixture timeout", request=request)
+
+        def connection(request):
+            raise httpx.ConnectError("fixture connection error", request=request)
+
+        def denied(_request):
+            return httpx.Response(429, text="fixture response must stay private")
+
+        for transport, expected in (
+            (timeout, {"kind": "unavailable", "reason": "timeout"}),
+            (connection, {"kind": "unavailable", "reason": "connection"}),
+            (denied, {"kind": "unavailable", "reason": "status", "status": 429}),
+        ):
+            with self.subTest(expected=expected), httpx.Client(transport=httpx.MockTransport(transport)) as client:
+                self.state.http_transport.client = client
+                self.assertEqual(ai_usage.account_usage(self.state, "deepseek", 30), expected)
+
     def suggest(self, task, value):
         with patch.object(web_ai_library, "infer", return_value=InferenceResult("fixture-model", value)) as infer:
             result = web_ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": task, "language": "zh-TW"})
@@ -312,7 +331,7 @@ class AILibraryTests(unittest.TestCase):
     def test_open_access_ai_settings_allow_the_host_and_reject_another_lan_device(self):
         from fastapi import HTTPException, Request, Response
         from ipaddress import IPv4Address
-        from peach import access, routes_api
+        from peach import access, routes_api, routes_pages
 
         self.state.settings.access_path = self.root / "secrets" / "access.json"
         self.state.settings.mdns_name = "peach-fixture"
@@ -333,7 +352,16 @@ class AILibraryTests(unittest.TestCase):
         for host in (mdns_address, host_address):
             with self.subTest(host=host):
                 local = request(host_address, host=host)
-                self.assertTrue(routes_api.ai_connections(local, Response())["settings_editable"])
+                connections = routes_api.ai_connections(local, Response())
+                self.assertTrue(connections["settings_editable"])
+                subscription = next(row for row in connections["providers"] if row["id"] == "openai-oauth")
+                self.assertEqual(subscription["status"], "disconnected")
+                with patch.object(routes_api.ai_openai_oauth, "start", return_value={"status": "pending"}) as start:
+                    self.assertEqual(routes_api.ai_openai_sign_in(local, {})["status"], "pending")
+                self.assertEqual(start.call_args.kwargs["result_url"], f"https://{host}/settings/ai/authorization")
+                with patch.object(routes_pages.ai_openai_oauth, "status", return_value={"status": "error", "error": "expired"}):
+                    receipt = routes_pages.ai_authorization_result(request(host_address, host=host, site="cross-site"))
+                self.assertEqual(receipt.status_code, 200)
                 self.assertIn("defaults", routes_api.ai_prompt_settings(local, Response()))
                 self.assertIn("tasks", routes_api.ai_fixed_tasks(local, Response(), edit=True))
                 self.assertIn("rows", routes_api.ai_usage_summary(local, days=30))
@@ -343,6 +371,14 @@ class AILibraryTests(unittest.TestCase):
             routes_api.ai_connections(remote, Response())
         self.assertEqual(denied.exception.status_code, 403)
         self.assertEqual(denied.exception.detail["message_code"], "api.aiLibrary.lanSignIn")
+        with patch.object(routes_api, "authenticated_client", return_value=True):
+            self.assertFalse(any(row["id"] == "openai-oauth" for row in routes_api.ai_connections(remote, Response())["providers"]))
+            with self.assertRaises(HTTPException) as denied:
+                routes_api.ai_openai_sign_in(remote, {})
+            self.assertEqual(denied.exception.detail["message_code"], "api.configuration.openOnHost")
+            with self.assertRaises(HTTPException) as denied_receipt:
+                routes_pages.ai_authorization_result(remote)
+            self.assertEqual(denied_receipt.exception.status_code, 404)
         with self.assertRaises(HTTPException) as cross_site:
             routes_api.ai_connections(request(host_address, site="cross-site"), Response())
         self.assertEqual(cross_site.exception.detail["message_code"], "api.auth.submitFromSettings")
@@ -552,7 +588,8 @@ class AILibraryTests(unittest.TestCase):
             request("catalog example", None, None, instructions="Translate")
             self.assertEqual(infer.call_args.kwargs["base_url"], base)
         with patch.object(ai_usage, "_deepseek_balance") as balance:
-            self.assertEqual(ai_usage.account_usage(self.state, "deepseek", 30), {"kind": "unavailable"})
+            self.assertEqual(ai_usage.account_usage(self.state, "deepseek", 30),
+                             {"kind": "unavailable", "reason": "custom_endpoint"})
             balance.assert_not_called()
         with self.assertRaises(UserValueError) as raised:
             web_ai_library.configure(self.state, {"provider": "deepseek", "model": "deepseek-flash", "base_url": ""})

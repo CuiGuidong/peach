@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SettingsRow } from '@/components/application/settings/settings-rows';
-import { Button } from '@/components/base/buttons/button';
+import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { Select, SelectItem } from '@/components/base/select/select';
 import { Switch } from '@/components/base/switch/switch';
 import { apiGet, apiSend, errorMessage } from '../../api';
 import { javBrowserSkeleton, rememberShape } from '../../configuration-skeleton';
 import { SourceLabel } from '../components/source-label';
+import { QueryErrorNote } from '../components/query-error-note';
 import { ErrorText, FieldLabel, Footer, Help, Section, SectionSkeleton, Stack } from './section';
 import { busyProps, useAction } from './use-action';
 import { UserscriptStatus } from './userscript-status';
@@ -25,9 +26,12 @@ interface State {
 export function JavBrowserSettings({ receipt, refreshKey }: { receipt(message: string): void; refreshKey: string }) {
   const query = useQuery({ queryKey: ['jav-browser-settings', refreshKey],
     queryFn: ({ signal }) => apiGet<State>(URL, signal), refetchOnMount: 'always', refetchOnWindowFocus: 'always' });
-  if (query.error && !query.data) return <ErrorText>{errorMessage(query.error)}</ErrorText>;
+  if (query.error && !query.data) return <QueryErrorNote titleKey="settings:browserAdd.loadFailed" query={query} />;
   if (query.isFetching && !query.data) return <SectionSkeleton label={t('settings:browserAdd.loading')} html={javBrowserSkeleton} />;
-  return query.data ? <BrowserForm initial={query.data} receipt={receipt} /> : null;
+  return query.data ? <>
+    {query.error ? <QueryErrorNote titleKey="settings:browserAdd.loadFailed" query={query} /> : null}
+    <BrowserForm initial={query.data} receipt={receipt} />
+  </> : null;
 }
 
 function BrowserForm({ initial, receipt }: { initial: State; receipt(message: string): void }) {
@@ -73,7 +77,12 @@ function BrowserForm({ initial, receipt }: { initial: State; receipt(message: st
           <SourceLabel source={item.key} label={item.label} />
         </SelectItem>)}
       </Select></div>
-      {!ready ? <Help>{t('settings:browserAdd.needsCloudDrive')}</Help> : null}
+      {!ready ? <div className="flex flex-wrap items-center gap-2">
+        <Help>{t('settings:browserAdd.needsCloudDrive')}</Help>
+        <ButtonLink href="/settings/downloads" variant="secondary" size="small">
+          <span data-copy-key="shell.downloadChannels.settingsLink">{t('shell:downloadChannels.settingsLink')}</span>
+        </ButtonLink>
+      </div> : null}
       {state.problems?.map(problem => <Help key={problem}>{problem}</Help>)}
       {state.enabled && state.active_provider && !state.providers.some(item => item.key === state.active_provider)
         ? <Help>{t('settings:browserAdd.channelUnavailable')}</Help> : null}

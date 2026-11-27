@@ -271,15 +271,15 @@
     "connectedTitle": "ChatGPT plan connected",
     "connectedHelp": "Returning to AI Connections, where you can choose a model.",
     "permissionTitle": "ChatGPT plan usage permission needed",
-    "permissionHelp": "Returning to AI Connections, where you can grant permission.",
     "errorTitle": "ChatGPT authorization incomplete",
-    "errorHelp": "Returning to AI Connections, where you can try again.",
     "return": "Back to AI Connections"
   },
   "errorPage": {
     "conflict": "Can't do that right now",
     "forbidden": "Can't open this page",
     "generic": "Something went wrong",
+    "surfaceFailed": "Part of this page could not be displayed. Reload the page to try again.",
+    "surfaceReload": "Reload page",
     "goHome": "Back to Home",
     "notFound": "404"
   },
@@ -389,7 +389,7 @@
   },
   "errorReport": {
     "appUnmounted": "App unmounted",
-    "browserSnapshot": "Browser environment snapshot",
+    "browserSnapshot": "Browser environment details",
     "cleanupIncomplete": "Some app resources weren't cleaned up",
     "hostMissing": "Main view host element is missing",
     "mediaPlaybackFailed": "Media playback failed ({{code}})",
@@ -656,7 +656,7 @@
     "badRequest": "The submitted data is invalid. Check your input and try again.",
     "clientTimeout": "Timed out waiting for the service. Check your connection and try again.",
     "conflict": "This action isn't allowed right now. Refresh and try again.",
-    "fallback": "The action didn't finish. Try again; if it keeps failing, check the Peach log.",
+    "fallback": "No specific cause was reported. Try again. If it keeps failing, check the Peach log.",
     "forbidden": "This device isn't allowed to do this. Use the device running Peach.",
     "gatewayTimeout": "Timed out waiting for the service. Try again later.",
     "notFound": "The requested item no longer exists. Refresh the list.",
@@ -1116,7 +1116,7 @@
     "relativePath": "Location in the directory"
   },
   "bulkAction": {
-    "canUndo": " You can undo this from the receipt.",
+    "canUndo": " You can undo this in the completion notification.",
     "cannotUndo": " This can't be undone."
   }
 }

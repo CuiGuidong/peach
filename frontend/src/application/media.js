@@ -255,7 +255,7 @@ mediaState.itemDetailActions = {
     if(queue)void openQueue(queue.kind,queue.filterId??queue.playlistId??queue.seedId,it.id,false);
     else void openItem(it.id,false);
   },
-  checkSource:async key=>(await loadSourceStatus())[key]!==false,
+  checkSource:async key=>(await loadSourceStatus(true))[key]??null,
   /* 直接进「已保存」这一档。关注页的筛选照地址推导，所以状态要先写进地址，光设全局会被推回未看。 */
   openSavedFollow:()=>{
     followState.followAuthors=new Set();followState.followProviders=new Set();followState.followTags=new Set();followState.followWorks=new Set();followState.followMediaView='videos';

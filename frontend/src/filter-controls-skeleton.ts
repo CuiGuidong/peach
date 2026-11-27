@@ -51,7 +51,7 @@ export function sortKeysSkeletonHtml(sorts: readonly EntitySortKey[], group: Sor
     if (field) return filterDropdownSkeletonHtml(field.id, field.label);
     const sort = sorts.find(item => item.key === key);
     if (!sort || preference.hidden.includes(key)) return '';
-    return `<button type="button" data-entity-sort="${esc(key)}" aria-pressed="${sort.pressed}" ${FILTER_WAITING}>${esc(sort.label)}${sort.pressed && sort.dir ? icon(sort.dir === 'asc' ? 'arrow-up' : 'arrow-down') : ''}</button>`;
+    return `<button type="button" data-entity-sort="${esc(key)}" data-sort-current="${sort.pressed}" ${FILTER_WAITING}>${esc(sort.label)}${sort.pressed && sort.dir ? icon(sort.dir === 'asc' ? 'arrow-up' : 'arrow-down') : ''}</button>`;
   }).join('');
   return `<span data-sort-controls="${group}"${fields.length ? ' data-filter-fields' : ''}>${buttons}</span>`
     + `<button type="button" data-filter-action="" data-sort-settings="${group}" aria-label="${t('catalog:sortControls.customize')}" ${FILTER_WAITING}>${icon('ellipsis')}</button>`;

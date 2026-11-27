@@ -88,13 +88,16 @@ const escape = (value: string) => value.replace(/[&<>"']/g, (char) =>
 const glyph = (name: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${escape(name)}"/></svg>`;
 
 /** 启动骨架：与岛同一份结构，岛接手时整块换掉。 */
-export function manageHeaderSkeletonHtml(props: ManageHeaderProps): string {
+export function manageHeaderSkeletonHtml(props: ManageHeaderProps, hrefFor?: (key: string) => string): string {
   const view = manageHeaderView(props);
   if (!view) return '';
   const menu = props.menu.map(([key, label, mark]) => {
     const on = key === view.pressed;
-    return `<button type="button" data-manage="${escape(key)}" aria-label="${escape(label)}" aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight" data-pill-variant="gray" aria-pressed="${on}"${on ? ' aria-current="page" data-pill-selected=""' : ''}>`
-      + `${glyph(mark)}<span>${escape(label)}</span></button>`;
+    const href = hrefFor?.(key);
+    const tag = href ? 'a' : 'button';
+    const action = href ? `href="${escape(href)}"` : `type="button" aria-pressed="${on}"`;
+    return `<${tag} ${action} data-manage="${escape(key)}" aria-label="${escape(label)}" aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight" data-pill-variant="gray"${on ? ' aria-current="page" data-pill-selected=""' : ''}>`
+      + `${glyph(mark)}<span>${escape(label)}</span></${tag}>`;
   }).join('');
   const crumb = view.crumb
     ? `<nav data-manage-crumb="" aria-label="${escape(t('manage:manageHeader.breadcrumbLabel'))}"><ol><li><a href="${escape(view.parent.href)}">${escape(view.parent.label)}</a>${glyph('chevron-right')}</li>`

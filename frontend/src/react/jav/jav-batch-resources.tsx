@@ -2,9 +2,9 @@ import { Heading } from 'react-aria-components';
 import { useQuery } from '@tanstack/react-query';
 import { RiCloseLine } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
-import { apiGet, errorMessage } from '../../api';
+import { apiGet } from '../../api';
 import { ModalFrame } from '../components/modal-frame';
-import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { WantMagnets } from '../wants/want-magnets';
 import { DOWNLOADS_KEY, DOWNLOADS_URL } from '../activity/downloads-panel';
 import type { DownloadsSnapshot } from '../bundle';
@@ -23,7 +23,7 @@ export function JavBatchResources({ items, close, readOnly, receipt }: {
       <Button iconOnly variant="ghost" leadingIcon={RiCloseLine} aria-label={t('catalog:javBatch.close')} onClick={close} />
     </div>
     <div className="flex min-w-0 flex-col gap-6 p-5">
-      {downloads.error ? <Note tone="error">{t('catalog:javBatch.downloadSettingsFailed', { error: errorMessage(downloads.error) })}</Note> : null}
+      {downloads.error ? <QueryErrorNote titleKey="manage:cloudDownloadDialog.settingsLoadFailed" query={downloads} /> : null}
       {items?.map(item => <section key={item.code} aria-label={item.code} className="flex min-w-0 flex-col gap-2">
         <h3 className="text-headline-medium text-text-primary">{item.code}</h3>
         {item.title ? <p className="text-body-2-regular text-text-secondary">{item.title}</p> : null}

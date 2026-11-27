@@ -21,9 +21,10 @@ const REACT_IMPORT_TIMEOUT_MS = 30_000;
 beforeAll(async () => { await import('../../src/react/router/router') }, REACT_IMPORT_TIMEOUT_MS);
 
 const pages = vi.hoisted(() => ({
-  feedBroken: false, junkBroken: false, feedPrefetchFails: false,
+  feedBroken: false, junkBroken: false, feedPrefetchFails: false, notice: vi.fn(),
 }));
 
+vi.mock('../../src/react/toaster', () => ({ showToast: pages.notice }));
 vi.mock('../../src/react/feed-new/feed-new-page', () => ({
   FeedNewPage: () => {
     if (pages.feedBroken) throw new Error('新作行画不出来');
@@ -57,6 +58,7 @@ afterEach(async () => {
   for (const unmount of unmounts.splice(0)) await act(async () => { unmount() });
   document.body.innerHTML = '';
   Object.assign(pages, { feedBroken: false, junkBroken: false, feedPrefetchFails: false });
+  pages.notice.mockClear();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -172,6 +174,9 @@ it('页面内组件渲染抛错：只空那一面、撤掉登记、上报一次�
   expect(tree.querySelector('[data-marker]'), '整棵树没卸').not.toBeNull();
   expect(reported).toHaveBeenCalledTimes(1);
   expect(reported).toHaveBeenCalledWith(expect.objectContaining({ message: '新作行画不出来' }));
+  expect(pages.notice).toHaveBeenCalledWith('managed-surface-error', expect.objectContaining({
+    alert: true, timeout: Infinity, action: expect.objectContaining({ label: '刷新页面' }),
+  }));
 });
 
 it('抛错之后推补丁是空操作；壳每重开一次再报一次，换成好页面就画上', async () => {

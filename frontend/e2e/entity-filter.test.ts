@@ -199,8 +199,8 @@ describe('实体页筛选浮层', () => {
       stubs.hold();
       await page.locator('[data-entity-sort="rating"]').click();
       await page.locator('[data-sort-direction-menu] [data-filter-option="desc"]').click();
-      assert.equal(await page.locator('[data-entity-sort="rating"]').getAttribute('aria-pressed'), 'true');
-      assert.equal(await page.locator('[data-entity-sort="new"]').getAttribute('aria-pressed'), 'false');
+      assert.equal(await page.locator('[data-entity-sort="rating"]').getAttribute('data-sort-current'), 'true');
+      assert.equal(await page.locator('[data-entity-sort="new"]').getAttribute('data-sort-current'), 'false');
       const visibleArrows = await page.locator('[data-entity-sort="rating"] [data-icon-swap] svg').evaluateAll(nodes =>
         nodes.filter(node => getComputedStyle(node.closest('[data-icon]') || node).opacity === '1').length);
       assert.equal(visibleArrows, 1, '选中的排序键应显示一个方向');

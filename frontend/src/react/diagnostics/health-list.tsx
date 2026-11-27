@@ -9,6 +9,7 @@ import { EmptyState } from '../components/empty-state';
 import { ItemLibrary } from '../components/library-label';
 import { useLibraryTints } from '../components/library-tint';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { Disclosure, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import { DIAGNOSTICS_KEY, type LibraryGroup, type LibraryItem } from './diagnostics';
@@ -88,7 +89,7 @@ export function HealthList({ group: original, groupKey, openItem, receipt }: {
           {ignored ? t('manage:healthList.showActive') : t('manage:healthList.showIgnored', { count: original.ignored_count })}
         </Button> : null}
         {action.error ? <Note tone="error">{action.error}</Note> : null}
-        {query.isError ? <Note tone="error">{String(query.error)}</Note> : null}
+        {query.isError ? <QueryErrorNote titleKey="manage:healthList.loadFailed" query={query} /> : null}
         {!group.items.length && !query.isFetching && encoded === '{}' && !query.isError
           ? <EmptyState icon={RiFileListLine} title={t(ignored ? 'manage:healthList.noIgnored' : 'manage:healthList.emptyTitle')}
             size="compact">{ignored ? null : t('manage:healthList.emptyBody')}</EmptyState>
@@ -101,7 +102,7 @@ export function HealthList({ group: original, groupKey, openItem, receipt }: {
             onClick={() => copy(group.items)}>{t('manage:healthList.copyList')}</Button>
         </div>
         {action.error ? <Note tone="error">{action.error}</Note> : null}
-        {query.isError ? <Note tone="error">{String(query.error)}</Note> : null}
+        {query.isError ? <QueryErrorNote titleKey="manage:healthList.loadFailed" query={query} /> : null}
         <DataTable preferenceId={`diagnostics-health-${groupKey}`} label={label} title={t('manage:healthList.tableTitle')} unit={t('manage:healthList.tableUnit')} panel={false}
           busy={query.isFetching}
           filters={{ values: filters, facets: group.column_facets ?? {}, onChange: setFilters }}

@@ -39,6 +39,18 @@ class MetadataProviderTests(unittest.TestCase):
         self.assertEqual(fields["tags"]["unmapped_genres"], ["未知类别甲", "未知类别乙"])
         self.assertTrue(fields["tags"]["warnings"])
 
+    def test_source_tag_mode_preserves_source_words_and_keeps_exclusions(self):
+        payload = {"genres": ["足フェチ", "Foot Fetish", "未知类别", "4K", "不收录", "足フェチ"]}
+        decisions = {"不收录": None}
+        curated = extract_peach_fields(payload, decisions)["tags"]
+        self.assertEqual(curated["value"], ["恋足"])
+        self.assertEqual(curated["unmapped_genres"], ["未知类别"])
+        original = extract_peach_fields(payload, decisions, source_tags=True)["tags"]
+        self.assertEqual(original["value"], ["足フェチ", "Foot Fetish", "未知类别"])
+        self.assertEqual(original["unmapped_genres"], [])
+        self.assertEqual(original["warnings"], [])
+        self.assertTrue(original["source_tags_original"])
+
     def test_the_gate_rejects_paths_and_urls(self):
         for unsafe in ("/media/IPX-535.mp4", r"R:\media\IPX-535.mp4", "https://x/IPX-535"):
             with self.subTest(unsafe=unsafe), self.assertRaises(ValueError):

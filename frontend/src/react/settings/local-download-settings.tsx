@@ -3,7 +3,8 @@
  * Peach 与 qBittorrent 可以不同机：这里只填下载器地址、账号和「下载器保存目录 →
  * Peach 媒体库目录」的映射。下载完成后由服务端按这张映射登记，Peach 通过本地挂载或
  * SMB 或 WebDAV 盘符读取同一个目录。密码只往本机凭据文件写，读接口只回「存没存过」。 */
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { spinnerHtml } from '@peach/legacy/ui';
 
 import { Button } from '@/components/base/buttons/button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
@@ -51,6 +52,7 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
   const localRoots = state.local_roots ?? [];
   const [address, setAddress] = useState(saved.address);
   const [savePath, setSavePath] = useState(saved.save_path);
+  const savePathRevision = useRef(0);
   const [mediaRoot, setMediaRoot] = useState(saved.media_root);
   const [username, setUsername] = useState(saved.username);
   const [password, setPassword] = useState('');
@@ -61,6 +63,7 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
 
   useEffect(() => {
     setAddress(saved.address);
+    savePathRevision.current++;
     setSavePath(saved.save_path);
     setMediaRoot(saved.media_root);
     setUsername(saved.username);
@@ -77,10 +80,11 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
   };
 
   const check = () => {
+    const revision = savePathRevision.current;
     void action.run('check', (signal) => apiSend<QbittorrentCheckReport>(
       CHECK_URL, body, 'POST', signal), (next) => {
       setReport(next);
-      if (!savePath.trim() && next.save_path) setSavePath(next.save_path);
+      if (revision === savePathRevision.current && !savePath.trim() && next.save_path) setSavePath(next.save_path);
       setFailure('');
       if (next.ok) checked(t('settings:connectionCheck.passed', { service: 'qBittorrent' }));
       else checkFailed(connection, reportProblems(next)[0] || t('settings:connectionCheck.details'));
@@ -125,7 +129,7 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
           onChange={setClearPassword}>{t('settings:localDownload.clearPassword')}</Checkbox> : null}
         <Input label={t('settings:localDownload.savePath')} placeholder={t('settings:localDownload.savePathPlaceholder')}
           autoComplete="off" maxLength={500} value={savePath} isDisabled={!state.available}
-          hint={t('settings:localDownload.savePathHint')} onChange={setSavePath} />
+          hint={t('settings:localDownload.savePathHint')} onChange={value => { savePathRevision.current++; setSavePath(value) }} />
         <div className="flex flex-col gap-1">
           <FieldLabel>{t('settings:localDownload.mediaRoot')}</FieldLabel>
           {localRoots.length ? (
@@ -159,10 +163,15 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
         </Stack>
       ) : null}
       <Footer status={state.available ? undefined : t('settings:cloudDownload.primaryOnly')}>
-        <Button type="button" variant="secondary" disabled={!state.available || Boolean(action.busy)}
-          {...busyProps(action.busy === 'check')} onClick={check}>{t('settings:cloudDownload.testConnection')}</Button>
-        <Button type="submit" disabled={!state.available || Boolean(action.busy)}
-          {...busyProps(action.busy === 'save')}>{t('settings:shared.saveSettings')}</Button>
+        <Button type="button" variant="secondary" disabled={!state.available || action.busy === 'save'}
+          {...busyProps(action.busy === 'check')} onClick={check}>
+          {action.busy === 'check' ? <span aria-hidden dangerouslySetInnerHTML={{ __html: spinnerHtml() }} /> : null}
+          {t('settings:cloudDownload.testConnection')}
+        </Button>
+        <Button type="submit" disabled={!state.available || action.busy === 'check'} {...busyProps(action.busy === 'save')}>
+          {action.busy === 'save' ? <span aria-hidden dangerouslySetInnerHTML={{ __html: spinnerHtml() }} /> : null}
+          {t('settings:shared.saveSettings')}
+        </Button>
       </Footer>
     </Section>
   );

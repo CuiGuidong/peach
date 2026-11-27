@@ -152,7 +152,7 @@ describe('库外 JAV 作品详情', () => {
         assert.ok(spacing.before >= 16 && Math.abs(spacing.before - spacing.after) < 1, JSON.stringify(spacing));
         await page.locator('[data-jav-preview-toggle]').click();
         const preview = page.locator('[data-jav-video]');
-        const failure = preview.getByRole('note');
+        const failure = preview.getByRole('alert');
         await failure.waitFor();
         assert.equal(await preview.locator('.video-js, video').count(), 0, '失败后移除播放器及其加载状态');
         const bounds = await failure.evaluate(node => {
@@ -457,6 +457,7 @@ describe('库外 JAV 作品详情', () => {
         }
         await withPageDiagnostics(page, '展开作品资源列表', async () => {
           await resourcesToggle.click();
+          await page.locator('[data-want-magnets]').scrollIntoViewIfNeeded();
           await page.getByText('EXM-001 示例资源 1', { exact: false }).waitFor({ state: 'visible' });
         });
         assert.equal(await page.locator('[data-jav-resources] [data-resource-protocol]:visible').count(), 3);

@@ -1356,8 +1356,8 @@ def _read_local_posters(jobs, state, *, update, issue, generated_root=None):
     return failed
 
 
-def _fields(payload, genre_decisions=None):
-    fields = extract_peach_fields(payload, genre_decisions)
+def _fields(payload, genre_decisions=None, *, source_tags=False):
+    fields = extract_peach_fields(payload, genre_decisions, source_tags=source_tags)
     evidence = extract_catalog_evidence(payload)
     for key in ('title', 'original_title'):
         if key in evidence:
@@ -1483,6 +1483,8 @@ def _source_candidate(source, document, value, evidence_path, mode):
         candidate['requires_identity_review'] = True
     if value.get('unmapped_genres'):
         candidate['unmapped_genres'] = value['unmapped_genres']
+    if value.get('source_tags_original'):
+        candidate['source_tags_original'] = True
     # `metadata.with_codes` 给显示值与提醒配的 code 一并带上，复核页按它们取当前语言。
     candidate.update({key: value[key] for key in ('display_value_code', 'display_value_params',
                                                   'warning_codes', 'warning_params') if key in value})
@@ -1490,7 +1492,7 @@ def _source_candidate(source, document, value, evidence_path, mode):
 
 
 def _merge_candidates(groups, row, code, source, document, evidence_path, genre_decisions, local_fields=(),
-                      *, verify_existing=False, database=None):
+                      *, verify_existing=False, database=None, source_tags=False):
     """把 `document` 里认得出的字段并进 `groups`：同来源的旧候选换掉，别的来源保留。
 
     NFO 核查保留不同来源的取值；已有值的差异标记为覆盖复核。相同取值不重复生成候选。
@@ -1499,7 +1501,7 @@ def _merge_candidates(groups, row, code, source, document, evidence_path, genre_
     from .metadata_amane import date_identity_confirmed, needs_date_identity
     date_checked = needs_date_identity(source, code) and date_identity_confirmed(
         source, code, document, _dated_studio(_studio_evidence(row)))
-    for field, value in _fields(document, genre_decisions).items():
+    for field, value in _fields(document, genre_decisions, source_tags=source_tags and not local).items():
         key = f"asset:{row['id']}:{field}"
         if field == 'performers':
             value = _previous_order(groups.get(key), source, value)
@@ -1596,10 +1598,11 @@ def _lacks_performers(required, payloads):
         extract_peach_fields(payload).get('performers') for payload in payloads)
 
 
-def _given_fields(entries):
+def _given_fields(entries, *, source_tags=False, genre_decisions=None):
     """这些证据条目一共给出了哪几个非空 Peach 字段。链上何时停手按它判。"""
-    return {field for _, payload, _ in entries
-            for field, value in extract_peach_fields(payload).items() if value}
+    return {field for source, payload, _ in entries
+            for field, value in extract_peach_fields(
+                payload, genre_decisions, source_tags=source_tags and source != 'local_nfo').items() if value}
 
 
 def _confirmed_cast(database, people):
@@ -1924,6 +1927,21 @@ class _RemoteSession:
         self._task_evidence = {}
         self._task_absent = set()
         self._rejected_catalogs = set()
+        self.source_tags = False
+        self.genre_decisions = None
+
+    def configure_tags(self, database, genre_decisions):
+        with database.read_connection() as connection:
+            self.source_tags = read_settings(connection).get('sourceTagsOriginal') is True
+        self.genre_decisions = genre_decisions if self.source_tags else None
+
+    def _published_metadata(self, code):
+        from .seed_catalog import payload as seed_payload
+        published = seed_payload(code)
+        if published and self.source_tags:
+            # 公共种子的标签已归一，原文模式的标签由实际采集来源提供。
+            return {key: value for key, value in published.items() if key != 'genres'}
+        return published
 
     def provider(self):
         if self._provider is None:
@@ -2331,8 +2349,7 @@ class _RemoteSession:
         wants_cast = 'performers' in missing and any(name in metadata_routes.WIKI_STAGE for name in chain)
         results = _MetadataResults(self, code, received)
         if self._consult:
-            from .seed_catalog import payload as seed_payload
-            published = seed_payload(code)
+            published = self._published_metadata(code)
             if published:
                 results.cached([self._evidence('public-seed', code, published)])
                 provided = self._provided(code, results.entries)
@@ -2422,7 +2439,7 @@ class _RemoteSession:
 
     def _provided(self, code, entries):
         from .metadata_alias_resolve import stage_name
-        given = _given_fields(entries)
+        given = _given_fields(entries, source_tags=self.source_tags, genre_decisions=self.genre_decisions)
         if metadata_routes.classify(code) != 'fc2' or 'performers' not in given:
             return given
         for source, payload, _path in entries:
@@ -2448,7 +2465,8 @@ class _RemoteSession:
             _raise_task_failure(error)
             # 链上官方来源这一趟已经给了标签时，JavDB 只是换一批更细的类别；取不到就先用官方标签，
             # 和其他已有标签、不再问 JavDB 的作品一样，不算这部片的问题。
-            settled = 'tags' in _given_fields(entries)
+            settled = 'tags' in _given_fields(
+                entries, source_tags=self.source_tags, genre_decisions=self.genre_decisions)
             if isinstance(error, DeadlineExceeded):
                 self.reset()
                 if not settled:
@@ -4044,6 +4062,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 return state
             rows, genre_decisions = _collection_rows(
                 db_path, locations=locations, online_roots=sources.online_roots, asset_ids=scope_ids)
+            remote.configure_tags(judgement_database, genre_decisions)
             traffic.refresh_plan(rows)
             pending = _processing_workload(config, rows, stage, database, checkpoints.completed['completed_previews'],
                                            allow_metered=allow_metered)
@@ -4089,7 +4108,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 row = _candidate_baseline(database, row, code, verify_existing)
                 for source, document, evidence_path in entries:
                     _merge_candidates(groups, row, code, source, document, evidence_path, genre_decisions,
-                                      local_fields, verify_existing=verify_existing, database=judgement_database)
+                                      local_fields, verify_existing=verify_existing, database=judgement_database,
+                                      source_tags=remote.source_tags)
                 csv_dirty = True
                 selected = [groups[key] for field in LABELS
                             if (key := f"asset:{row['id']}:{field}") in groups]

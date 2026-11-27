@@ -17,7 +17,7 @@ import { errorMessage } from '../../api';
 import { ORPHAN_RECORDS_TEXT } from '../../cleanup-tool-skeletons';
 import { DataTable, type DataColumn } from '../components/data-table';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
-import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { SourceLabel } from '../components/source-label';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { queryClient } from '../query';
@@ -157,7 +157,7 @@ export function OrphanRecordsCard({ toast }: { toast(message: string): void }) {
         {query.isError
           ? <Fieldset layout="stack" labelledBy="orphan-records-title">
               <FieldsetTitle id="orphan-records-title">{t('cleanup:tools.orphanRecords')}</FieldsetTitle>
-              <Note tone="error" title={t('cleanup:orphans.loadFailed')}>{errorMessage(query.error)}</Note>
+              <QueryErrorNote titleKey="cleanup:orphans.loadFailed" query={query} />
             </Fieldset>
           : <DataTable preferenceId="orphan-records" label={t('cleanup:orphans.tableLabel')} items={items} columns={columns}
               contextOperations={contextOperations}

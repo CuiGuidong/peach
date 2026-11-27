@@ -177,8 +177,8 @@ describe('关注详情岛', () => {
     }
   });
 
-  it('深链进详情只单条取这一条，不挂列表岛；内容到了焦点在关闭键上；刷新时只有浮窗里的骨架', { timeout: 60_000 }, async () => {
-    const opened = await openDetail(browser, DETAIL.collection);
+  for (const viewport of VIEWPORTS) it(`关注详情深链单条取数，刷新时弹窗尺寸保持一致（${viewport.name}）`, { timeout: 60_000 }, async () => {
+    const opened = await openDetail(browser, DETAIL.collection, viewport);
     try {
       const page = opened.page;
       assert.equal(await page.locator('[data-follow-feed]').count(), 0, '深链进详情时挂了列表岛');
@@ -200,10 +200,18 @@ describe('关注详情岛', () => {
         await itemWait;
         await route.fallback();
       });
+      const stage = page.locator('#stage[open]');
+      // 进场动画会缩放浮窗，取动画之外的排版尺寸。
+      const frame = () => stage.evaluate(node => {
+        const { offsetLeft, offsetTop, offsetWidth, offsetHeight } = node as HTMLDialogElement;
+        return [offsetLeft, offsetTop, offsetWidth, offsetHeight];
+      });
+      let pendingBounds;
       try {
         await page.reload({ waitUntil: 'load' });
-        const media = page.locator('#stage [data-skeleton="detail"] [data-stage-media]');
+        const media = stage.locator(':scope > [data-skeleton="detail"] [data-stage-media]');
         await media.waitFor();
+        pendingBounds = await frame();
         const box = await media.boundingBox();
         assert.ok(box && box.height > 120, `详情等待画面高度不足：${JSON.stringify(box)}`);
         assert.equal(await page.locator('#stage [data-skeleton="detail"] [data-stage-side-content]')
@@ -214,6 +222,7 @@ describe('关注详情岛', () => {
         releaseItem();
       }
       await page.locator(DETAIL_READY).waitFor({ timeout: 15_000 });
+      assert.deepEqual(await frame(), pendingBounds, '骨架切换到详情后浮窗位置或尺寸发生变化');
       assert.equal(await page.evaluate(() => (window as unknown as { detailSkeletonSeen: { outside: boolean } })
         .detailSkeletonSeen.outside), false, '刷新时浮窗外先画了一份详情骨架');
     } finally {

@@ -348,14 +348,14 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
       {...(selectMode ? undefined : context.touchProps)} onClick={click} onMouseDown={suppressShiftTextSelection}
       onContextMenu={event => context.onContextMenu(event, contextProps)} onKeyDown={event => context.onKeyDown(event, contextProps)}>
       {context.menu}
-      <button type="button" data-media-open="" data-open=""
-        aria-label={t(editions ? 'shell:mediaCard.openEditionsNamed' : parts ? 'shell:mediaCard.openPartsNamed' : 'shell:mediaCard.openDetailsNamed', { name: shownName })} />
+      <button type="button" data-media-open="" data-open="" aria-pressed={selectMode ? selected : undefined}
+        aria-label={t(selectMode ? 'shell:mediaCard.selectNamed' : editions ? 'shell:mediaCard.openEditionsNamed' : parts ? 'shell:mediaCard.openPartsNamed' : 'shell:mediaCard.openDetailsNamed', { name: shownName })} />
       {stacked ? <div data-media-stack="">{pic}</div> : pic}
       <div data-media-meta="">
         {avatar}
         <div data-media-text="">
           {/* 回收站卡的标题按钮从顶上排，两行截断落在里面这一层（见 `media-card.css`）。 */}
-          <button type="button" data-media-title="" data-open=""
+          <button type="button" data-media-title="" data-open="" tabIndex={selectMode ? -1 : undefined}
             dangerouslySetInnerHTML={trash ? undefined : { __html: titleHtml }}>
             {trash ? <span data-media-title-text="" dangerouslySetInnerHTML={{ __html: titleHtml }} /> : null}
           </button>
@@ -418,7 +418,9 @@ function ResourceCard({ item, selected, selectMode, helpers, actions, onOpen }: 
       <div data-media-meta="">
         <span data-media-avatar="" data-media-kind-glyph="" aria-hidden="true"><Icon name={glyph} /></span>
         <div data-media-text="">
-          <span data-media-title="" data-middle-truncate="" title={name}
+          <button type="button" data-media-title="" data-middle-truncate="" title={name}
+            aria-pressed={selectMode ? selected : undefined}
+            aria-label={t(selectMode ? 'shell:mediaCard.selectNamed' : 'shell:mediaCard.openDetailsNamed', { name: name || label })}
             dangerouslySetInnerHTML={{ __html: esc(name || t('shell:mediaCard.untitledResource')) }} />
           <div data-media-byline="">
             <span data-media-who="">{label}</span>

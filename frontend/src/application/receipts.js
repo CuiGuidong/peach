@@ -1,5 +1,5 @@
 /* receipts 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
-import { $, esc, icon, newSeed, seededRank } from '../core';
+import { $, esc, icon, newSeed, requestErrorMessage, seededRank } from '../core';
 import { playUiSound } from '../ui-kit/sounds';
 import { mountToaster, showToast } from '../react/application-residents';
 import { setActionBusy } from '../ui-kit';
@@ -32,13 +32,13 @@ receiptsState.actionReceipt = (message,{undo=null,timeout=undo?8000:6000}={})=>{
     timeout,
     action:undo?{label:t('shell:shared.undo'),run:async()=>{
       try{await undo();item.replaceMessage({text:t('shell:receipt.undone')})}
-      catch(error){item.replaceMessage({text:t('shell:receipt.undoFailed',{message:error.message||t('shell:receipt.tryAgain')})},{warn:true})}
+      catch(error){item.replaceMessage({text:t('shell:receipt.undoFailed',{message:requestErrorMessage(error)})},{warn:true})}
     }}:null,
   });
   return item;
 };
 receiptsState.actionFailure = (message,error)=>receiptsState.toast(
-  {text:t('shell:receipt.actionFailed',{action:message,message:error?.message||t('shell:receipt.tryAgain')})},{warn:true});
+  {text:t('shell:receipt.actionFailed',{action:message,message:requestErrorMessage(error)})},{warn:true});
 receiptsState.rollSeed = ()=>newSeed();
 receiptsState.seededSample = (rows,count,seed,key=row=>row.k)=>{
   if(rows.length<=count)return rows;

@@ -8,6 +8,9 @@ import { CONFIGURATION_SECTIONS, isSettingsSectionPath } from './history/setting
 import { FOLLOW_MANAGE_NAV as FOLLOW_TABS } from './react/follow-manage/manage-route';
 import { t } from './i18n';
 import { orderTableColumns, tableLayoutSnapshot } from './table-column-order';
+import { cardClass } from './react/components/card';
+import { rememberedPageSize } from './react/components/page-size-preferences';
+import { FEED_SOURCE_CARD, FEED_SOURCE_COLUMNS, FEED_SOURCE_FOOTER, FEED_SOURCE_TABLE, rememberedFeedSourceCount } from './react/follow-manage/feed-source-layout';
 
 /** 等待态复用页面容器，只有异步内容使用占位。 */
 const line = (width = '60%') => `<span class="skeleton" style="width:${width}"></span>`;
@@ -78,18 +81,40 @@ const followTable = (rows: number, { sort, dir }: { sort: SortKey; dir: SortDir 
   return `<div data-board-data-table data-follow-table class="follow-skeleton-table"><div class="w-full overflow-x-auto"><table class="bui-table bui-table-sm"><thead><tr>${head}</tr></thead><tbody>${repeat(row, rows)}</tbody></table></div></div>`;
 };
 /** 分页行：条数与页码要等数据，每页几条是这台浏览器的偏好，照最终的字样写出来。 */
-const followPager = (table: boolean, size: number) => `<div class="flex flex-wrap items-center justify-between gap-3"><span class="mr-auto text-body-2-regular text-text-secondary">${text('111px')}</span><div data-toolbar-actions>${islandSelect(t('shell:tablePagination.perPage', { count: size, unit: table ? t('follow:followOverview.itemUnit') : t('follow:followOverview.creatorUnit') }), { size: 'sm' })}${block(204, 32)}</div></div>`;
+const followPager = (unit: string, size: number) => `<div class="flex flex-wrap items-center justify-between gap-3"><span class="mr-auto text-body-2-regular text-text-secondary">${text('111px')}</span><div data-toolbar-actions>${islandSelect(t('shell:tablePagination.perPage', { count: size, unit }), { size: 'sm' })}${block(204, 32)}</div></div>`;
+
+/** 用最近一次成功读取的总数预留订阅表，占位行数随本机分页偏好。 */
+export function feedSourcesSkeleton(): string {
+  const count = rememberedFeedSourceCount() ?? 4;
+  if (count === 0) return '';
+  const size = rememberedPageSize(FEED_SOURCE_TABLE);
+  const { order, visibility = {}, widths = {} } = tableLayoutSnapshot(FEED_SOURCE_TABLE);
+  const columns = orderTableColumns(FEED_SOURCE_COLUMNS, order)
+    .filter(({ id, required }) => required || visibility[id] !== false);
+  const head = columns.map(({ id, label, min, width }) =>
+    `<th style="min-width:${min}px;width:${widths[id] ?? width}px">${id === 'select' ? followCheck() : label}</th>`).join('');
+  const cells: Record<string, string> = {
+    select: followCheck(), name: text('10em'), status: block(48, 24), actions: followRowActions(),
+  };
+  const row = `<tr>${columns.map(({ id }) => `<td>${cells[id] ?? text('5em')}</td>`).join('')}</tr>`;
+  return `<section data-feed-sources-skeleton class="${cardClass({ padding: 'none', className: FEED_SOURCE_CARD })}">
+    <div data-responsive-toolbar><div data-toolbar-heading><h3 class="text-title-2-medium text-text-primary">${t('follow:feedSources.title')}</h3><span class="text-body-2-regular text-text-secondary">${text('132px')}</span></div>
+    <div data-toolbar-actions><div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput(t('follow:feedSources.search'))}</div>${islandButton({ label: t('follow:feedSources.fetchNow'), attrs: WAITING })}${block(36, 36)}${block(36, 36)}</div></div>
+    <div data-board-data-table data-follow-table><div class="w-full overflow-x-clip"><table class="bui-table bui-table-sm"><thead><tr>${head}</tr></thead><tbody>${repeat(row, Math.min(count, size))}</tbody></table></div></div>
+    ${followPager(t('shell:tablePagination.pageUnit'), size)}
+    <footer class="${FEED_SOURCE_FOOTER}"><span class="mr-auto text-body-2-regular text-text-secondary">${text('12em')}</span></footer>
+  </section>`;
+}
 /** 关注列表以外的页签：内容各不相同、要等数据才知道长什么样，只画那张填充卡和几行占位。 */
 const followPanel = () => `<div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface"><h3 class="text-title-2-medium text-text-primary">${text('120px')}</h3>${['72%', '56%', '64%', '40%'].map((width) => `<span class="text-body-medium">${text(width)}</span>`).join('')}</div>`;
 type FollowSkeletonOptions = { followLayout?: string; followPageSize?: number; followSort?: string; followDir?: string; followTab?: string };
 const followList = (options: FollowSkeletonOptions) => {
   const tab = followTabKey(options.followTab);
   if (tab !== 'list') return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${followReadings()}<div class="flex flex-col gap-6">${followTabs(tab)}<div class="flex flex-col gap-4">${followPanel()}</div></div></div></div>`;
-  return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${followReadings()}<div class="flex flex-col gap-6">${followTabs(tab)}<div class="flex flex-col gap-4">${followListSurfaceSkeleton(options)}</div></div></div></div>`;
+  return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${followReadings()}<div class="flex flex-col gap-6">${followTabs(tab)}<div class="flex flex-col gap-4">${feedSourcesSkeleton()}${followListSurfaceSkeleton(options)}</div></div></div></div>`;
 };
 
-/** 关注列表那张填充卡的占位：工具行、创作者卡或表格、分页行。整页骨架与页面里等列表的那一段画的是同一张，
- *  页面接手时版面不翻。 */
+/** 关注列表取数时保留卡面与已有版式偏好。 */
 export function followListSurfaceSkeleton(options: FollowSkeletonOptions = {}): string {
   const table = options.followLayout === 'table';
   const order = resolveFollowSort(options.followSort, options.followDir);
@@ -97,7 +122,7 @@ export function followListSurfaceSkeleton(options: FollowSkeletonOptions = {}): 
   const content = table
     ? followTable(size, order)
     : `${followCheck(t('follow:sourceList.selectPageShort'))}<div class="flex flex-col gap-3">${followAuthor(3)}${followAuthor(4)}${followAuthor(3)}</div>`;
-  return `<div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface" data-layout="${table ? 'table' : 'default'}">${followToolbar({ table, ...order })}${content}${followPager(table, size)}</div>`;
+  return `<div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface" data-layout="${table ? 'table' : 'default'}">${followToolbar({ table, ...order })}${content}${followPager(table ? t('follow:followOverview.itemUnit') : t('follow:followOverview.creatorUnit'), size)}</div>`;
 }
 
 /** 详情骨架外层 `[data-skeleton="detail"]` 里面那一格：舞台岛自己画外层，里面照这一份写。格子与详情栏
@@ -105,6 +130,10 @@ export function followListSurfaceSkeleton(options: FollowSkeletonOptions = {}): 
 export function detailSkeletonBody(): string {
   return `<div data-stage-grid="" aria-hidden="true"><div data-stage-media="" class="ui-skeleton-detail-media skeleton"></div><aside data-stage-side=""><div data-stage-side-content="" class="ui-skeleton-lines">${line('85%')}${line('65%')}${repeat(lines(), 4)}</div></aside></div>`;
 }
+
+/** 首次读取任务列表时预留主区位置。需要处理、已跳过和云下载按各自的结果出现。 */
+export const taskRunSectionsSkeleton = () =>
+  [t('manage:taskCenter.inProgress'), t('manage:taskCenter.recentlyCompleted')].map(title => `<section class="activitysection flex min-w-0 flex-col gap-3"><h3 class="text-title-2-medium text-text-primary">${title}</h3><div class="min-w-0 rounded-2xl shadow-card bg-background-secondary-default"><div class="flex flex-col gap-1.5 px-5 pt-5 pb-4"><span class="text-title-1-medium">${text('8em')}</span><span class="text-caption-1-regular">${text('14em')}</span>${text('60%')}${text('40%')}</div><div class="border-t border-separator-border px-5 py-2.5">${text('6em')}</div></div></section>`).join('');
 
 export function boardPageSkeleton(
   path: string, options: FollowSkeletonOptions = {},
@@ -136,8 +165,7 @@ export function boardPageSkeleton(
   } else if (isSettingsSectionPath(path) && path.split('/')[2]! in CONFIGURATION_SECTIONS) {
     body = configurationSkeleton(CONFIGURATION_SECTIONS[path.split('/')[2] as keyof typeof CONFIGURATION_SECTIONS]);
   } else if (path === '/tasks') {
-    // 「已跳过」只在有被跳过的那一轮时才有，不预留：画上它，没有时「最近完成」会整段往上跳。
-    body = `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${[t('manage:taskCenter.inProgress'), t('manage:taskCenter.recentlyCompleted')].map(title => `<section class="activitysection flex min-w-0 flex-col gap-3"><h3 class="text-title-2-medium text-text-primary">${title}</h3><div class="min-w-0 rounded-2xl shadow-card bg-background-secondary-default"><div class="flex flex-col gap-1.5 px-5 pt-5 pb-4"><span class="text-title-1-medium">${text('8em')}</span><span class="text-caption-1-regular">${text('14em')}</span>${text('60%')}${text('40%')}</div><div class="border-t border-separator-border px-5 py-2.5">${text('6em')}</div></div></section>`).join('')}</div></div>`;
+    body = `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${taskRunSectionsSkeleton()}</div></div>`;
   } else if (path === '/settings/maintenance/repairs') {
     body = repairCenterSkeleton();
   } else if (path === '/duplicates') {

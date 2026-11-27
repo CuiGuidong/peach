@@ -11,6 +11,7 @@ from .related import rank_related
 from .taste_preferences import preference_profile, preference_score
 from .genre_decisions import load_genre_decisions
 from .jav_discovery_metadata import discovery_metadata, source_number
+from .profiles import read_settings
 from .user_messages import UserValueError, message_fields
 from .table_filters import column_filters, in_range
 from .web_state import path_version
@@ -42,11 +43,14 @@ def _external(connection, contract):
     identities = {}
     excluded = entities.male_performer_ids(connection)
     decisions = load_genre_decisions(connection)
+    original_tags = read_settings(connection).get("sourceTagsOriginal") is True
     for row in rows:
         detail = _cached_movie(row["code"], contract)
         row['cover_url'] = discovery_cover_url(row, detail)
         projection = _source_fields(detail, decisions)
         tags = [tag["name"] for tag in projection["tag_refs"]]
+        if original_tags:
+            projection = _source_fields(detail, decisions, original_tags=True)
         row["source_tags"] = projection["tags"]
         row["tag_refs"] = projection["tag_refs"]
         row["source_score"] = source_number(detail.get("score"))
@@ -77,7 +81,7 @@ def _external(connection, contract):
         row["entities"] = features
         features["creator"] = {_identity(connection, "creator", name) for name in actors
                                if entities.resolve_entity(connection, "creator", name)}
-        row["tags"] = tags
+        row["tags"] = [tag["name"] for tag in projection["tag_refs"]] if original_tags else tags
         row["asset_id"] = None
     return rows
 
@@ -269,6 +273,18 @@ def _ranked(contract, scope, sort, descending, limit):
         tables=contract.ledger_tables_except(RANKING_UNREAD_TABLES), allow_stale=False)
 
 
+def _attach_studio_refs(contract, rows):
+    refs = {}
+    for row in rows:
+        studio = row.get("studio")
+        if not studio:
+            continue
+        if studio not in refs:
+            refs[studio] = {"name": studio, "has_logo": contract.has_logo(studio),
+                            "logo_version": contract.logo_version(studio)}
+        row["studio_ref"] = refs[studio]
+
+
 def q_jav_discoveries(contract, args):
     """口味采用 IDF/MMR；只读，资料补齐由 `w_jav_discovery_metadata` 起，进度另有轮询。"""
     scope = "library" if args.get("scope") == "library" else "external"
@@ -301,6 +317,7 @@ def q_jav_discoveries(contract, args):
             row["cover_version"] = contract.cover_version(row["code"])
             row["poster_box"] = contract.poster_box(row["code"])
             row.update(web_feeds.cover_state_fields(states, row["code"]))
+    _attach_studio_refs(contract, picked)
     response = {"scope": scope, "items": picked, "candidate_total": total, "sort": sort,
                 "ranking_method": "mmr" if sort == "taste" else "field-sort",
                 "direction": "asc" if args.get("direction") == "asc" else "desc",
@@ -377,11 +394,9 @@ def q_jav_releases(contract, args):
         picked = shown[(page - 1) * size:page * size]
         wanted = wants.wanted_keys(connection, (web_catalog.normalise_code_key(row["code"]) for row in picked))
     states = feed_followup.cover_states(contract, picked)
+    _attach_studio_refs(contract, picked)
     for row in picked:
         row["wanted"] = web_catalog.normalise_code_key(row["code"]) in wanted
-        if row.get('studio'):
-            row['studio_ref'] = {'name': row['studio'], 'has_logo': contract.has_logo(row['studio']),
-                                 'logo_version': contract.logo_version(row['studio'])}
         row.update(has_cover=contract.has_cover(row["code"]), cover_frame=contract.cover_frame(row["code"]),
                    cover_version=contract.cover_version(row["code"]), poster_box=contract.poster_box(row["code"]),
                    **web_feeds.cover_state_fields(states, row["code"]))

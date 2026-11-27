@@ -34,7 +34,8 @@
   scrollbar-width: none;
 }
 .peach-react [data-catalog-tier]::-webkit-scrollbar { display: none; }
-.peach-react [data-catalog-tier]:last-child { padding-bottom: 4px; }
+/* 横滚渐隐与滚动条挂在同一父级，留白按最后一排行内容计算。 */
+.peach-react [data-catalog-tier]:not(:has(~ [data-catalog-tier])) { padding-bottom: 4px; }
 
 /* 往右翻的时候这几排从侧栏底下穿过去，不在侧栏那条边上被切平：侧栏是一块玻璃，底下有东西在走
  * 才看得出它是透的。左边界仍停在原处，让出去多少宽度就原样加回内边距。窄屏那一档的抽屉是盖上来的，

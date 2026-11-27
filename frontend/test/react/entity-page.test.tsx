@@ -455,6 +455,23 @@ describe('换筛选与视图', () => {
 });
 
 describe('照片墙', () => {
+  it('照片换一批失败时保留当前墙，并能重试获取新一批', async () => {
+    let fail = true;
+    const page = await open({
+      photos: query => query.has('seed') ? (fail ? photos(0, { error: '照片目录读取失败' }) : photos(4)) : photos(3),
+    }, { media: { media: 'photos', set: 0 } });
+    await click(page.props.hosts.filter.querySelector('[data-entity-batch]'));
+    await settle();
+    const body = page.props.hosts.body;
+    expect(body.querySelector('[role="alert"]')?.textContent).toContain('照片目录读取失败');
+    expect(body.querySelectorAll('[data-photo-cell]')).toHaveLength(3);
+    fail = false;
+    await click(body.querySelector('[role="alert"] button'));
+    await settle();
+    expect(body.querySelector('[role="alert"]')).toBeNull();
+    expect(body.querySelectorAll('[data-photo-cell]')).toHaveLength(4);
+  });
+
   it('续页数的是已取回的本地图片，带上回话里的种子；换一批换一粒种子，新墙取到才换上', async () => {
     const page = await open({
       photos: (query) => (query.get('offset') ? photos(2, { has_more: false, seed: 's1' })

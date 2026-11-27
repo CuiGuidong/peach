@@ -253,7 +253,7 @@ html[data-theme-snapshot] [data-settings-panel] :is([data-settings-glide],[data-
 :is([data-settings-panel],[data-modal-kind="collections"]){--settings-card-drop:#0000000d;--settings-error-drop:#0002}
 .dark :is([data-settings-panel],[data-modal-kind="collections"]){--settings-card-drop:#00000080;--settings-error-drop:#0008}
 :is([data-settings-panel] [data-settings-card],.peach-react [data-modal-width="collections"]){box-shadow:0 12px 40px var(--settings-card-drop)}
-[data-settings-panel] [data-settings-card]{border:1px solid var(--line)}
+[data-settings-panel] [data-settings-card]{border:1px solid var(--color-separator-border)}
 [data-settings-panel] [data-settings-nav]{display:flex;gap:4px;overflow-x:auto;flex:none;border-bottom:1px solid var(--line);margin:0 0 24px;padding:0;scrollbar-width:none}
 [data-settings-panel] [data-settings-nav] button{flex:none;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;padding:10px 12px;font-family:inherit;font-size:14px;font-weight:400;line-height:20px;color:var(--ink-2);cursor:pointer;white-space:nowrap}
 [data-settings-panel] [data-settings-nav] button[aria-selected="true"]{border-bottom-color:var(--tungsten);color:var(--tungsten);font-weight:500}
@@ -327,7 +327,7 @@ html[data-theme-snapshot] [data-settings-panel] :is([data-settings-glide],[data-
    `filter:blur(0)`。非 none 的 filter 会另起一个 backdrop root，卡片里任何
    backdrop-filter 从此只采样得到卡片自己的内容——左栏的玻璃于是退化成一块半透明色。
    退场那条仍要 both，它的终点（透明）不是自然状态。 */
-[data-settings-panel] [data-settings-card][data-settings-card]{border:0;animation:board-dialog-in var(--board-dialog-motion) backwards}
+[data-settings-panel] [data-settings-card][data-settings-card]{animation:board-dialog-in var(--board-dialog-motion) backwards}
 [data-settings-panel][data-closing] [data-settings-card][data-settings-card]{animation:board-dialog-out var(--board-dialog-motion) both}
 /* 设置弹层左栏跟左侧抽屉走同一张面：两者是同一件事的两种形态——抽屉是全站导航，
    这一栏是设置内部的导航，抽屉上的液态玻璃没有理由进了弹层就换成一块实色。

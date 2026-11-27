@@ -48,7 +48,7 @@ from .media_libraries import LIBRARY_ICONS
 from .routes_auth import (FIRST_ACCESS_DENIED_CODE, origin_allowed, query_auth_redirect, require_asset_auth,
                           require_page_auth, set_auth_cookie)
 from .user_messages import UserValueError, error_detail, message_fields
-from .web_local_access import local_client, loopback_client
+from .web_local_access import host_ai_client, local_client, loopback_client, private_ai_client
 from .web_entry import field_errors, page_shell, runtime_fact_entries
 from .web_state import FAVICON
 
@@ -1032,14 +1032,16 @@ def management_route_redirect(request: Request, args: dict[str, str] = Depends(r
 
 @router.api_route(ai_openai_oauth.RESULT_PATH, methods=["GET", "HEAD"])
 def ai_authorization_result(request: Request, _args=Depends(require_page_auth)):
-    if not loopback_client(request):
+    if not private_ai_client(request) or not host_ai_client(request):
         raise HTTPException(404, "not found")
     status = ai_openai_oauth.status(request.app.state)
-    outcome = "permission_required" if status.get("error") == "permission_required" else status["status"]
-    editor = "edit" in request.query_params and _copy_editor_available()
+    error_code = status.get("error", "")
+    outcome = "permission_required" if error_code == "permission_required" else status["status"]
+    editor = "edit" in request.query_params and _copy_editor_available() and loopback_client(request)
     language = interface_text.request_language(request.headers.get("accept-language"))
-    html = page_shell("Peach", "ai-authorization", {"status": outcome, "editing": str(editor).lower()},
-                      language=language)
+    html = page_shell("Peach", "ai-authorization", {
+        "status": outcome, "error-code": error_code, "editing": str(editor).lower(),
+    }, language=language)
     if editor:
         html = _with_copy_editor(html)
     return HTMLResponse(html, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})

@@ -13,9 +13,10 @@ import { useQuery } from '@tanstack/react-query';
 import { entityPath, esc, firstGrapheme } from '@peach/legacy/core';
 import { entityFaceImg } from '@peach/card-art';
 
-import { Button } from '@/components/base/buttons/button';
+import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Chip } from '@/components/base/badges/chip';
 import { StatusLabel } from '../components/status-label';
+import { QueryErrorNote } from '../components/query-error-note';
 
 import { errorMessage } from '../../api';
 import { ErrorExcerpt } from '../activity/error-excerpt';
@@ -52,7 +53,6 @@ const GONE_HINT = t('cleanup:links.goneHint');
 /* 这一组大多是站点拒绝程序访问或一次抖动，换个时间再问一次就通了。 */
 const UNCLEAR_HINT = t('cleanup:links.unclearHint');
 const PRUNE_HINT = t('cleanup:links.pruneHint');
-const DISCONNECTED = t('cleanup:shared.reconnecting');
 
 const count = (value: number | undefined) => Number(value || 0).toLocaleString();
 
@@ -201,15 +201,23 @@ export function LinkManager() {
   let progress: ReactNode = null;
   let result: ReactNode = null;
   if (pruned?.status === 'failed') {
-    result = <Note tone="error" title={t('cleanup:links.pruneIncomplete')}>{jobText(pruned, 'error') || t('cleanup:links.checkTaskLog')}</Note>;
+    result = <Note tone="error" title={t('cleanup:links.pruneIncomplete')} action={
+      <ButtonLink href="/tasks" size="small" variant="secondary">
+        <span data-copy-key="shell.routeTitle.tasks">{t('shell:routeTitle.tasks')}</span>
+      </ButtonLink>
+    }>{jobText(pruned, 'error') || t('cleanup:links.checkTaskLog')}</Note>;
   } else if (pruned && !gone.length && !unclear.length) {
     result = <Note tone="success" title={t('cleanup:links.pruneDone')}>{pruneText(pruned)}</Note>;
   } else if (startError) {
     result = <Note tone="error" title={t('cleanup:links.checkFailed')}>{errorMessage(startError)}</Note>;
-  } else if (check.query.isError && state) {
-    result = <Note tone="neutral" title={t('cleanup:shared.taskStatus')}>{DISCONNECTED}</Note>;
+  } else if (check.query.isError) {
+    result = <QueryErrorNote titleKey="cleanup:links.checkStatusFailed" query={check.query} />;
   } else if (state?.status === 'failed') {
-    result = <Note tone="error" title={t('cleanup:links.checkFailed')}>{jobText(state, 'error') || t('cleanup:links.checkFailed')}</Note>;
+    result = <Note tone="error" title={t('cleanup:links.checkFailed')} action={
+      <ButtonLink href="/tasks" size="small" variant="secondary">
+        <span data-copy-key="shell.routeTitle.tasks">{t('shell:routeTitle.tasks')}</span>
+      </ButtonLink>
+    }>{jobText(state, 'error') || t('cleanup:links.checkTaskLog')}</Note>;
   } else if (state && state.status !== 'idle') {
     const reading = checkLine(state);
     progress = <>
@@ -261,8 +269,9 @@ export function LinkManager() {
         </Button>
       }>
         <FieldsetTitle id="link-manager-title" gap="small">{t('cleanup:tools.links')}</FieldsetTitle>
+        {prune.query.isError ? <QueryErrorNote titleKey="cleanup:links.pruneStatusFailed" query={prune.query} /> : null}
         {stats.isError
-          ? <Note tone="error" title={t('cleanup:links.statsLoadFailed')}>{errorMessage(stats.error)}</Note>
+          ? <QueryErrorNote titleKey="cleanup:links.statsLoadFailed" query={stats} />
           : info
             ? <>
                 <div className="link-stat-grid mt-4 gap-x-8 gap-y-3">

@@ -2080,7 +2080,9 @@ class UpgradeRepairTests(unittest.TestCase):
         runs = {run.task_key: run for run in self.store.query(limit=20)}
         sample = runs['code-samples'].payload()
         self.assertEqual((sample['progress_code'], sample['progress_label']), ('stage.library.scanFiles', '扫描文件'))
-        self.assertEqual(sample['result_summary']['outcome'], legacy['outcome'])
+        self.assertEqual(sample['result_summary']['outcome'],
+                         '补上 2 部的样张（9 张）；跳过 1 部没有可问的官方站、3 部留到下一轮（已达到本轮查询次数上限）；'
+                         '还有 4 部待补，接着排下一轮')
         self.assertEqual([part['code'] for part in sample['result_summary']['outcome_parts']],
                          ['samplesLanded', 'semicolon', 'skipped', 'skipNoSite', 'listComma', 'skipDeferred',
                           'semicolon', 'remainingNext'])
@@ -2110,6 +2112,8 @@ class UpgradeRepairTests(unittest.TestCase):
             center = repair_center.snapshot(connection, {}, cloud_pending=0)
         self.assertEqual((receipt['rows'], receipt['attempts']), (4, 1))
         self.assertEqual(receipt['attempt_originals'], {'performer-alias-7.json': '登记 3 个别名'})
+        sample_original = receipt['originals'][str(runs['code-samples'].id)]
+        self.assertEqual(json.loads(sample_original['result_summary'])['outcome'], legacy['outcome'])
         original = receipt['originals'][str(runs['studio-mark'].id)]
         self.assertEqual((original['error'], json.loads(original['result_summary'])['outcome']),
                          ('服务重启，这一轮没有跑完', '官网未取得'))

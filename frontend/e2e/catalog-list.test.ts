@@ -535,7 +535,7 @@ describe('馆藏卡片与列表', () => {
         await page.locator('[data-sort-direction-menu] [data-filter-option="desc"]').click();
         await durationResponse;
         await page.waitForFunction(() => document.querySelector('[data-catalog-row]')?.getAttribute('data-id') === '9000');
-        assert.equal(await durationSort.getAttribute('aria-pressed'), 'true');
+        assert.equal(await durationSort.getAttribute('data-sort-current'), 'true');
         assert.equal(requests.at(-1)!.get('offset'), '0');
         const measured = await layout(page);
         assert.ok(measured.scrollWidth <= measured.viewportWidth + 1, JSON.stringify(measured));

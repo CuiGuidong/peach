@@ -24,6 +24,10 @@
   .peach-react [data-catalog-scroll] > [data-filter-tag-strip],
   .peach-react [data-entity-tags] > [data-filter-tag-strip] { flex: none; overflow: visible; }
 }
+.peach-react [data-filter-glass] [data-filter-tag-strip][data-skeleton] {
+  flex: 1 1 auto;
+  overflow: clip;
+}
 /* 下排的查找（`FilterSearch`）：平时是一层淡玻璃面加一圈亮边，看得出是个框又不像被按下；
  * 聚焦或框里有词时升到浮层选中态那块高亮玻璃（同按下的视图键）。 */
 .peach-react [data-filter-search] {
@@ -76,6 +80,14 @@
 }
 .peach-react [data-filter-search][data-compact]:not(:focus-within, [data-open], [data-filled]) > input { flex: 0 0 0; width: 0; opacity: 0; }
 .peach-react [data-filter-search] > input::placeholder { color: var(--ink-2); opacity: 1; }
+:root:not(.dark) .peach-react [data-filter-search]:not(:focus-within, [data-filled]) {
+  background: var(--color-background-tertiary-default);
+  box-shadow: inset 0 0 0 1px var(--field-ring);
+}
+:root:not(.dark) .peach-react [data-filter-search]:not(:focus-within, [data-filled]):hover {
+  background: var(--color-background-secondary-default);
+}
+:root:not(.dark) .peach-react [data-filter-search] > input::placeholder { color: var(--color-text-secondary); }
 .peach-react [data-filter-search] > input::-webkit-search-cancel-button { display: none; }
 .peach-react [data-filter-search-clear] {
   display: grid;

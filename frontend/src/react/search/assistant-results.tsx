@@ -1,5 +1,6 @@
 import { RiArrowRightUpLine, RiImageLine } from '@remixicon/react';
 import type { ReactNode } from 'react';
+import { Button } from '@/components/base/buttons/button';
 import { cx } from '@/utils/cx';
 import { cardClass } from '../components/card';
 import { coverUrl, detailPosterUrl, remoteCoverUrl, type FaceRef } from '@peach/card-art';
@@ -7,7 +8,9 @@ import { entityDisplayName } from '../../core/entity-names';
 import { t } from '../../i18n';
 import { ColumnFilterAvatar } from '../components/column-filter-avatar';
 import { useEntityNames } from '../use-entity-names';
-import { ErrorText, Help } from '../settings/section';
+import { Help } from '../settings/section';
+import { busyProps } from '../settings/busy-props';
+import { Note } from '../components/note';
 import { assistantCopy as copy } from './assistant-workspace';
 import './assistant-motion.css';
 
@@ -136,12 +139,14 @@ function WorkCard({ item, source, localOnly, actions }: { item: SearchWork; sour
   </article>;
 }
 
-export function SearchWorks({ result, source, localOnly = false, historical = false, actions, title }: {
+export function SearchWorks({ result, source, localOnly = false, historical = false, actions, title, retry, retrying = false }: {
   result: SearchResult; source: SearchSource; localOnly?: boolean; historical?: boolean;
   actions?(item: SearchWork): ReactNode; title?: string;
+  retry?(): void; retrying?: boolean;
 }) {
   useEntityNames();
   const label = title ?? copy(localOnly && source === 'external' ? 'cachedExternal' : 'scopes.' + source);
+  const failureKey = source === 'library' ? 'librarySearchFailed' : 'externalSearchFailed';
   return <section aria-label={label} data-ai-search-source={historical ? undefined : source} className="flex min-w-0 flex-col gap-2.5" data-ai-search-reveal="">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h2 className="text-body-medium! text-text-primary">{label}</h2>
@@ -149,7 +154,10 @@ export function SearchWorks({ result, source, localOnly = false, historical = fa
         {t('catalog:libraryAssistant.resultCount', { count: result.items.length })}
       </span> : null}
     </div>
-    {result.error ? <ErrorText>{result.error}</ErrorText>
+    {result.error ? <Note tone="error" title={<span data-copy-key={'catalog.libraryAssistant.' + failureKey}>{copy(failureKey)}</span>}
+      action={retry ? <Button size="small" {...busyProps(retrying)} onClick={retry}>
+      <span data-copy-key="shell.shared.retry">{t('shell:shared.retry')}</span>
+    </Button> : undefined}>{result.error}</Note>
       : !result.items.length ? <Help>{copy(localOnly && source === 'external' ? 'cachedExternalEmpty' : 'empty')}</Help>
       : <ul className="flex min-w-0 flex-col gap-2.5">
         {result.items.map((item, index) => <li key={item.id ?? item.code} data-ai-search-reveal=""

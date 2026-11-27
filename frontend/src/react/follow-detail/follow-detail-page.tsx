@@ -10,7 +10,7 @@
 import { useCallback, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { esc, fmtDur, foldName, icon, requestErrorMessage } from '@peach/legacy/core';
-import { noteHtml } from '@peach/legacy/ui';
+import { noteHtml, spinnerHtml } from '@peach/legacy/ui';
 import { pageSkeletonHtml } from '../../management-placeholder';
 
 import { Button } from '@/components/base/buttons/button';
@@ -26,6 +26,7 @@ import { MediaCarousel } from '../components/media-carousel';
 import { FollowAuthorLink, FollowCard } from '../follow-feed/follow-card';
 import {
   FOLLOW_CREDENTIALS_KEY, fetchFollowCredentials, replaceFollowItem, setFollowItemStatus, videoItems,
+  beginFollowItemWrite, finishFollowItemWrite,
   type FollowContext, type FollowFeedHelpers, type FollowGroup,
 } from '../follow-feed/follow-feed';
 import {
@@ -338,7 +339,10 @@ function Side({ item, data, context, media, write, issue, helpers, actions }: {
   if (editingTagsFor !== null && editingTagsFor !== item.id) setEditingTagsFor(null);
   const editingTags = editingTagsFor === item.id;
   const { busy } = write;
-  const busyAttrs = (key: string) => (busy.has(key) ? { 'aria-busy': true, 'aria-disabled': true } as const : {});
+  const busyAttrs = (key: string) => ({
+    'aria-busy': busy.has(key) || undefined,
+    'aria-disabled': busy.has(key) || write.itemBusy || undefined,
+  });
   return (
     <div data-stage-side="" data-follow-detail-side="">
       <div data-stage-side-content="">
@@ -410,9 +414,11 @@ function Side({ item, data, context, media, write, issue, helpers, actions }: {
           <button type="button" data-stage-action="later" data-follow-detail-save="" aria-label={saved ? t('follow:shared.saved') : t('follow:followDetail.saveToDatabase')}
             title={saved ? t('follow:shared.saved') : t('follow:followDetail.saveToDatabase')} disabled={saved} {...busyAttrs('save')}
             onClick={write.save} dangerouslySetInnerHTML={{ __html: icon(saved ? 'check' : 'bookmark-plus') }} />
-          <button type="button" data-stage-action="later" data-follow-detail-want="" aria-pressed={!!write.want}
+          <button type="button" data-stage-action="later" data-follow-detail-want="" aria-pressed={write.wantReady ? !!write.want : undefined}
             aria-label={write.want ? t('follow:wantToggle.remove') : t('follow:wantToggle.want')} title={write.want ? t('follow:wantToggle.remove') : t('follow:wantToggle.want')}
-            {...busyAttrs('want')} onClick={write.toggleWant} dangerouslySetInnerHTML={{ __html: icon('star') }} />
+            aria-busy={write.wantLoading || busy.has('want') || undefined}
+            aria-disabled={!write.wantReady || write.itemBusy || undefined}
+            onClick={write.toggleWant} dangerouslySetInnerHTML={{ __html: write.wantLoading || busy.has('want') ? spinnerHtml() : icon('star') }} />
           <button type="button" data-stage-action="seen" data-follow-detail-status="seen" aria-label={t('follow:followDetail.markSeen')} title={t('follow:followDetail.markSeen')}
             aria-pressed={item.status === 'seen'} {...busyAttrs('seen')} onClick={() => write.status('seen')}
             dangerouslySetInnerHTML={{ __html: icon('eye') }} />
@@ -429,7 +435,8 @@ function Side({ item, data, context, media, write, issue, helpers, actions }: {
               aria-label={t('follow:followDetail.download')} title={t('follow:followDetail.download')}><Glyph name="download" /></a>
           ) : null}
         </div>
-        <span data-follow-state="" aria-live="polite">{write.failure}</span>
+        <span data-follow-state="" aria-live="polite">{write.failure || write.wantFailure}</span>
+        {write.wantFailure ? <Button variant="secondary" size="small" onClick={write.retryWant}>{t('shell:shared.retry')}</Button> : null}
         {/* 被隐藏的图退到这条恢复带上：缩略图加一枚撤销键，点了就回到轮播。不占媒体队列，也不进
             角标数——它们已经是「不在看」的那部分。 */}
         {item.hidden_media?.length ? (
@@ -489,7 +496,9 @@ type DetailWrite = ReturnType<typeof useDetailWrite>;
 function useDetailWrite(item: FollowDetailItem, actions: FollowDetailActions, onMedia: (index: number | null) => void) {
   const id = item.id;
   const key = followItemKey(id);
+  const wantKey = wantFollowKey(id);
   const [busy, setBusy] = useState<ReadonlySet<string>>(() => new Set());
+  const [itemBusy, setItemBusy] = useState(false);
   const [failure, setFailure] = useState('');
   const mark = (name: string, on: boolean) => setBusy((now) => {
     const next = new Set(now);
@@ -504,25 +513,39 @@ function useDetailWrite(item: FollowDetailItem, actions: FollowDetailActions, on
     setFailure(requestErrorMessage(error) || t('follow:followDetail.actionFailed'));
     actions.failure(t('follow:followDetail.updateStatusAction'), error);
   };
+  const startItemWrite = (name: string, run: () => void) => {
+    if (!beginFollowItemWrite(id)) return;
+    setItemBusy(true);
+    mark(name, true);
+    run();
+  };
+  const settleItemWrite = (name: string) => {
+    finishFollowItemWrite(id);
+    setItemBusy(false);
+    mark(name, false);
+  };
   const statusMutation = useMutation({
     mutationFn: ({ to }: { to: string; was: string }) => apiSend(FOLLOW_STATUS_URL, { item: id, to }),
     onSuccess: (_result, { to, was }) => {
       apply(to);
       setFailure('');
       // 忽略会把这一条从想要里撤掉（两者互斥），想要那颗键要跟着弹起。
-      if (to === 'ignored') void invalidateWants();
+      if (to === 'ignored') {
+        queryClient.setQueryData(wantKey, { want: null });
+        void invalidateWants();
+      }
       actions.toast(statusReceipt(to), {
         undo: was !== 'saved' ? async () => { await apiSend(FOLLOW_STATUS_URL, { item: id, to: was }); apply(was) } : undefined,
       });
     },
     onError: failed,
-    onSettled: (_result, _error, { to }) => mark(to, false),
+    onSettled: (_result, _error, { to }) => settleItemWrite(to),
   });
   const saveMutation = useMutation({
     mutationFn: () => apiSend(FOLLOW_SAVE_URL, { item: id }),
     onSuccess: () => { apply('saved'); setFailure(''); actions.toast(t('follow:followDetail.savedToDatabase')) },
     onError: failed,
-    onSettled: () => mark('save', false),
+    onSettled: () => settleItemWrite('save'),
   });
   const mediaMutation = useMutation({
     mutationFn: async ({ index, hidden }: { index: number; hidden: boolean; next: number | null }) => {
@@ -540,28 +563,33 @@ function useDetailWrite(item: FollowDetailItem, actions: FollowDetailActions, on
     onSettled: (_result, _error, { index, hidden }) => mark(`${hidden ? 'hide' : 'restore'}:${index}`, false),
   });
   /* 想要按条目问一次服务端：同一条在关注管理的「想要」页签里移除后，这颗键也要弹起。 */
-  const wantKey = wantFollowKey(id);
   const wanted = useQuery({ queryKey: wantKey, queryFn: ({ signal }) => fetchFollowWant(id, signal) });
   const want = wanted.data?.want ?? null;
   const wantMutation = useMutation({
     mutationFn: async (current: Want | null) => {
-      if (current) await removeWants([current.id]);
-      else await addWant({ follow: id });
-      return !current;
+      if (current) {
+        const result = await removeWants([current.id]);
+        return { want: null, receipt: result.previous.length ? t('follow:wantToggle.removed') : '' };
+      }
+      const result = await addWant({ follow: id });
+      return { want: result.want, receipt: result.created ? t('follow:wantToggle.added') : '' };
     },
-    onSuccess: (added) => {
+    onSuccess: ({ want: current, receipt }) => {
       setFailure('');
-      actions.toast(added ? t('follow:wantToggle.added') : t('follow:wantToggle.removed'));
+      queryClient.setQueryData(wantKey, { want: current });
+      if (receipt) actions.toast(receipt);
       void invalidateWants();
     },
     onError: failed,
-    onSettled: () => mark('want', false),
+    onSettled: () => settleItemWrite('want'),
   });
   return {
-    busy, failure, want,
-    toggleWant: () => { mark('want', true); wantMutation.mutate(want) },
-    save: () => { mark('save', true); saveMutation.mutate() },
-    status: (to: string) => { mark(to, true); statusMutation.mutate({ to, was: item.status }) },
+    busy, itemBusy, failure, want, wantReady: wanted.isSuccess, wantLoading: !wanted.isSuccess && wanted.isFetching,
+    wantFailure: wanted.isError && !wanted.isFetching ? requestErrorMessage(wanted.error) || t('follow:followDetail.actionFailed') : '',
+    retryWant: () => { void wanted.refetch() },
+    toggleWant: () => { if (wanted.isSuccess) startItemWrite('want', () => wantMutation.mutate(want)) },
+    save: () => startItemWrite('save', () => saveMutation.mutate()),
+    status: (to: string) => startItemWrite(to, () => statusMutation.mutate({ to, was: item.status })),
     hide: (index: number) => {
       const next = (item.media_items || []).find((media) => media.index !== index && media.media_kind === 'image');
       mark(`hide:${index}`, true);

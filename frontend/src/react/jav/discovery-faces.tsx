@@ -12,7 +12,7 @@ import { t } from '../../i18n';
 export type DiscoveryPerson = CastPerson;
 
 function performerHref(person: DiscoveryPerson): string {
-  return performerProfileHref(person) || javSubscriptionPath(person.name);
+  return performerProfileHref(person) || javSubscriptionPath(person.source_name || person.name);
 }
 
 export function DiscoveryPerformerName({ person, name, title, icon, onFilter }: {
@@ -23,7 +23,7 @@ export function DiscoveryPerformerName({ person, name, title, icon, onFilter }: 
   return <>
     <PerformerCredit name={name} title={title} href={performerHref(person ?? { name })} icon={icon}
       external={!!person?.source_url && !person.id} onFilter={onFilter && person ? () => onFilter(person) : undefined} />
-    {person?.source_url && (!person.id || onFilter) ? <a href={javSubscriptionPath(person.name)} data-media-credit-action="" data-inline-action=""
+    {person?.source_url && (!person.id || onFilter) ? <a href={javSubscriptionPath(person.source_name || person.name)} data-media-credit-action="" data-inline-action=""
       className="inline-flex shrink-0" aria-label={`${label} · ${name}`} title={label}>
       <RiRssLine className="size-4" aria-hidden />
     </a> : null}

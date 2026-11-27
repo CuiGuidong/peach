@@ -21,7 +21,7 @@
     "keepAll": "Keep all",
     "keepAllBody_one": "Keeps every file in {{count, number}} group ({{files, number}} files). Nothing is deleted, and the group won't be listed again.",
     "keepAllBody_other": "Keeps every file in {{count, number}} groups ({{files, number}} files). Nothing is deleted, and these groups won't be listed again.",
-    "keepAllRecovery": " You can undo this from the receipt or under Kept.",
+    "keepAllRecovery": " You can undo this in the completion notification or under Kept.",
     "keepLargest": "Keep largest",
     "keepLongest": "Keep longest",
     "keepRule115": "115 (or largest if none)",
@@ -125,6 +125,8 @@
     "checkFailed": "Check failed",
     "checkLinks": "Check links",
     "checkTaskLog": "Check the task log to see which links were processed.",
+    "checkStatusFailed": "Couldn't load the link check status",
+    "pruneStatusFailed": "Couldn't load the link cleanup status",
     "checking": "Checking",
     "checkingLinks": "Checking links",
     "columnEntry": "Peach entry",
@@ -207,6 +209,7 @@
     "statusUnavailable": "Couldn't read media repair status"
   },
   "organize": {
+    "statusUnavailable": "Could not read the file organization task status",
     "apply": "Organize now",
     "applyBodyAll": "Organizes all files in {{name}} by the templates. You can roll back the whole batch.",
     "applyBodyPath": "Organizes “{{path}}” and its subdirectories in {{name}} by the templates. You can roll back the whole batch.",
@@ -255,7 +258,6 @@
     "rowsFailed_other": "{{count, number}} rows couldn't be processed",
     "running": "Organizing files",
     "scopeHint": "With a path, only that directory and its subdirectories are organized.",
-    "settingsLoadFailed": "Couldn't load organize settings",
     "storageLabel": "Storage to organize",
     "storagePrefix": "Storage",
     "title": "Organize"

@@ -148,6 +148,20 @@ describe('图片灯箱', () => {
       await sharing.click();
       await imageOptions.first().waitFor({ state: 'hidden' });
       assert.equal(await imageOptions.count(), 0);
+      await page.keyboard.press('Tab');
+      const tile = form.locator('[data-feedback-attachment]').filter({
+        has: page.getByRole('button', { name: '查看lightbox.png', exact: true }),
+      });
+      await tile.waitFor();
+      const attachmentButtons = await tile.getByRole('button').all();
+      assert.equal(attachmentButtons.length, 2);
+      for (const button of attachmentButtons) {
+        await button.focus();
+        assert.deepEqual(await button.evaluate(node => {
+          const css = getComputedStyle(node);
+          return [node.matches(':focus-visible'), css.outlineStyle, css.outlineOffset];
+        }), [true, 'solid', '-2px']);
+      }
       await preview.click();
       const box = lightbox(page);
       const controls = await box.evaluate((dialog) => {
@@ -300,9 +314,17 @@ describe('图片灯箱', () => {
     const opened = await openWall(browser, { name: '320', width: 320, height: 720, mobile: true }, 1287);
     const { page } = opened;
     try {
+      const emulation = await page.context().newCDPSession(page);
+      const safeArea = { top: 47, bottom: 34, left: 0, right: 0 };
+      await emulation.send('Emulation.setSafeAreaInsetsOverride', { insets: safeArea });
       await page.locator('[data-photo-cell]').first().click();
       const box = lightbox(page);
       await box.waitFor();
+      const controlEdges = await box.evaluate(node => ({
+        top: node.querySelector('[data-photo-close]')!.getBoundingClientRect().top,
+        bottom: innerHeight - node.querySelector('[data-photo-strip]')!.getBoundingClientRect().bottom,
+      }));
+      assert.ok(controlEdges.top >= safeArea.top && controlEdges.bottom >= safeArea.bottom, JSON.stringify(controlEdges));
       await page.evaluate(() => {
         const main = document.querySelector('[data-photo-main]') as HTMLElement & { swiper: { slideTo(at: number, speed: number): void } };
         main.swiper.slideTo(1288, 0);

@@ -222,6 +222,8 @@ describe('路由冒烟', () => {
     const efforts = ['default', 'low', 'high'];
     const defaultEfforts = { search: 'low' };
     let sent: unknown;
+    let plans = 0;
+    let queries = 0;
     const opened = await visit(browser, '/ai', DESKTOP, async page => {
       await page.route('**/api/libraries', route => route.fulfill({ json: { libraries: [{ id: 'fixture-library', name: 'Fixture library' }] } }));
       await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { providers: [
@@ -238,6 +240,7 @@ describe('路由冒烟', () => {
       await page.route('**/api/ai-library/search-plan', route => {
         const request = route.request().postDataJSON();
         sent = request;
+        plans++;
         if (request.query === 'Only show unwatched') {
           return route.fulfill({ json: { filters: { q: keyword, state: 'fresh' } } });
         }
@@ -248,8 +251,9 @@ describe('路由冒烟', () => {
       });
       await page.route(url => url.pathname === '/api/items' && url.searchParams.get('q') === keyword
         && url.searchParams.get('year') === '2024' && url.searchParams.get('library') === 'fixture-library',
-        route => route.fulfill({ json: { items: [{ id: 41, title: new URL(route.request().url()).searchParams.has('state')
-          ? 'Unwatched fixture work' : 'Fixture work' }] } }));
+        route => ++queries === 1 ? route.fulfill({ status: 503, json: { detail: '馆藏索引正在更新' } })
+          : route.fulfill({ json: { items: [{ id: 41, title: new URL(route.request().url()).searchParams.has('state')
+            ? 'Unwatched fixture work' : 'Fixture work' }] } }));
       await page.route(url => url.pathname === '/api/items' && url.searchParams.get('q') === 'DEMO-001',
         route => route.fulfill({ json: { items: [{ id: 42, code: 'DEMO-001', title: 'Work to translate' }] } }));
     });
@@ -287,7 +291,10 @@ describe('路由冒烟', () => {
       const composer = page.getByRole('combobox', { name: '想查找或整理什么？' });
       await composer.fill('Find the fixture work');
       await composer.press('Enter');
+      const failed = page.locator('[data-ai-search-source="library"]').getByRole('alert').filter({ hasText: '馆藏索引正在更新' });
+      await failed.getByRole('button', { name: '重试', exact: true }).click();
       await page.getByRole('link', { name: 'Fixture work' }).waitFor({ state: 'visible' });
+      assert.equal(plans, 1, '重试结果查询时不重新生成查询条件');
       assert.equal(await composer.inputValue(), '');
       assert.deepEqual(sent, { query: 'Find the fixture work', scope: 'library', prompt_language: 'zh-CN',
         connection: { provider: 'openai', model: 'gpt-6.2-sol', effort: 'high' } });
@@ -539,22 +546,59 @@ describe('路由冒烟', () => {
     }
   });
 
-  it('ChatGPT 授权回执可以手动返回，也会自动返回订阅设置', { timeout: 30_000 }, async () => {
+  it('ChatGPT 授权失败后保留回执，手动返回时选中订阅设置', { timeout: 30_000 }, async () => {
     const path = '/settings/ai/authorization';
     const settings = /\/settings\/ai\?connection=chatgpt$/;
-    const opened = await visit(browser, path, DESKTOP);
+    const opened = await visit(browser, path, DESKTOP, page => page.clock.install());
     try {
       const page = opened.page;
       const heading = page.getByRole('heading', { name: 'ChatGPT 授权未完成', exact: true });
       await heading.waitFor({ state: 'visible' });
+      await page.clock.runFor(5000);
+      await heading.waitFor({ state: 'visible' });
+      await page.getByText('未能完成 ChatGPT 授权，请重新连接。', { exact: true }).waitFor();
       await page.getByRole('link', { name: '返回 Peach', exact: true }).click();
       await page.waitForURL(settings);
       const method = page.getByRole('tab', { name: 'ChatGPT 订阅', exact: true, selected: true });
       await method.waitFor({ state: 'visible' });
-      await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + path);
-      await heading.waitFor({ state: 'visible' });
-      await page.waitForURL(settings);
-      await method.waitFor({ state: 'visible' });
+    } finally {
+      await opened.close();
+    }
+  });
+
+  it('登录的其他设备可打开 ChatGPT 订阅并看到主机授权提示', { timeout: 30_000 }, async () => {
+    const opened = await visit(browser, '/settings/ai', DESKTOP, async page => {
+      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { settings_editable: false, providers: [
+        { id: 'openai', label: 'OpenAI', model: '', configured: false },
+      ] } }));
+    });
+    try {
+      const page = opened.page;
+      await page.getByRole('tab', { name: 'ChatGPT 订阅', exact: true }).click();
+      const panel = page.getByRole('tabpanel', { name: 'ChatGPT 订阅', exact: true });
+      await panel.getByRole('note').filter({ hasText: /运行 Peach 的电脑/ }).waitFor();
+      assert.equal(await panel.getByRole('button', { name: '连接 ChatGPT 订阅', exact: true }).count(), 0);
+    } finally {
+      await opened.close();
+    }
+  });
+
+  it('AI 助手显示自定义任务读取错误，重试后显示任务', { timeout: 30_000 }, async () => {
+    let available = false;
+    const opened = await visit(browser, '/ai', DESKTOP, async page => {
+      await page.route('**/api/ai-library/custom-tasks', route => available
+        ? route.fulfill({ json: { tasks: [{ id: 'fixture-task', name: '样本任务' }] } })
+        : route.fulfill({ status: 503, json: { message_code: 'api.aiLibrary.upstream' } }));
+    });
+    try {
+      const page = opened.page;
+      const notice = page.getByRole('alert').filter({ hasText: '无法读取自定义任务' });
+      await notice.waitFor();
+      available = true;
+      await notice.getByRole('button', { name: '立即重试', exact: true }).click();
+      await notice.waitFor({ state: 'hidden' });
+      await page.getByRole('button', { name: '馆藏工具', exact: true }).click();
+      await page.getByRole('menuitem', { name: '样本任务', exact: true }).waitFor();
     } finally {
       await opened.close();
     }

@@ -634,6 +634,7 @@ def q_feed_suggest(contract, args) -> dict:
     if len(key) < (3 if key.isascii() else 2):
         return {"items": []}
     items = {}
+    first_error = None
     try:
         cards = javdb.search_cards(_search_javdb(contract, javdb.SEARCH.format(quote(term)), timeout=5))
         for card in cards:
@@ -642,15 +643,18 @@ def q_feed_suggest(contract, args) -> dict:
                 items.setdefault(alias.match_key(match), {
                     "name": match, "provider": "JavDB", "avatar_url": card.get("avatar_url"),
                 })
-    except UserFacingError:
-        pass
+    except UserFacingError as error:
+        first_error = error
     if len(items) < 8:
         try:
             for name in _search_dmm_actresses(contract, [term, japanese_search_spelling(term)],
                                               prefix=True, timeout=5).values():
                 items.setdefault(alias.match_key(name), {"name": name, "provider": "DMM"})
-        except UserFacingError:
-            pass
+        except UserFacingError as error:
+            if first_error is None:
+                first_error = error
+    if not items and first_error is not None:
+        raise first_error
     return {"items": list(items.values())[:8]}
 
 

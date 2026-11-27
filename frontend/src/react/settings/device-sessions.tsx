@@ -15,10 +15,11 @@ import { confirmModal } from '@peach/legacy/ui';
 import { Chip } from '@/components/base/badges/chip';
 import { Button } from '@/components/base/buttons/button';
 
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiGet, apiSend } from '../../api';
 import { BrowserIcon, browserIconId } from '../components/browser-icon';
+import { QueryErrorNote } from '../components/query-error-note';
 import { devicesSkeleton, rememberShape } from '../../configuration-skeleton';
-import { ErrorText, Footer, Help, Rows, Section, SectionSkeleton, Stack } from './section';
+import { Footer, Help, Rows, Section, SectionSkeleton, Stack } from './section';
 import { interfaceLanguage, t } from '../../i18n';
 import './device-sessions.css';
 
@@ -122,7 +123,7 @@ export function DeviceSessions({ revision, receipt }: { revision: string; receip
     queryFn: ({ signal }) => apiGet<DeviceSessionList>(URL, signal),
   });
   if (query.error) {
-    return <Section title={t('settings:signedInDevices.title')}><Stack><ErrorText>{errorMessage(query.error)}</ErrorText></Stack></Section>;
+    return <Section title={t('settings:signedInDevices.title')}><Stack><QueryErrorNote titleKey="settings:deviceSessions.loadFailed" query={query} /></Stack></Section>;
   }
   if (query.isFetching || !query.data) return <SectionSkeleton label={t('settings:deviceSessions.loading')} html={devicesSkeleton} />;
   return <DeviceList initial={query.data} receipt={receipt} />;

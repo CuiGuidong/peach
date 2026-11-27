@@ -53,7 +53,7 @@
 }
 :where(.peach-react [data-item-detail] [data-item-gate]) b { font-size: var(--fs-md); }
 /* 来源徽标自己的字色（`.srcbig.metered` 那一档）要留着，这两条的权重不能高过它。 */
-:where(.peach-react [data-item-detail] [data-item-gate]) span { font-size: var(--fs-xs); color: var(--muted); }
+:where(.peach-react [data-item-detail] [data-item-gate]) > span { font-size: var(--fs-xs); color: var(--muted); }
 /* 脱盘：实线框、页面底色，说明一句一行居中；「重新检测」是这一块唯一的动作。 */
 .peach-react [data-item-detail] [data-item-gate="offline"] {
   cursor: default;
@@ -65,7 +65,7 @@
   color: var(--ink);
 }
 .peach-react [data-item-detail] [data-item-gate="offline"] b { letter-spacing: .08em; }
-.peach-react [data-item-detail] [data-item-gate="offline"] span {
+.peach-react [data-item-detail] [data-item-gate="offline"] > span {
   max-width: 34ch;
   text-align: center;
   line-height: 1.6;
@@ -485,7 +485,7 @@
 }
 .peach-react [data-item-related] [data-related-row] {
   display: flex;
-  gap: 16px;
+  gap: var(--detail-card-gap);
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-inline: contain;

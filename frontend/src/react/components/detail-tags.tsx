@@ -1,6 +1,6 @@
 /* 本地与在线详情共用标签外观与选择器。详情侧栏只读，增删在编辑框里做（`editable`）；
    标签本身的改名、合并在标签管理页。 */
-import { useCallback, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MenuChevron } from './menu-chevron';
 import { spinnerHtml, wireAnchoredMenu } from '@peach/legacy/ui';
@@ -73,6 +73,8 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
   const [query, setQuery] = useState('');
   const [term, setTerm] = useState('');
   const [active, setActive] = useState(-1);
+  const listId = useId();
+  const optionId = (index: number) => `${listId}-${index}`;
   const latest = useRef({ adding, query, tags, onOpen });
   latest.current = { adding, query, tags, onOpen };
   const floating = useRef<ReturnType<typeof wireAnchoredMenu> | null>(null);
@@ -110,6 +112,7 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
   const options = [...sections.recent, ...sections.results, ...(sections.create ? [{ k: sections.create, n: -1 }] : [])];
   const pick = (tag: TagCount, selected: boolean) => {
     close();
+    plus.current?.focus({ preventScroll: true });
     if (!selected) onAdd(tag.k);
   };
   const keydown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -119,7 +122,9 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       if (!options.length) return;
-      const next = (active + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      const start = active < 0 ? (step > 0 ? -1 : 0) : active;
+      const next = (start + step + options.length) % options.length;
       setActive(next);
       picker.current?.querySelectorAll('[data-pick]')[next]?.scrollIntoView({ block: 'nearest' });
       return;
@@ -127,8 +132,8 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
     if (event.key === 'Enter') {
       event.preventDefault();
       const chosen = active >= 0 ? options[active] : null;
-      if (chosen) pick(chosen, chosen.n !== -1 && tags.some(tag => tag.k === chosen.k));
-      else if (query.trim()) { close(); onAdd(query.trim()) }
+      const value = chosen || (query.trim() ? { k: query.trim(), n: 0 } : null);
+      if (value) pick(value, tags.some(tag => foldName(tag.k) === foldName(value.k)));
     }
   };
   let index = -1;
@@ -140,9 +145,10 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
     const color = category === 'unknown' ? 'r34-unknown'
       : scope === 'online' && ['general', 'artist', 'character', 'copyright', 'metadata'].includes(category) ? `r34-${category}` : category;
     return (
-      <button key={`${at}:${tag.k}`} type="button" data-pick={tag.k} data-active={at === active ? '' : undefined}
+      <button key={`${at}:${tag.k}`} type="button" role="option" tabIndex={-1} id={optionId(at)}
+        data-pick={tag.k} data-active={at === active ? '' : undefined}
         data-tag-cat={color}
-        aria-pressed={selected} onClick={() => pick(tag, selected)}>
+        aria-selected={selected} onClick={() => pick(tag, selected)}>
         <Glyph name={selected ? 'check' : 'tags'} /><span data-pick-name="">{label(tag.k)}</span>
         <span data-pick-count="">{(tag.n || 0).toLocaleString()}</span>
       </button>
@@ -155,26 +161,31 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
       <div ref={picker} id="tagPicker" data-tag-picker="" role="dialog" aria-label={t('shell:tagPicker.addTag')} hidden>
         <label data-tag-search="">
           {loading ? <span className="contents" dangerouslySetInnerHTML={{ __html:spinnerHtml(t('shell:tagPicker.loading')) }} /> : <Glyph name="search" />}
-          <input ref={search} id="tagPickSearch" maxLength={80} placeholder={t('shell:tagPicker.searchPlaceholder')} autoComplete="off" value={query}
+          <input ref={search} id="tagPickSearch" role="combobox" aria-label={t('shell:tagPicker.searchPlaceholder')}
+            aria-expanded={open} aria-autocomplete="list" aria-controls={listId}
+            aria-activedescendant={open && options[active] ? optionId(active) : undefined}
+            maxLength={80} placeholder={t('shell:tagPicker.searchPlaceholder')} autoComplete="off" value={query}
             onChange={(event) => { setQuery(event.target.value); setActive(-1); if (!composing.current) setTerm(event.target.value) }}
             onCompositionStart={() => { composing.current = true }}
             onCompositionEnd={(event) => { composing.current = false; setTerm(event.currentTarget.value) }} onKeyDown={keydown} />
         </label>
-        <div data-tag-scroll-frame=""><div ref={body} id="tagPickBody" data-tag-body="">
+        <div data-tag-scroll-frame=""><div ref={body} id={listId} data-tag-body="" role="listbox"
+          aria-multiselectable="true" aria-label={t('shell:tagPicker.addTag')}>
           {open && sections.recent.length ? (
-            <section data-tag-section=""><h4>{t('shell:tagPicker.recent')}</h4><div data-tag-grid="">{sections.recent.map(button)}</div></section>
+            <section data-tag-section="" role="group" aria-label={t('shell:tagPicker.recent')}><h4 aria-hidden="true">{t('shell:tagPicker.recent')}</h4><div data-tag-grid="">{sections.recent.map(button)}</div></section>
           ) : null}
           {open ? (
-            <section data-tag-section="">
-              <h4>{term.trim() ? t('shell:tagPicker.results') : t('shell:tagPicker.allTags')}</h4>
+            <section data-tag-section="" role="group" aria-label={term.trim() ? t('shell:tagPicker.results') : t('shell:tagPicker.allTags')}>
+              <h4 aria-hidden="true">{term.trim() ? t('shell:tagPicker.results') : t('shell:tagPicker.allTags')}</h4>
               <div data-tag-grid="">
                 {sections.results.map(button)}
                 {sections.create ? (() => {
                   index += 1;
                   const at = index;
                   return (
-                    <button key="create" type="button" data-pick={sections.create} data-active={at === active ? '' : undefined}
-                      onClick={() => { close(); onAdd(sections.create) }}>
+                    <button key="create" type="button" role="option" tabIndex={-1} id={optionId(at)} aria-selected={false}
+                      data-pick={sections.create} data-active={at === active ? '' : undefined}
+                      onClick={() => pick({ k: sections.create, n: -1 }, false)}>
                       <Glyph name="plus" /><span data-pick-name="">{t('shell:tagPicker.createNamed', { tag: sections.create })}</span>
                     </button>
                   );

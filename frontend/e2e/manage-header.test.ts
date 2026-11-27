@@ -48,7 +48,7 @@ async function readHead(page: Page) {
       title: title.textContent,
       crumb: crumb?.textContent ?? '',
       font: getComputedStyle(title).fontSize,
-      pressed: [...document.querySelectorAll<HTMLElement>('[data-manage][aria-pressed="true"]')].map((node) => node.dataset.manage),
+      current: [...document.querySelectorAll<HTMLElement>('a[data-manage][aria-current="page"]')].map((node) => node.dataset.manage),
       columns: [...document.querySelectorAll(blocks)].map((node) => {
         const rect = node.getBoundingClientRect();
         return [Math.round(rect.left), Math.round(rect.width)];
@@ -133,7 +133,7 @@ describe('管理区页头', () => {
         await page.waitForFunction(() => document.querySelector('[data-manage-title]')?.textContent === '数据管理');
         assert.equal(await page.evaluate(() => (window as unknown as { stayed?: boolean }).stayed), true, '面包屑整页重载了');
         const head = await readHead(page);
-        assert.deepEqual([head.crumb, head.pressed], ['', ['cleanup']]);
+        assert.deepEqual([head.crumb, head.current], ['', ['cleanup']]);
         await settle(page);
         assert.deepEqual(unrelated(opened.problems), []);
       } finally {

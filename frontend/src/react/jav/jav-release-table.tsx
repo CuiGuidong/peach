@@ -142,7 +142,7 @@ export function ReleaseTable({ items, waiting, filters, discovery, studios = [],
     if (item && !waiting) context.onKeyDown(event, menuContext(item), row);
   }}>
     {context.menu}
-    <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={discovery ? label : t('catalog:javReleases.toolbar')}>
+    <div className="flex flex-wrap justify-end gap-2" role="group" aria-label={discovery ? label : t('catalog:javReleases.toolbar')}>
       <div data-toolbar-actions=""><TableColumnControls preferences={preferences} label={label} /></div>
     </div>
     <DataTableFrame ref={tableTop} follow preferences={preferences} rectangleSelecting={Boolean(selection?.mode)}

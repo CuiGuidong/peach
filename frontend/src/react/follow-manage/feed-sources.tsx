@@ -32,7 +32,7 @@ import {
 import { ChevronSortDown } from '@/components/foundations/icons/chevrons';
 
 import { errorMessage } from '../../api';
-import { skeletonHtml } from '../../ui-kit/skeleton';
+import { feedSourcesSkeleton } from '../../board-skeleton';
 import { DataTableFrame } from '../components/data-table-frame';
 import { useTablePreferences } from '../components/table-column-preferences';
 import { useRememberedPageSize } from '../components/page-size-preferences';
@@ -44,6 +44,7 @@ import { LEGACY_AVATAR_IMG } from '../components/legacy-avatar';
 import { SiteIcon, SiteLabel } from '../components/source-label';
 import { ColumnFilterAvatar } from '../components/column-filter-avatar';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import type { BulkAction, Receipt } from '../components/bulk-action';
 import { exitPageSelection } from '../components/page-selection';
 import { SelectionDock } from '../components/selection-dock';
@@ -61,6 +62,7 @@ import { useTableFilters } from '../components/use-table-filters';
 import { IndexSearch } from '../index/index-search';
 import { useRowWorkContext, type WorkContextOperation } from '../components/work-context-menu';
 import { FeedPageAlias } from './source-view';
+import { FEED_SOURCE_CARD, FEED_SOURCE_COLUMN_LABELS as COLUMN_LABELS, FEED_SOURCE_COLUMNS, FEED_SOURCE_FOOTER, FEED_SOURCE_TABLE } from './feed-source-layout';
 
 const feedTableFeatures = tableFeatures({
   rowPaginationFeature,
@@ -71,27 +73,6 @@ const feedTableFeatures = tableFeatures({
   sortedRowModel: createSortedRowModel(),
   paginatedRowModel: createPaginatedRowModel(),
 });
-
-const COLUMN_LABELS: Record<string, string> = {
-  select: t('follow:shared.select'),
-  name: t('follow:shared.name'),
-  kind: t('follow:shared.type'),
-  origin: t('follow:followFeed.filterKindSource'),
-  status: t('follow:shared.status'),
-  interval: t('follow:feedSources.colInterval'),
-  fetched: t('follow:feedSources.colLastFetched'),
-  fresh: t('follow:feedSources.colLastAdded'),
-  actions: t('follow:shared.actions'),
-};
-
-const preferenceColumns = Object.entries(COLUMN_LABELS).map(([id, label]) => ({ id, label,
-  /* 来源那一格要放下站标、`video.dmm.co.jp` 与外链图标，160 会把站名压到图标底下。 */
-  width: id === 'select' ? 48 : id === 'name' ? 300 : id === 'actions' ? 208 : id === 'fetched' ? 200
-    : id === 'origin' ? 184 : 160,
-  min: id === 'select' ? 48 : id === 'actions' ? 200 : id === 'name' ? 300 : 112, max: id === 'select' ? 48 : id === 'name' ? 2000 : 800,
-  flex: id === 'name',
-  required: id === 'select' || id === 'name',
-}));
 
 const reload = () => queryClient.invalidateQueries({ queryKey: FEEDS_KEY, exact: true });
 
@@ -186,14 +167,14 @@ export function FeedSources({ readOnly, toast, selection }: {
 }) {
   const feeds = useQuery({ queryKey: FEEDS_KEY, queryFn: ({ signal }) => fetchFeeds(signal) });
   const action = useAction();
-  const preferences = useTablePreferences('jav-feeds', preferenceColumns);
+  const preferences = useTablePreferences(FEED_SOURCE_TABLE, FEED_SOURCE_COLUMNS);
   const data = feeds.data;
   const sources = useMemo(() => data?.sources ?? [], [data]);
   const [ownSelected, setOwnSelected] = useState<ReadonlySet<number>>(new Set<number>());
   const selected = selection?.ids ?? ownSelected;
   const setSelected = selection?.onChange ?? setOwnSelected;
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useRememberedPageSize('jav-feeds');
+  const [pageSize, setPageSize] = useRememberedPageSize(FEED_SOURCE_TABLE);
   const [sorting, setSorting] = useState<SortingState>([]);
   /* 名字筛选在本页做：订阅名、站上挂的名字、人物名与来源地址都算，换词回到第 1 页。 */
   const [query, setQuery] = useState('');
@@ -440,14 +421,16 @@ export function FeedSources({ readOnly, toast, selection }: {
   });
   if (!data) {
     return feeds.error
-      ? <Note tone="error" title={t('follow:feedSources.loadFailed')}>{errorMessage(feeds.error)}</Note>
-      : <div dangerouslySetInnerHTML={{ __html: skeletonHtml(t('follow:feedSources.loading'), { fill: false }) }} />;
+      ? <QueryErrorNote titleKey="follow:feedSources.loadFailed" query={feeds} />
+      : <div role="status" aria-label={t('follow:feedSources.loading')} data-skeleton="">
+        <div aria-hidden="true" inert dangerouslySetInnerHTML={{ __html: feedSourcesSkeleton() }} />
+      </div>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       <section aria-label={t('follow:feedSources.listLabel')}
-        className={cardClass({ padding: 'none', className: 'flex flex-col gap-4 px-6 py-5 max-sm:px-4' })} onKeyDown={menu.onKeyDown}>
+        className={cardClass({ padding: 'none', className: FEED_SOURCE_CARD })} onKeyDown={menu.onKeyDown}>
       {menu.menu}
       <div data-responsive-toolbar="">
         <div data-toolbar-heading="">
@@ -531,7 +514,7 @@ export function FeedSources({ readOnly, toast, selection }: {
           pagination={{ pageIndex: win.page - 1, pageSize }} scrollTarget={tableTop}
           onChange={(next) => { setPageSize(next.pageSize); setPage(next.pageIndex + 1); }} />
       ) : null}
-      <footer className="-mx-6 -mb-5 flex flex-wrap items-center gap-2 border-t border-separator-border rounded-b-2xl bg-card-footer px-6 py-4 max-sm:-mx-4 max-sm:px-4">
+      <footer className={FEED_SOURCE_FOOTER}>
         <span role="status" className="mr-auto text-body-2-regular text-text-secondary">
           {t('follow:feedSources.footerSummary', { unread: Number(data.unread) || 0, enabled: sources.filter((source) => source.enabled).length, total: sources.length })}
         </span>

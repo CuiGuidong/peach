@@ -261,13 +261,22 @@ function OfflineGate({ item, badge, helpers, actions }: {
 }) {
   const [checking, setChecking] = useState(false);
   const [still, setStill] = useState(false);
+  const [problem, setProblem] = useState('');
   const source = String(item.root_id || item.location || '');
   const retry = async () => {
     setChecking(true);
-    const online = await actions.checkSource(source).catch(() => false);
-    setChecking(false);
-    if (online) actions.reopen();
-    else setStill(true);
+    setProblem('');
+    setStill(false);
+    try {
+      const online = await actions.checkSource(source);
+      if (online === true) actions.reopen();
+      else if (online === false) setStill(true);
+      else setProblem(t('catalog:detailGate.sourceStatusUnknown'));
+    } catch (error) {
+      setProblem(requestErrorMessage(error));
+    } finally {
+      setChecking(false);
+    }
   };
   return (
     <div id="offlineGate" role="status" data-item-gate="offline">
@@ -277,6 +286,9 @@ function OfflineGate({ item, badge, helpers, actions }: {
       <button className="chip" id="offlineRetry" type="button" disabled={checking} onClick={() => void retry()}>
         {still ? t('catalog:detailGate.stillUnavailable') : t('catalog:detailGate.refreshStatus')}
       </button>
+      {problem ? <Note tone="error" className="w-full max-w-md" title={
+        <span data-copy-key="catalog.detailGate.sourceStatusFailed">{t('catalog:detailGate.sourceStatusFailed')}</span>
+      }>{problem}</Note> : null}
     </div>
   );
 }

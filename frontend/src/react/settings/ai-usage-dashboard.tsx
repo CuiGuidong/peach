@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { EvilBarChart } from '@/registry/charts/recharts-bar-chart';
 import { Select, SelectItem } from '@/components/base/select/select';
-import { apiGet, errorMessage } from '../../api';
+import { apiGet } from '../../api';
 import { interfaceLanguage, t } from '../../i18n';
 import { CHART_COLORS, tone } from '../charts/chart-card';
 import { ChartTip } from '../charts/chart-tip';
 import { AIProviderLabel } from '../components/ai-provider-logo';
-import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { ExternalLink, Help, Rows, Stack } from './section';
 import { aiModelLabel } from './use-ai-models';
 import { ACCOUNT_DASHBOARDS, useAccountUsage } from './ai-account-usage';
@@ -103,7 +103,7 @@ export function AIUsageDashboard({ active, available, accessRestricted, provider
       {!available ? <Help><span data-copy-key={accessRestricted ? 'settings.aiLibrary.usage.accessUnavailable' : 'settings.aiLibrary.usage.loadUnavailable'}>
         {copy(accessRestricted ? 'accessUnavailable' : 'loadUnavailable')}
       </span></Help>
-        : query.isError ? <Note tone="error">{errorMessage(query.error)}</Note> : !usage ? <Help role="status">{copy('loading')}</Help> : <>
+        : query.isError ? <QueryErrorNote titleKey="settings:aiLibrary.usage.historyLoadFailed" query={query} /> : !usage ? <Help role="status">{copy('loading')}</Help> : <>
         <dl className="inline-grid w-full grid-cols-2 gap-2 @min-[34rem]:grid-cols-3">
           <UsageStat label="peach" value={total.requests && !total.measured ? copy('unreported') : tokens(total.input + total.output)} />
           <UsageStat label="requestSeries" value={number.format(total.requests)} />
@@ -165,7 +165,7 @@ function AccountComparison({ provider, days, active, usage }: {
 }) {
   const peach = usage.input + usage.output;
   const known = !usage.requests || usage.measured > 0;
-  const { organization, balance, note } = useAccountUsage(provider, days, active);
+  const { organization, balance, note, query, problem, canRetry } = useAccountUsage(provider, days, active);
   const comparison = organization !== null && known;
   const config = { peach: { label: copy('peach'), colors: tone(CHART_COLORS[0]) },
     organization: { label: copy('organizationUsed'), colors: tone(CHART_COLORS[1]) } };
@@ -183,9 +183,10 @@ function AccountComparison({ provider, days, active, usage }: {
       <EvilBarChart.Legend />
       <ChartTip hideLabel format={tokens} />
     </EvilBarChart> : null}
-    <Help><span data-copy-key={'settings.aiLibrary.usage.' + note}>
-      {copy(note, { key: provider === 'openai' ? 'OPENAI_ADMIN_KEY' : 'ANTHROPIC_ADMIN_KEY' })}
-    </span></Help>
+    {canRetry ? <QueryErrorNote titleKey="settings:aiLibrary.usage.accountFailed" query={query} reason={problem} />
+      : <Help>{problem ?? <span data-copy-key={'settings.aiLibrary.usage.' + note}>
+        {copy(note, { key: provider === 'openai' ? 'OPENAI_ADMIN_KEY' : 'ANTHROPIC_ADMIN_KEY' })}
+      </span>}</Help>}
     {ACCOUNT_DASHBOARDS[provider] ? <div><ExternalLink href={ACCOUNT_DASHBOARDS[provider]}>
       {copy(provider === 'openai-oauth' ? 'planLink' : 'accountDashboard')}
     </ExternalLink></div> : null}

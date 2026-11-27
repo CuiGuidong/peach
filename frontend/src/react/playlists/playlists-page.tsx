@@ -268,13 +268,12 @@ function PlaylistOrder({ row, close, toast }: { row: PlaylistRow; close(): void;
   const query = useQuery({ queryKey: ['playlist-order', row.id], queryFn: ({ signal }) => fetchPlaylist(row.id, signal),
     staleTime: 0, refetchOnWindowFocus: false, refetchOnReconnect: false });
   const data = query.data;
-  if (!data || query.isFetching) return <ModalFrame isOpen onOpenChange={open => { if (!open) close() }} width="form" label={t('catalog:playlistOrder.reorder')}>
-    <div className="p-5">{query.isError ? <RetryNote message={errorMessage(query.error)} onRetry={() => void query.refetch()} /> : <p role="status">{t('catalog:playlistOrder.loading')}</p>}
-      <Button variant="secondary" onClick={close}>{t('catalog:shared.cancel')}</Button></div>
-  </ModalFrame>;
   return <ObjectOrderDialog dropOnRow title={t('catalog:playlistOrder.dialogTitle', { name: row.name })} close={close}
-    items={data.items.map(item => ({ id: String(item.id), name: item.title || item.name || t('catalog:playlistOrder.fallbackName', { id: item.id }) }))}
+    pending={query.isFetching || query.isPending}
+    loadFailure={query.isError ? <RetryNote message={errorMessage(query.error)} onRetry={() => void query.refetch()} /> : null}
+    items={(data?.items || []).map(item => ({ id: String(item.id), name: item.title || item.name || t('catalog:playlistOrder.fallbackName', { id: item.id }) }))}
     save={async keys => {
+      if (!data) return;
       await reorderPlaylist(row.id, keys.map(Number));
       void refreshPlaylists();
       toast(t('catalog:playlistOrder.saved'), { undo: undoing(() => reorderPlaylist(row.id, data.items.map(item => item.id))) });

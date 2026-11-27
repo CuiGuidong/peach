@@ -1,6 +1,9 @@
 /* 实例记录精确的续播位置，浏览器只缓存尚未确认写入的记录。 */
 import { realDuration } from '@peach/legacy/core';
-import { apiGet } from '../api';
+import { toast } from 'sonner';
+import { ApiError, apiGet, errorMessage } from '../api';
+import { serverText } from '../core/server-text';
+import { t } from '../i18n';
 
 import type { PlayerItem } from './types';
 
@@ -9,6 +12,7 @@ const tracking = new WeakMap<HTMLVideoElement, () => void>();
 const SYNC_MS = 15_000;
 interface Position { seconds: number; updated_at: number }
 const inFlight = new Map<string, number>();
+const syncFailures = new Map<string, Position>();
 let lastStamp = 0;
 
 export function stopPlaybackPosition(video: HTMLVideoElement): void {
@@ -51,14 +55,38 @@ function clearConfirmed(key: string, at: number) {
 function syncPosition(key: string, position: Position) {
   if ((inFlight.get(key) ?? 0) >= position.updated_at) return;
   inFlight.set(key, position.updated_at);
+  const notice = `resume-sync:${key}`;
   return fetch(memoryUrl(key), { method: 'PUT', keepalive: true, headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ position }) })
     .then(async response => {
-      if (!response.ok) return 0;
-      const confirmed = validPosition((await response.json()).position);
-      if (confirmed) clearConfirmed(key, confirmed.updated_at);
-      return confirmed?.updated_at ?? 0;
-    }).catch(() => 0)
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new ApiError(serverText(payload), response.status, payload, { fromServer: true });
+      const confirmed = validPosition(payload?.position);
+      if (!confirmed || confirmed.updated_at < position.updated_at) throw new Error(t('catalog:playerMemory.resumeSyncUnconfirmed'));
+      clearConfirmed(key, confirmed.updated_at);
+      if (inFlight.get(key) === position.updated_at && syncFailures.delete(key)) toast.dismiss(notice);
+      return confirmed.updated_at;
+    }).catch(error => {
+      if (inFlight.get(key) !== position.updated_at) return 0;
+      const alreadyReported = syncFailures.has(key);
+      syncFailures.set(key, position);
+      if (alreadyReported) return 0;
+      toast.error(t('catalog:playerMemory.resumeSyncFailed', { reason: errorMessage(error) }), {
+        id: notice, toasterId: 'receipts', duration: Infinity,
+        action: { label: t('catalog:shared.retryNow'), onClick: event => {
+          event.preventDefault();
+          const button = event.currentTarget;
+          const pending = syncFailures.get(key);
+          if (!pending) return;
+          const local = storedPosition(key);
+          const retry = syncPosition(key, local && local.updated_at >= pending.updated_at ? local : pending);
+          if (!retry) return;
+          button.disabled = true;
+          void retry.finally(() => { button.disabled = false });
+        } },
+      });
+      return 0;
+    })
     .finally(() => { if (inFlight.get(key) === position.updated_at) inFlight.delete(key) });
 }
 

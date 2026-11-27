@@ -84,7 +84,7 @@ const ok = (body: unknown) => ({ ok: true, status: 200, json: async () => body }
 const refuse = (error: string) => ({ ok: false, status: 400, json: async () => ({ error }) });
 
 interface Plan {
-  data?: FollowData;
+  data?: FollowData | Promise<FollowData>;
   creds?: CredentialData;
   /** 检查任务的快照：给一串就按顺序一份一份回（最后一份之后一直回它），给函数就每次现问。
    *  函数回一个还没兑现的 Promise，就是这一问还在路上。 */
@@ -143,7 +143,7 @@ function serve(plan: Plan = {}) {
       return ok(await (plan.suggest ? plan.suggest(q) : { q, groups: [] }));
     }
     if (url.startsWith('/api/tag-management')) return ok({ items: [], total:0, categories:{}, duplicate_groups: [] });
-    if (url.startsWith(FOLLOW_URL)) return ok(plan.data ?? follow());
+    if (url.startsWith(FOLLOW_URL)) return ok(await (plan.data ?? follow()));
     throw new Error(`没有安排这个端点：${url}`);
   });
   vi.stubGlobal('fetch', fetcher);
@@ -180,7 +180,7 @@ const shellProps = (over: Partial<Props> = {}): Props => ({
 async function open(plan: Plan = {}, over: Partial<Props> = {}) {
   const fetcher = serve(plan);
   const props = shellProps(over);
-  await prefetchFollowManage(new AbortController().signal).catch(() => {});
+  await prefetchFollowManage(new AbortController().signal, props.tab);
   const mounted = await mountRoot(
     <QueryClientProvider client={queryClient}>{over.tab === 'source'
       ? <Credentials data={plan.creds || credentials()} readOnly={props.readOnly} toast={props.toast} />
@@ -191,16 +191,36 @@ async function open(plan: Plan = {}, over: Partial<Props> = {}) {
 
 const tick = (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync(ms) });
 
-it('订阅响应未完成时先显示关注读数与列表，订阅读数独立等待', async () => {
-  const delayed = pending<FeedsData>();
-  const { host } = await open({ feeds: delayed.answer });
-  expect(host.querySelector('[data-measured-reading="creators"] [aria-busy="true"]')).toBeNull();
-  expect(host.querySelector('[data-measured-reading="subscriptions"] [aria-busy="true"]')).not.toBeNull();
-  expect(host.querySelector('[data-follow-toolbar-actions]')).not.toBeNull();
-  await delayed.release({ sources: [], unread: 9 });
+it('页首先等关注列表取得结果再接管', async () => {
+  const delayed = pending<FollowData>();
+  serve({ data: delayed.answer });
+  const ready = vi.fn();
+  const initial = prefetchFollowManage(new AbortController().signal).then(ready);
   await settle();
-  expect(host.querySelector('[data-measured-reading="releases"] [aria-busy="true"]')).toBeNull();
-  expect(host.querySelector('[data-measured-reading="releases"] [data-follow-reading]')?.textContent).toBe('9 条');
+  expect(ready).not.toHaveBeenCalled();
+  await delayed.release(follow());
+  await initial;
+  expect(ready).toHaveBeenCalledOnce();
+});
+
+it('订阅源未取得时保留首屏骨架，取得后按最终顺序显示两块列表', async () => {
+  const delayed = pending<FeedsData>();
+  serve({ feeds: delayed.answer });
+  const ready = vi.fn();
+  const initial = prefetchFollowManage(new AbortController().signal).then(ready);
+  await settle();
+  expect(queryClient.getQueryData(FOLLOW_MANAGE_KEY)).toBeDefined();
+  expect(ready).not.toHaveBeenCalled();
+  await delayed.release(FEEDS);
+  await initial;
+  const { host } = await mountRoot(<QueryClientProvider client={queryClient}>
+    <FollowManagePage {...shellProps()} />
+  </QueryClientProvider>);
+  await settle();
+  const panel = host.querySelector('#follow-panel-list')!;
+  expect(panel.querySelector('[data-skeleton]')).toBeNull();
+  expect(panel.querySelector('section[aria-label*="JAV"]')?.compareDocumentPosition(
+    panel.querySelector('[data-follow-toolbar-heading]')!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 });
 
 const cards = (root: ParentNode) => [...root.querySelectorAll('section[aria-label$="的关注来源"]')];
@@ -940,7 +960,6 @@ it('只读订阅管理的查找、开关、移除与拉取都停用', async () =
   queryClient.clear();
   const add = await open({}, { tab: 'add', readOnly: true });
   expect(nameField(add.host).disabled).toBe(true);
-  expect(buttonNamed('查找', actorPanel(add.host))?.disabled).toBe(true);
 });
 
 /** 刚好铺满两页的订阅源：每页 20 条起，第二页只剩一条。 */
@@ -1031,7 +1050,7 @@ const LOOKUP: FeedLookup = {
   candidates: [card('Kn01', ['瀬戸環奈', '瀨戶環奈']), card('Kn02', ['瀬戸環奈'], '無碼'), card('Zz99', ['別人さん'])],
 };
 
-it('JAV 联想显示头像，按键盘提交后往返期间显示进度并随后交接给结果表', async () => {
+it('JAV 联想显示头像，按回车查找时在输入框内显示 Spinner，完成后展示结果表', async () => {
   vi.useFakeTimers();
   let finish!: (result: FeedLookup) => void;
   const lookup = vi.fn(() => new Promise<FeedLookup>(resolve => { finish = resolve }));
@@ -1048,10 +1067,13 @@ it('JAV 联想显示头像，按键盘提交后往返期间显示进度并随后
   await press(input, 'ArrowDown');
   await press(input, 'Enter');
   expect(lookup).toHaveBeenCalledWith('瀬戸環奈');
-  expect(actorPanel(host).querySelector('[role="status"]')?.textContent).toBe('正在搜索 JavDB 和 DMM');
+  expect(input.closest('form')?.getAttribute('aria-busy')).toBe('true');
+  expect(input.closest('form')?.querySelector('.ui-geist-spinner')).not.toBeNull();
+  expect(actorPanel(host).textContent).toContain('正在搜索 JavDB 和 DMM');
+  expect(actorPanel(host).querySelector('[data-task-progress]')).toBeNull();
   await act(async () => { finish(LOOKUP) });
   await settle();
-  expect(actorPanel(host).querySelector('[data-task-progress]')).toBeNull();
+  expect(input.closest('form')?.hasAttribute('aria-busy')).toBe(false);
   expect(actorPanel(host).querySelector('a[href="https://javdb.com/actors/Kn01"]')).not.toBeNull();
 });
 
@@ -1113,9 +1135,9 @@ it('按名字查找列出每张演员卡，同一个人的两张先勾上；说�
   const feedWrite = vi.fn(() => ok({ ok: true, entity_id: 9, entity_name: '瀬戸環奈', created: true, sources: [7, 8] }));
   const { host, fetcher, props } = await open({ feeds: FEEDS, lookup, feedWrite }, { tab: 'add' });
   const before = feedReads(fetcher);
-  expect(buttonNamed('查找', actorPanel(host))?.disabled).toBe(true);
+  expect(buttonNamed('查找', actorPanel(host))).toBeNull();
   await type(nameField(host), ' 瀬戸環奈 ');
-  await click(buttonNamed('查找', actorPanel(host)));
+  await press(nameField(host), 'Enter');
   await settle();
   expect(lookup).toHaveBeenCalledWith('瀬戸環奈');
   expect(boxNamed(host, '瀨戶環奈')?.checked).toBe(true);
@@ -1172,7 +1194,7 @@ it('JavDB 有结果时仍列出已关联的 DMM 页，源站名和订阅状态�
   ] } });
   const { host } = await open({ feeds: FEEDS, lookup }, { tab: 'add' });
   await type(nameField(host), '瀬戸環奈');
-  await click(buttonNamed('查找', actorPanel(host)));
+  await press(nameField(host), 'Enter');
   await settle();
   const rows = (url: string) => actorPanel(host).querySelector(`a[href="${url}"]`)?.closest('[role="row"]');
   expect(rows(LOOKUP.candidates[0]!.url)?.textContent).toContain('已订阅');
@@ -1197,7 +1219,7 @@ it('JavDB 搜不成时，库里已有编号的她可以直接订，原因照样�
   const feedWrite = vi.fn(() => ok({ ok: true, entity_id: 5, entity_name: '瀬戸環奈', created: false, sources: [7] }));
   const { host, props } = await open({ feeds: FEEDS, lookup, feedWrite }, { tab: 'add' });
   await type(nameField(host), '瀬戸環奈');
-  await click(buttonNamed('查找', actorPanel(host)));
+  await press(nameField(host), 'Enter');
   await settle();
   expect(host.textContent).toContain('JavDB 没有搜成：来源正在冷却');
   expect(host.textContent).toContain('未订阅');
@@ -1219,7 +1241,7 @@ it('馆藏没有这位艺人时可勾选网上找到的 DMM 页面', async () =>
   const feedWrite = vi.fn(() => ok({ ok: true, entity_id: 9, entity_name: '瀬戸環奈', created: true, sources: [7] }));
   const { host } = await open({ feeds: FEEDS, lookup, feedWrite }, { tab: 'add' });
   await type(nameField(host), '瀬戸環奈');
-  await click(buttonNamed('查找', actorPanel(host)));
+  await press(nameField(host), 'Enter');
   await settle();
   const row = actorPanel(host).querySelector(`a[href="${url}"]`)?.closest('[role="row"]');
   expect(row?.textContent).toContain('未订阅');
@@ -1235,7 +1257,7 @@ it('馆藏没有这位艺人时可勾选网上找到的 DMM 页面', async () =>
 it('查找被服务端挡回时原因摆在卡里，没有候选时直说', async () => {
   const first = await open({ feeds: FEEDS, lookup: () => refuse('JavDB 回的是登入页') }, { tab: 'add' });
   await type(nameField(first.host), '甲');
-  await click(buttonNamed('查找', actorPanel(first.host)));
+  await press(nameField(first.host), 'Enter');
   await settle();
   expect(first.host.textContent).toContain('JavDB 回的是登入页');
   await first.unmount();
@@ -1243,7 +1265,7 @@ it('查找被服务端挡回时原因摆在卡里，没有候选时直说', asyn
 
   const none = await open({ feeds: FEEDS }, { tab: 'add' });
   await type(nameField(none.host), '乙');
-  await click(buttonNamed('查找', actorPanel(none.host)));
+  await press(nameField(none.host), 'Enter');
   await settle();
   expect(none.host.textContent).toContain('JavDB 和 DMM 均未找到匹配的艺人。');
   expect(buttonNamed('关闭', none.host)).not.toBeNull();

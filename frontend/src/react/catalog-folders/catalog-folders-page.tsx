@@ -15,6 +15,7 @@ import { errorMessage } from '../../api';
 import { ModalFrame } from '../components/modal-frame';
 import { SettingsDialogClose } from '../components/settings-dialog-close';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { EmptyState } from '../components/empty-state';
 import { useOverlayScrollbar } from '../components/overlay-scrollbar';
 import { ShellActionsContext } from '../router/router';
@@ -173,7 +174,7 @@ function FolderTree({ scope, selected, current, go, reportedError }: {
     <div className="folder-tree-frame relative flex min-h-0 flex-col overflow-hidden rounded-3xl"><div ref={scroll} className="folder-tree-scroller">
       {roots.error ? null : roots.isPending ? <div data-skeleton="" aria-busy="true" aria-label={t('catalog:catalogFolders.loadingTree')} className="flex flex-col gap-2">{Array.from({ length: 8 }, (_, i) => <div key={i} className="flex h-8 items-center gap-2 px-3"><span className="skeleton-sheen size-4" /><span className="skeleton-sheen h-4 flex-1" /></div>)}</div>
         : deferredSearch ? <div className="flex flex-col gap-1">{searchQuery.isPending ? <div data-skeleton="" aria-busy="true" className="h-8 skeleton-sheen" aria-label={t('catalog:catalogFolders.searching')} />
-          : searchQuery.error ? <Note tone="error">{errorMessage(searchQuery.error)}</Note>
+          : searchQuery.error ? <QueryErrorNote titleKey="catalog:catalogFolders.searchFailed" query={searchQuery} />
           : searchQuery.data?.matches.length ? searchQuery.data.matches.map(node => <Button key={node.id} variant="secondary" size="small" leadingIcon={RiFolder3Line}
             onClick={() => { setSearch(''); go(node.id) }}>{node.name}</Button>) : <EmptyState size="compact" icon={RiSearchLine} title={t('catalog:catalogFolders.noMatches')}
               actions={<Button size="small" onClick={() => setSearch('')}>{t('catalog:shared.clearSearch')}</Button>}>{t('catalog:catalogFolders.tryAnotherName')}</EmptyState>}</div>

@@ -48,6 +48,39 @@ const TAB = 'relative flex flex-none cursor-pointer items-center whitespace-nowr
   + ' hover:text-text-primary aria-selected:bg-background-tertiary-default aria-selected:text-text-primary'
   + ' max-board-narrow:px-2.25 max-board-narrow:text-body-2-regular';
 
+export function BoardNavLinks<V extends string>({ tabs, value, label, hrefFor, onChange }: {
+  tabs: readonly BoardTab<V>[]; value: V; label: string; hrefFor(value: V): string; onChange(value: V): void;
+}) {
+  const list = useRef<HTMLDivElement>(null);
+  const scrollRef = useHorizontalScroller(list, true);
+  useLayoutEffect(() => {
+    const host = list.current;
+    const current = host?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!current || !host) return;
+    const left = current.offsetLeft, right = left + current.offsetWidth;
+    if (left < host.scrollLeft) host.scrollLeft = left;
+    else if (right > host.scrollLeft + host.clientWidth) host.scrollLeft = right - host.clientWidth;
+  }, [value]);
+  return <nav aria-label={label} className="mb-5.5">
+    <PillTabList ref={scrollRef} data-board-tab-list="" data-pill-nav="" className="relative flex gap-1 overflow-x-auto max-board-narrow:gap-0">
+      {tabs.map(tab => {
+        const Glyph = tab.symbol ? spriteGlyph(tab.symbol) : null;
+        const current = tab.value === value;
+        return <a key={tab.value} data-tab={tab.value} href={hrefFor(tab.value)} aria-current={current ? 'page' : undefined}
+          data-pill-selected={current ? '' : undefined} data-pill-variant="gray"
+          className={TAB + ' no-underline aria-[current=page]:bg-background-tertiary-default aria-[current=page]:text-text-primary'}
+          onClick={event => {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return;
+            event.preventDefault(); if (!current) onChange(tab.value);
+          }}>
+          {Glyph ? <Glyph className="mr-1.5 size-(--icon-inline)" aria-hidden="true" /> : null}
+          {tab.label}{tab.badge}
+        </a>;
+      })}
+    </PillTabList>
+  </nav>;
+}
+
 export function BoardTabs<V extends string>(
   { tabs, value, label, onChange, className = 'mb-5.5', itemClassName = TAB, orientation = 'horizontal',
     disabled = false, panelPrefix, sectionItems, listRef, reorder, orderGroup }: BoardTabsProps<V>,

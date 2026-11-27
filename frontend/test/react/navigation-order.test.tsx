@@ -46,7 +46,7 @@ it('排序行复用侧栏键盘移动，显示项可全部隐藏并恢复，调�
   expect([...host.querySelectorAll('[data-entity-sort]')].map(node => node.getAttribute('data-entity-sort'))).toEqual(['hot', 'new', 'dur']);
   expect(writes).toContainEqual({ sortControls: { follow: { order: ['source', 'hot', 'tags', 'new', 'dur'], hidden: [] } } });
   expect(change).not.toHaveBeenCalled();
-  expect(host.querySelector('[data-entity-sort="new"]')?.getAttribute('aria-pressed')).toBe('true');
+  expect(host.querySelector('[data-entity-sort="new"]')?.getAttribute('data-sort-current')).toBe('true');
   await click(host.querySelector('[data-sort-settings]'));
   await settle();
   for (const input of document.querySelectorAll('[data-navigation-rows] input[type="checkbox"]:not(:disabled)')) await click(input);

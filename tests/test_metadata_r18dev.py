@@ -180,7 +180,7 @@ class R18DevSourceTests(unittest.TestCase):
             R18DevSource().query("ABW-358", session=Session(serve({DETAIL_URL: SourcePaused("errors.scrapingAccess.coolingDown")})))
         with self.assertRaises(SourceFailure) as caught:
             R18DevSource().query("ABW-358", session=Session(serve({DETAIL_URL: Unavailable("errors.scrapingAccess.requestBudgetSpent")})))
-        self.assertEqual((caught.exception.reason, str(caught.exception)), (FailureReason.NETWORK, "本趟采集次数已用完，再跑一次接着采；已有图片保留"))
+        self.assertEqual((caught.exception.reason, str(caught.exception)), (FailureReason.NETWORK, "已达到本次查询次数上限。重新运行可继续，已有图片会保留。"))
 
 
 class OriginalWordingTests(unittest.TestCase):

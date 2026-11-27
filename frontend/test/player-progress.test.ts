@@ -8,6 +8,7 @@ import { mountDetailPlayer } from '../src/player/detail-player';
 import { configurePlayer } from '../src/player/host';
 import { setDetailPlayer } from '../src/player/registry';
 import * as videojsLoader from '../src/player/videojs';
+import { toast } from 'sonner';
 
 const item = { id: 12, duration: 300, leave_ratio: .4 };
 const key = playbackKey('item', item);
@@ -17,6 +18,33 @@ beforeEach(() => { localStorage.clear(); video = document.createElement('video')
 afterEach(() => { stopPlaybackPosition(video); stopTelemetry(video); vi.useRealTimers(); vi.unstubAllGlobals() });
 
 describe('视频续播位置', () => {
+  it('实例写入失败时显示续播同步提示，重试只发送浏览器中最新的待确认位置', async () => {
+    const errorToast = vi.spyOn(toast, 'error').mockReturnValue('resume-sync:item:987');
+    const resumeKey = 'item:987';
+    let recovered = false;
+    const fetcher = vi.fn(async (_path: string, init?: RequestInit) => {
+      if (!recovered) return Response.json({ detail: '实例不可写' }, { status: 503 });
+      return Response.json(JSON.parse(String(init?.body)));
+    });
+    vi.stubGlobal('fetch', fetcher);
+    trackPlaybackPosition(resumeKey, video);
+    video.dispatchEvent(new Event('loadedmetadata'));
+    video.dispatchEvent(new Event('play'));
+    video.currentTime = 32;
+    video.dispatchEvent(new Event('pause'));
+    await vi.waitFor(() => expect(errorToast).toHaveBeenCalledWith(expect.stringContaining('续播位置尚未同步'),
+      expect.objectContaining({ id: `resume-sync:${resumeKey}` })));
+    expect(playbackPosition(resumeKey, item)).toBe(32);
+    const attempt = errorToast.mock.calls.at(-1)![1];
+    recovered = true;
+    const action = attempt?.action;
+    if (!action || typeof action !== 'object' || !('onClick' in action)) throw new Error('缺少重试操作');
+    action.onClick({ preventDefault() {}, currentTarget: document.createElement('button') } as React.MouseEvent<HTMLButtonElement>);
+    errorToast.mockRestore();
+    await vi.waitFor(() => expect(localStorage.getItem(`peach.playback-position.v1:${resumeKey}`)).toBeNull());
+    expect(JSON.parse(String(fetcher.mock.calls.at(-1)?.[1]?.body)).position.seconds).toBe(32);
+  });
+
   it('读取实例位置后清除浏览器的旧记录', async () => {
     localStorage.setItem(`peach.playback-position.v1:${key}`, '32');
     vi.stubGlobal('fetch', vi.fn(async () => Response.json({ position: { seconds: 91, updated_at: 12000 } })));

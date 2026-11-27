@@ -1,5 +1,5 @@
 /* 任务动作由服务端逐轮给出；收到控制请求不代表后台已经停稳，状态仍以轮询为准。 */
-import { useRef } from 'react';
+import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { RiPauseLine, RiPlayLine, RiStopLine } from '@remixicon/react';
 import { useMutation, useMutationState, useQueryClient } from '@tanstack/react-query';
 import { confirmModal } from '@peach/legacy/ui';
@@ -7,6 +7,7 @@ import { confirmModal } from '@peach/legacy/ui';
 import { Button } from '@/components/base/buttons/button';
 
 import { errorMessage } from '../../api';
+import { ActionSpinner } from '../components/action-spinner';
 import { Note } from '../components/note';
 import { busyProps } from '../settings/use-action';
 import { ProcessingMode } from '../library-processing/processing-effort';
@@ -20,9 +21,31 @@ const LABELS = { pause: t('manage:shared.pause'), resume: t('manage:shared.resum
 const FOLLOWUP_LABELS = { pause: t('manage:taskControls.pauseFollowups'), resume: t('manage:taskControls.resumeFollowups'), cancel: t('manage:taskControls.cancelFollowups') };
 
 interface ControlCommand { id: number; label: string; action: TaskControlAction; followups: boolean }
+interface ControlFailure { command: ControlCommand; error: unknown }
+
+const FeedbackScope = createContext<{
+  failed: ReadonlyMap<number, ControlFailure>;
+  registerInline(id: number): () => void;
+} | null>(null);
+
+function ControlError({ command, error, className }: ControlFailure & { className?: string }) {
+  const label = (command.followups ? FOLLOWUP_LABELS : LABELS)[command.action];
+  return <Note tone="error" className={className} title={t('manage:taskControls.actionFailed', { task: command.label, action: label })}>
+    {errorMessage(error)}
+  </Note>;
+}
 
 /** 请求结果属于任务中心，任务转入终态、卸载原卡片后仍保留未接受的操作及原因。 */
-export function TaskControlFeedback() {
+export function TaskControlFeedback({ children }: { children: ReactNode }) {
+  const [inline, setInline] = useState<ReadonlySet<number>>(() => new Set());
+  const registerInline = useCallback((id: number) => {
+    setInline(ids => new Set(ids).add(id));
+    return () => setInline(ids => {
+      const remaining = new Set(ids);
+      remaining.delete(id);
+      return remaining;
+    });
+  }, []);
   const mutations = useMutationState({
     filters: { mutationKey: CONTROL_KEY },
     select: (mutation) => ({
@@ -39,18 +62,20 @@ export function TaskControlFeedback() {
     const previous = latest.get(command.id);
     if (!previous || previous.id < mutation.id) latest.set(command.id, { ...mutation, command });
   }
-  const failed = [...latest.values()].filter((mutation) => mutation.status === 'error');
-  if (!failed.length) return null;
-  return <div data-task-control-feedback="" className="flex min-w-0 flex-col gap-2">
-    {failed.map(({ command, error }) => <Note key={command.id} tone="error"
-      title={t('manage:taskControls.actionFailed', { task: command.label, action: (command.followups ? FOLLOWUP_LABELS : LABELS)[command.action] })}>
-      {errorMessage(error)}
-    </Note>)}
-  </div>;
+  const failed = new Map([...latest].filter(([, mutation]) => mutation.status === 'error'));
+  const fallback = [...failed.values()].filter(({ command }) => command.action === 'cancel' || !inline.has(command.id));
+  return <FeedbackScope.Provider value={{ failed, registerInline }}>
+    {fallback.length ? <div data-task-control-feedback="" className="flex min-w-0 flex-col gap-2">
+      {fallback.map(failure => <ControlError key={failure.command.id} {...failure} />)}
+    </div> : null}
+    {children}
+  </FeedbackScope.Provider>;
 }
 
 /** `runs` 是并在同一张卡里的几批，按钮对每一批各发一次；不给就只管 `run` 这一轮。 */
-export function TaskControls({ run, runs = [run] }: { run: TaskRunPayload; runs?: TaskRunPayload[] }) {
+export function TaskControls({ run, runs = [run], visible = true }:
+  { run: TaskRunPayload; runs?: TaskRunPayload[]; visible?: boolean }) {
+  const feedback = useContext(FeedbackScope);
   const client = useQueryClient();
   const pending = useRef({ change: false, cancel: false, confirmation: false });
   const refresh = () => { void client.invalidateQueries({ queryKey: TASKS_KEY }) };
@@ -88,7 +113,14 @@ export function TaskControls({ run, runs = [run] }: { run: TaskRunPayload; runs?
   const canSetSpeed = Boolean(run.control?.actions.includes('set_speed') && run.control.speed_mode);
   const followups = !isActive(run);
   const cancelling = cancellation.isPending || cancellation.isSuccess;
-  if (!actions.length && !canSetSpeed) return null;
+  const hasControls = Boolean(actions.length) || canSetSpeed;
+  const failure = feedback?.failed.get(run.id);
+  const showInline = visible && hasControls;
+  const registerInline = feedback?.registerInline;
+  useLayoutEffect(() => {
+    if (showInline) return registerInline?.(run.id);
+  }, [showInline, registerInline, run.id]);
+  if (!hasControls) return null;
 
   const submit = (action: TaskControlAction) => {
     const command = { id: run.id, label: taskName(run), action, followups };
@@ -126,13 +158,14 @@ export function TaskControls({ run, runs = [run] }: { run: TaskRunPayload; runs?
           const busy = action === 'cancel' ? cancellation.isPending : change.isPending && change.variables?.action === action;
           const unavailable = action === 'cancel' ? cancelling : change.isPending || cancelling;
           return <Button key={action} type="button" variant="secondary" size="small"
-            leadingIcon={ICONS[action]} aria-label={label} title={label}
+            leadingIcon={busy ? ActionSpinner : ICONS[action]} aria-label={label} title={label}
             {...busyProps(busy)} aria-disabled={unavailable || undefined}
             onClick={() => submit(action)}>
             <span data-copy-key={`tasks.control.action.${followups ? 'followups.' : ''}${action}`}>{label}</span>
           </Button>;
         })}
       </div>
+      {showInline && failure && failure.command.action !== 'cancel' ? <ControlError {...failure} className="mt-2" /> : null}
       {speed.error ? <Note tone="error">{errorMessage(speed.error)}</Note> : null}
     </div>
   );

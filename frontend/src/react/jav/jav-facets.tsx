@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { leadingGraphemes } from '@peach/legacy/core';
+import { entityPath, leadingGraphemes } from '@peach/legacy/core';
 import { logoUrl } from '@peach/card-art';
+import { RiFolderOpenLine } from '@remixicon/react';
+import { ButtonLink } from '@/components/base/buttons/button';
 import { avatarInner } from '../../card-art/markup';
 import { castPersonName } from '../components/cast-popover';
 import { t } from '../../i18n';
@@ -60,4 +62,11 @@ export function StudioFilterLabel({ studio }: { studio: Studio }) {
     <ColumnFilterStudioAvatar studio={studio} />
     <span className="truncate">{studio.name}</span>
   </span>;
+}
+
+export function StudioLibraryLink({ studio }: { studio: { name: string; entity_id?: number | null } }) {
+  if (!studio.entity_id) return null;
+  const label = t('catalog:libraryAssistant.openLibrary');
+  return <ButtonLink href={entityPath('studio', studio.name, studio.entity_id)} variant="ghost" size="small"
+    iconOnly leadingIcon={RiFolderOpenLine} aria-label={`${label} · ${studio.name}`} title={label} />;
 }

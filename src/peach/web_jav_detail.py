@@ -16,6 +16,7 @@ from .javdb_public import (MAX_REVIEW_PAGES, PAGE_SIZE, PUBLIC_API, PublicSource
                           public_cache_scope, cache_checked_at, cache_error, cache_failure)
 from .jav_discovery_metadata import discovery_metadata
 from .metadata import relay_args
+from .profiles import read_settings
 from .sources.javdb import maker_writing, page_reader
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, cache_for
 from .preview_cache import PreviewCache
@@ -130,7 +131,8 @@ def q_jav_detail(contract, args) -> dict:
                "release_date": item.get("release_date"), "studio": item.get("studio")}
     with contract.database.read_connection() as connection:
         decisions = load_genre_decisions(connection)
-    payload.update(_source_fields(source or {}, decisions))
+        original_tags = read_settings(connection).get("sourceTagsOriginal") is True
+    payload.update(_source_fields(source or {}, decisions, original_tags=original_tags))
     # 官方目录退路没有 JavDB 作品 id：样张、预告与来源链接只按 JavDB 那份算，退路只补标题、厂牌、类别与演员。
     javdb = source if source and source.get("id") else {}
     payload.update(_artwork_fields(contract, code, item, javdb, refresh=args.get('refresh') == '1',
@@ -244,7 +246,7 @@ def _cover_reason(contract, code) -> dict:
             "cover_message_code": reason['code'], "cover_message_params": reason['params']}
 
 
-def source_tags(source, decisions):
+def source_tags(source, decisions, *, original_tags=False):
     tags = [str(tag.get("name") or "") if isinstance(tag, dict) else str(tag)
             for tag in source.get("tags", [])]
     tag_refs = []
@@ -252,14 +254,14 @@ def source_tags(source, decisions):
         label = resolve_genre(raw, decisions)
         if label is None:
             continue
-        label = label or raw
-        if label and all(ref["name"] != label for ref in tag_refs):
-            tag_refs.append({"name": label, "category": tag_cat(label), "source_name": raw})
+        name = raw if original_tags else label or raw
+        if name and all(ref["name"] != name for ref in tag_refs):
+            tag_refs.append({"name": name, "category": tag_cat(label or raw), "source_name": raw})
     return [tag for tag in tags if tag], tag_refs
 
 
-def _source_fields(source, decisions):
-    tags, tag_refs = source_tags(source, decisions)
+def _source_fields(source, decisions, *, original_tags=False):
+    tags, tag_refs = source_tags(source, decisions, original_tags=original_tags)
     return {"duration": source.get("duration"), "score": source.get("score"),
             "summary": source.get("summary") or "", "director": source.get("director_name") or "",
             "publisher": source.get("publisher_name") or "", "tags": tags,

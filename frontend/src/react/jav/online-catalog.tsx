@@ -7,7 +7,7 @@ import { Chip } from '@/components/base/badges/chip';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { apiGet, errorMessage } from '../../api';
-import { JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID, javTagPlaceholdersHtml, onlineCatalogCardsHtml, onlineCatalogTiersHtml } from '../../jav-skeleton';
+import { JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID, JAV_TAG_STRIP_SKELETON, javFacetTiersHtml, javTagPlaceholdersHtml, onlineCatalogCardsHtml } from '../../jav-skeleton';
 import { JavGlassSearch } from './jav-header';
 import { castPersonName, dmmPerformerName } from '../components/cast-popover';
 import { t } from '../../i18n';
@@ -44,8 +44,9 @@ import { librarySuggest } from '../search/library-suggest';
 const PERFORMER_SUGGEST = librarySuggest(['performer']);
 
 interface CatalogTag { id: string; name: string; source_name: string }
-type CatalogStudio = CatalogTag & Omit<ReleaseFacetStudio, 'count'>;
+type CatalogStudio = CatalogTag & Omit<ReleaseFacetStudio, 'count'> & { entity_id?: number | null };
 type CatalogPerson = DiscoveryPerson & { dmm_id: string; source_url: string };
+type CatalogPerformerOption = Omit<DiscoveryPerson, 'id'> & { id: string; entity_id?: number | null };
 
 interface CatalogWork {
   id: string; code: string; title: string; date: string; pre_order: boolean; url: string; cover_url: string;
@@ -55,7 +56,7 @@ const EMPTY_WORKS: CatalogWork[] = [];
 
 interface CatalogPage {
   items: CatalogWork[]; total: number; page: number; pages: number; size: number;
-  performer_options: { id: string; name: string }[]; selected_actress?: string;
+  performer_options: CatalogPerformerOption[]; selected_actress?: string;
   coverUnverified?: boolean;
   coverOmitted?: boolean;
 }
@@ -109,12 +110,22 @@ function genresFromAddress(genre: string): string[] {
   return genre ? genre.split(',') : [];
 }
 
+function visibleTags(tags: CatalogTag[], selected: string[]): CatalogTag[] {
+  const byName = new Map<string, CatalogTag>();
+  for (const tag of tags) {
+    const current = byName.get(tag.name);
+    if (!current || (!selected.includes(current.id) && selected.includes(tag.id))) byName.set(tag.name, tag);
+  }
+  return [...byName.values()];
+}
+
 type Facet<T> = ReturnType<typeof countJavFacets<CatalogWork, T>>[number];
 
-function CatalogPerformerFilter({ filters, data, people, selected, go, close }: {
+function CatalogPerformerFilter({ filters, data, people, selected, personLabel, pending, error, go, close }: {
   filters: Filters; data?: CatalogPage; people: Facet<CatalogPerson>[]; selected: string; go(next: Filters): void; close(): void;
+  personLabel: string; pending: boolean; error: unknown;
 }) {
-  const [name, setName] = useState(filters.performer);
+  const [name, setName] = useState(personLabel);
   // 敲名字时给馆藏里的女优候选（名字与别名都认），提交方式不变。
   const suggestions = useDatalistSuggest('online-performer', name, PERFORMER_SUGGEST);
   const choose = (performer: string, actress: string) => {
@@ -125,14 +136,17 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
     <form className="flex flex-col gap-3 px-3" onSubmit={event => {
       event.preventDefault();
       const performer = name.trim();
-      choose(performer, performer === filters.performer ? filters.actress : '');
+      if (performer === personLabel) choose(filters.performer, selected);
+      else choose(performer, '');
     }} data-copy-interact="">
       <Input size="small" label={t('follow:addJavFeed.actressName')} value={name} onChange={setName} maxLength={120} ref={suggestions.bind} />
       {suggestions.list}
-      {data && data.performer_options.length > 1 ? <Select size="sm" aria-label={t('catalog:javOnline.performerPage')}
+      {!pending && data && data.performer_options.length > 1 ? <Select size="sm" aria-label={t('catalog:javOnline.performerPage')}
         prefix={t('catalog:javOnline.performerPage')} selectedKey={data.selected_actress}
         onSelectionChange={key => { if (key !== null) choose(filters.performer, String(key)) }}>
-        {data.performer_options.map(option => <SelectItem key={option.id} id={option.id}>{dmmPerformerName(option.name)}</SelectItem>)}
+        {data.performer_options.map(option => <SelectItem key={option.id} id={option.id}>
+          {castPersonName({ ...option, id: option.entity_id, dmm_id: option.id })}
+        </SelectItem>)}
       </Select> : null}
       <div className="flex justify-end gap-2">
         {filters.performer || filters.actress ? <Button size="small" variant="ghost" type="button"
@@ -140,21 +154,21 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
         <Button size="small" type="submit">{t('follow:shared.search')}</Button>
       </div>
     </form>
-    {people.length ? <div className="mt-2">
+    {pending || people.length ? <div className="mt-2">
       <p className="mb-1 px-3 text-caption-1-regular text-text-secondary">{t('catalog:javOnline.facetScope')}</p>
-      <FilterChoiceList choices={people.map(({ id, value, count }) => ({
-        id, count, label: castPersonName(value), searchTerms: [value.name], selected: id === selected,
+      <FilterChoiceList pending={pending} withAvatar choices={people.map(({ id, value, count }) => ({
+        id, count, label: castPersonName(value), searchTerms: [value.name, value.source_name || '', value.source_zh_cn || ''], selected: id === selected,
         leading: <ColumnFilterAvatar person={value} />,
       }))} onSelect={id => {
         const person = people.find(option => option.id === id)?.value;
-        if (person) choose(id === selected ? '' : person.name, id === selected ? '' : id);
+        if (person) choose(id === selected ? '' : person.source_name || person.name, id === selected ? '' : id);
       }} />
-    </div> : null}
+    </div> : error ? <div className="px-3 pt-2"><Note tone="error">{errorMessage(error)}</Note></div> : null}
   </MenuDialog>;
 }
 
 export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path: string): void; query?: string }) {
-  useEntityNames();
+  const namesVersion = useEntityNames();
   const [filters, setFilters] = useState(catalogFilters);
   const [sorting, setSorting] = useState(onlineSorting);
   const [code, setCode] = useState(() => new URLSearchParams(location.search).get('code') || '');
@@ -184,6 +198,7 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
   });
   const waiting = query.isPending || query.isPlaceholderData;
   const initialLoading = query.isPending;
+  const facetError = query.data ? undefined : query.error;
   useEffect(() => {
     const data = query.data;
     if (waiting || !data || data.page === filters.page) return;
@@ -224,25 +239,37 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
   const fetched = query.data?.items ?? EMPTY_WORKS;
   const works = useMemo(() => {
     const needle = keyword.toLocaleLowerCase();
-    return needle ? fetched.filter(work => [work.code, work.title, work.studio?.name ?? '', ...work.people.map(person => person.name),
-      ...work.tags.map(tag => tag.name)].join(' ').toLocaleLowerCase().includes(needle)) : fetched;
-  }, [fetched, keyword]);
+    return needle ? fetched.filter(work => [work.code, work.title, work.studio?.name, work.studio?.source_name,
+      ...work.people.flatMap(person => [person.name, person.source_name, person.source_zh_cn, castPersonName(person)]),
+      ...work.tags.flatMap(tag => [tag.name, tag.source_name])].join(' ').toLocaleLowerCase().includes(needle)) : fetched;
+  }, [fetched, keyword, namesVersion]);
   const genres = genresFromAddress(filters.genre);
   const people = countJavFacets(works, work => work.people, person => person.dmm_id, [actress]);
   const studios = countJavFacets(works, work => work.studio ? [work.studio] : [], studio => studio.id, [filters.maker]);
   const tags = countJavFacets(works, work => work.tags, tag => tag.id, genres);
-  const tagChoices = tags.map(({ id, value, count }) => ({ id, label: value.source_name, searchTerms: [value.name],
-    count, selected: genres.includes(id) }));
+  const tagVariants = new Map<string, number>();
+  for (const { value } of tags) tagVariants.set(value.name, (tagVariants.get(value.name) || 0) + 1);
+  const tagChoices = tags.map(({ id, value, count }) => ({
+    id, label: value.name, searchTerms: [value.source_name], count, selected: genres.includes(id),
+    content: (tagVariants.get(value.name) || 0) > 1 && value.source_name !== value.name
+      ? <>{value.name}<span className="ml-2 text-caption-1-regular text-text-secondary">{value.source_name}</span></>
+      : undefined,
+  }));
+  // 快捷条每个规范标签只占一格。下拉仍可选各来源编号，因为 DMM 同传两个编号会取交集。
+  const quickTagIds = new Set(visibleTags(tags.map(({ value }) => value), genres).map(tag => tag.id));
+  const quickTags = tagChoices.filter(choice => quickTagIds.has(choice.id));
   const activePerson = people.find(option => option.id === actress)?.value;
+  const activeOption = query.data?.performer_options.find(option => option.id === actress);
   const personLabel = activePerson ? castPersonName(activePerson)
-    : dmmPerformerName(query.data?.performer_options.find(option => option.id === actress)?.name || filters.performer || actress);
+    : activeOption ? castPersonName({ ...activeOption, id: activeOption.entity_id, dmm_id: activeOption.id })
+      : dmmPerformerName(filters.performer || actress);
   const studioName = studios.find(option => option.id === filters.maker)?.value.name
     || conditionNames[`studio:${filters.maker}`] || filters.maker;
   const genreName = (id: string) =>
-    tags.find(option => option.id === id)?.value.source_name || conditionNames[`tag:${id}`] || id;
+    tags.find(option => option.id === id)?.value.name || conditionNames[`tag:${id}`] || id;
   const choosePerson = (person: DiscoveryPerson) => {
     const active = person.dmm_id === actress;
-    go({ ...filters, performer: active ? '' : person.name, actress: active ? '' : person.dmm_id || '', page: 1 });
+    go({ ...filters, performer: active ? '' : person.source_name || person.name, actress: active ? '' : person.dmm_id || '', page: 1 });
   };
   const chooseStudio = (id: string) => {
     const value = studios.find(option => option.id === id)?.value;
@@ -270,17 +297,17 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
   const changeCode = (value: string) => { setCode(value); writeJavQuery({ code: value }) };
   const performerFilter = (id: string, toolbar: boolean) => <ColumnFilterPopover id={id} orderKey="performer"
     label={performerLabel} active={hasPerformer} toolbar={toolbar} view={toolbar ? viewTrigger(id) : undefined}>
-    {close => <CatalogPerformerFilter filters={filters} data={query.data} people={people} selected={actress} go={go} close={close} />}
+    {close => <CatalogPerformerFilter filters={filters} data={query.data} people={people} selected={actress} personLabel={personLabel} pending={waiting} error={facetError} go={go} close={close} />}
   </ColumnFilterPopover>;
   const studioFilter = (id: string, toolbar: boolean) => <FilterDropdown id={id} orderKey="studio" toolbar={toolbar}
     view={toolbar ? viewTrigger(id) : undefined} label={studioLabel} active={!!filters.maker}
     hint={t('catalog:javOnline.facetScope')} onSelect={chooseStudio} onClear={filters.maker ? () => chooseStudio('') : undefined}
-    choices={studios.map(({ id, value, count }) => ({ id, label: value.name, searchTerms: [value.source_name],
+    pending={waiting} error={facetError} withAvatar choices={studios.map(({ id, value, count }) => ({ id, label: value.name, searchTerms: [value.source_name],
       count, selected: id === filters.maker, leading: <ColumnFilterStudioAvatar studio={value} /> }))} />;
   const tagsFilter = (id: string, toolbar: boolean) => <FilterDropdown id={id} orderKey="tags" toolbar={toolbar}
     view={toolbar ? viewTrigger(id) : undefined} label={tagsLabel} active={!!filters.genre}
     hint={t('catalog:javOnline.facetScope')} onSelect={chooseTag} onClear={genres.length ? () => chooseTag('') : undefined}
-    choices={tagChoices} />;
+    pending={waiting} error={facetError} choices={tagChoices} />;
   const clearFilter = (key: string) => {
     if (key === 'performer') go({ ...filters, performer: '', actress: '', page: 1 });
     else if (key === 'maker') go({ ...filters, maker: '', page: 1 });
@@ -304,14 +331,17 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
       && (!code || matchesJavCode(work.code, code))
       && (filters.date || !ranges.release || withinColumnRange('date', ranges.release.range, work.date))
       && (!ranges.dur || withinColumnRange('duration', ranges.dur.range, work.duration))) : works;
-    return sortCatalogPage(showing, sorting).map((work, index) => ({
-      id: index + 1, catalogId: work.id, code: work.code, title: work.title, performer_refs: work.people,
-      performers: '', studio: work.studio?.name || '', studio_ref: work.studio || undefined, studioOption: work.studio,
-      tagOptions: work.tags, tags: [...new Set(work.tags.map(tag => tag.source_name))], duration: work.duration,
-      release_date: work.date, link: work.url, cover_url: work.cover_url,
-      online_cover_url: work.cover_url, has_cover: false, wanted: false, preOrder: work.pre_order,
-    }));
-  }, [waiting, pageFiltered, works, status, code, filters.date, ranges.release, ranges.dur, sorting]);
+    return sortCatalogPage(showing, sorting).map((work, index) => {
+      const tagOptions = visibleTags(work.tags, genresFromAddress(filters.genre));
+      return {
+        id: index + 1, catalogId: work.id, code: work.code, title: work.title, performer_refs: work.people,
+        performers: '', studio: work.studio?.name || '', studio_ref: work.studio || undefined, studioOption: work.studio,
+        tagOptions, tags: tagOptions.map(tag => tag.name), duration: work.duration,
+        release_date: work.date, link: work.url, cover_url: work.cover_url,
+        online_cover_url: work.cover_url, has_cover: false, wanted: false, preOrder: work.pre_order,
+      };
+    });
+  }, [waiting, pageFiltered, works, status, code, filters.date, filters.genre, ranges.release, ranges.dur, sorting]);
   const selectable = useMemo(() => items.filter(item => item.code), [items]);
   useVisibleJavWorks(selectable);
   const rectangle = useJavRectangle(!waiting && selectable.length > 0);
@@ -326,7 +356,7 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
           writeJavQuery({ status: '', code: '', column_filters: '' });
         }}>{t('catalog:shared.clearFilters')}</Button> : null}>{null}</EmptyState> : null;
   return <section aria-label={label} aria-busy={waiting} className="flex min-w-0 flex-col gap-4">
-    {initialLoading ? <div className="contents" dangerouslySetInnerHTML={{ __html: onlineCatalogTiersHtml() }} />
+    {initialLoading ? <div className="contents" dangerouslySetInnerHTML={{ __html: javFacetTiersHtml() }} />
       : people.length || studios.length ? <div data-catalog-tiers="" className={JAV_CATALOG_TIERS}>
       {people.length ? <div ref={peopleRef} data-catalog-tier="performers" role="group" aria-label={t('catalog:javReleases.filterByActress')}>
         {people.map(({ id, value, count }) => <PerformerFacet key={id} person={value} count={count}
@@ -345,9 +375,9 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
       top={<div ref={scrollRef} data-catalog-scroll="">
         {scope.choices(t('catalog:javOnline.pageStatus'), ONLINE_STATUS.map(([key, label]) =>
           ({ key, label: t(label), attrs: { 'data-online-status': key } })), chooseStatus)}
-        {initialLoading ? <div data-filter-tag-strip="" data-loading="" aria-hidden
+        {initialLoading ? <div data-filter-tag-strip="" data-skeleton={JAV_TAG_STRIP_SKELETON} data-loading="" aria-hidden
           dangerouslySetInnerHTML={{ __html: javTagPlaceholdersHtml() }} />
-          : <FilterTagStrip choices={tagChoices} onSelect={chooseTag} />}
+          : <FilterTagStrip choices={quickTags} onSelect={chooseTag} />}
       </div>} bottom={<>
         <span data-catalog-summary=""><span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden
           className="skeleton-sheen inline-block h-3.5 w-28 rounded-md" /> : query.data && (query.data.coverOmitted || pageFiltered)
@@ -415,11 +445,12 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
         {items.map(item => <DiscoveryCard key={item.catalogId} item={item} layout={layout} javImage={settings.value.javImage}
           readOnly navigate={navigate} onFilterPerson={choosePerson} tag={genres.map(genreName)}
           onTag={name => {
-            const option = item.tagOptions.find(option => option.source_name === name);
+            const option = item.tagOptions.find(option => option.name === name);
             if (!name || option) chooseTag(option?.id || '');
           }}
           studioFilter={item.studioOption
-            ? { selected: filters.maker === item.studioOption.id, onPress: () => chooseStudio(item.studioOption!.id) }
+            ? { selected: filters.maker === item.studioOption.id, onPress: () => chooseStudio(item.studioOption!.id),
+              entityId: item.studioOption.entity_id }
             : undefined}
           badge={item.preOrder ? <Chip variant="caption" color="neutral">{t('catalog:javOnline.preOrder')}</Chip> : undefined} />)}
       </div> : null}

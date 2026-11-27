@@ -1,6 +1,11 @@
 :root {
-  --feedback-launcher-bottom: max(1rem, env(safe-area-inset-bottom), var(--selection-dock-space, 0px),
-    var(--miniplayer-space, 0px), var(--feedback-copy-clearance, 0px));
+  --feedback-corner-gap: calc(var(--floating-radius) - var(--radius-lg));
+  --feedback-launcher-bottom: max(var(--feedback-frame-bottom, var(--shell-frame-bottom, 1rem)),
+    env(safe-area-inset-bottom), var(--selection-dock-space, 0px), var(--miniplayer-space, 0px), var(--feedback-copy-clearance, 0px));
+}
+
+:root:has([data-stage] > [data-feedback-launcher][data-feedback-corner="bottom"]) {
+  --feedback-frame-bottom: calc(var(--shell-frame-bottom) + var(--feedback-corner-gap));
 }
 
 :root:has([data-copy-bar]) {
@@ -15,7 +20,7 @@
   position: fixed;
   z-index: var(--layer-popover, 1100);
   inset: auto;
-  inset-inline-end: max(1rem, env(safe-area-inset-right));
+  inset-inline-end: max(var(--shell-frame-gap, 1rem), env(safe-area-inset-right));
   bottom: var(--feedback-launcher-bottom);
   margin: 0;
   padding: 0;
@@ -23,6 +28,10 @@
   overflow: visible;
   background: transparent;
   color: inherit;
+}
+
+[data-stage] > [data-feedback-launcher][data-feedback-corner="bottom"] {
+  inset-inline-end: calc(var(--stage-inline-inset) + var(--feedback-corner-gap));
 }
 
 [data-feedback-launcher][data-feedback-corner="top"] {
@@ -37,6 +46,16 @@
 
 [data-feedback-launcher] > button:is(:focus-visible, :active) {
   opacity: 1;
+}
+
+[data-feedback-attachment] button[data-feedback-action] {
+  border-radius: inherit;
+}
+
+[data-feedback-attachment] button[data-feedback-action]:focus-visible {
+  outline: 2px solid var(--color-border-focus-ring);
+  outline-offset: -2px;
+  box-shadow: none;
 }
 
 [data-modal-motion]:has(> [data-feedback-surface]) {

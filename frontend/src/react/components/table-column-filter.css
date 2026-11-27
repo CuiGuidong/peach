@@ -8,3 +8,11 @@
 .peach-react [data-column-filter-options] { overflow-anchor: none; }
 .peach-react [data-column-filter-offline] { cursor: not-allowed; }
 .peach-react [data-column-filter-offline] img { filter: grayscale(1); }
+:root:not(.dark) .peach-react [data-filter-popover-search] [data-input-size] > [data-rac]:has(input):not(:focus-within) {
+  background: var(--color-background-tertiary-default);
+  box-shadow: inset 0 0 0 1px var(--field-ring);
+}
+:root:not(.dark) .peach-react [data-filter-popover-search] input::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 1;
+}

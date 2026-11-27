@@ -44,7 +44,7 @@ describe('管理页面容器与骨架', () => {
         await settle(page);
         const menu = page.locator('[data-manage-menu]');
         await menu.locator('[data-manage="configuration"]').waitFor({ state: 'visible' });
-        const keys = () => menu.locator('button[data-manage]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-manage')));
+        const keys = () => menu.locator(':scope > a[data-manage]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-manage')));
         const original = await keys();
         const picked = menu.locator('[data-manage="activity"]');
         const neighbor = menu.locator('[data-manage="taste"]');

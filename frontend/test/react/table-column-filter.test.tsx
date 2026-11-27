@@ -73,6 +73,19 @@ it('本地长选项分批展示，搜索可命中尚未展示的选项', async (
   expect(options).toHaveBeenCalledTimes(1);
 });
 
+it('异步列筛选先显示选项骨架，响应为空后才显示无选项', async () => {
+  const request = pending<{ items: [] }>();
+  const host = await mount(<QueryClientProvider client={queryClient}>
+    <TableColumnFilter id="waiting-tags" label="标签" load={() => request.answer} onChange={vi.fn()} />
+  </QueryClientProvider>);
+  await click(host.querySelector('[data-table-column-filter]'));
+  expect(document.querySelector('[data-skeleton="filter-options"]')).not.toBeNull();
+  expect(document.querySelector('[role="dialog"]')?.textContent).not.toContain('没有匹配的筛选项');
+  await request.release({ items: [] });
+  await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')?.textContent).toContain('没有匹配的筛选项'));
+  expect(document.querySelector('[data-skeleton="filter-options"]')).toBeNull();
+});
+
 it('全选覆盖未加载项，取消一项后续页仍按排除项选择', async () => {
   const load = vi.fn(async (_signal: AbortSignal, _search: string, offset: number) => ({
     items: [{ id: String(offset), label: `Person ${offset}` }], nextOffset: offset === 0 ? 24 : undefined,
@@ -169,9 +182,9 @@ it('下拉加载态位于选项末尾，滚动续页期间保留已有选项', a
   await click(host.querySelector('[data-table-column-filter]'));
   const loading = () => document.querySelector('[role="dialog"] [role="status"]');
   const scroll = document.querySelector('[data-column-filter-options]')!;
-  expect(loading()?.textContent).toBe(t('shell:spinner.loading'));
+  expect(loading()?.getAttribute('aria-label')).toBe(t('shell:spinner.loading'));
+  expect(loading()?.getAttribute('data-skeleton')).toBe('filter-options');
   expect(scroll.lastElementChild).toBe(loading());
-  expect(loading()?.querySelector('[data-activity]')?.getAttribute('data-activity')).toBe('linear-dots');
   await first.release({ items: [{ id: 'one', label: 'First person' }], nextOffset: 24 });
   await vi.waitFor(() => expect(document.querySelector('input[aria-label="First person"]')).not.toBeNull());
   expect(load).toHaveBeenCalledTimes(1);

@@ -43,6 +43,7 @@ if str(SRC_DIR) not in sys.path:
 from peach.config import GENERATED_DIR
 from peach.entities import normalize_entity_name
 from peach.genre_decisions import load_genre_decisions
+from peach.genre_repairs import snapshot_genres
 from peach.genre_taxonomy import map_genres
 from peach.interface_text import dev as t
 from peach.metadata_auto_apply import UNION_TAGS_SOURCE, _extend_approved_tags
@@ -71,19 +72,6 @@ def mapped_by(module: types.ModuleType, genres: list, decisions: dict) -> list[s
         return module.map_genres(genres, decisions)[0]
     except TypeError:
         return module.map_genres(genres)[0]
-
-
-def snapshot_genres(path: str) -> list | None:
-    """快照里的来源原词。javinizer-go 的快照外面包一层 `result`，资料快照直接就是正文。"""
-    try:
-        wrapper = json.loads(Path(path).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
-    if not isinstance(wrapper, dict):
-        return None
-    payload = wrapper.get("result") if isinstance(wrapper.get("result"), dict) else wrapper
-    genres = payload.get("genres")
-    return genres if isinstance(genres, list) else None
 
 
 def ledger_groups(connection: sqlite3.Connection) -> list[dict]:

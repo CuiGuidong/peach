@@ -94,7 +94,7 @@ export function PillTabList({ children, className, ref, container, ...props }: P
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    const observeTabs = () => el.querySelectorAll(":is(button,[role=tab]):not([data-navigation-drag-preview])")
+    const observeTabs = () => el.querySelectorAll(":is(button,a[href],[role=tab]):not([data-navigation-drag-preview])")
       .forEach(tab => ro.observe(tab));
     observeTabs();
     const mo = new MutationObserver(() => { observeTabs(); measure(); });

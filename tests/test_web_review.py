@@ -41,6 +41,23 @@ from support.ledger import fresh_ledger
 class ReviewQueueTests(unittest.TestCase):
     """复核队列：候选来源、稳定主键、批准的权威值与写入边界。"""
 
+    def test_source_tag_candidate_lands_the_original_spelling(self):
+        from peach.metadata_auto_apply import _apply_metadata_candidate
+
+        self._asset(400, "EXM-001", "EXM-001.mp4")
+        group = {"item_key": "asset:400:tags", "asset_id": 400, "asset_path": "/x/EXM-001.mp4",
+                 "code": "EXM-001", "field": "tags"}
+        candidate = {"candidate_key": "original", "source": "dmm", "provider_id": "EXM-001",
+                     "value": ["OL", "足フェチ"], "source_tags_original": True, "confidence": 0.75}
+        with self.contract.database.write_transaction() as connection:
+            _apply_metadata_candidate(connection, group, candidate, "now", "review:dmm")
+            self.assertEqual({row[0] for row in connection.execute("SELECT tag FROM asset_tag WHERE asset_id=400")},
+                             {"OL", "足フェチ"})
+            self.assertEqual({row[0] for row in connection.execute(
+                "SELECT e.canonical_name FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
+                "WHERE ae.asset_id=400 AND ae.role='tag' AND json_extract(ae.metadata_json,'$.source_tags_original')=1"
+            )}, {"OL", "足フェチ"})
+
     def test_old_damaged_official_candidate_cannot_win_over_readable_evidence(self):
         self._asset(400, 'EXM-001', 'EXM-001.mp4')
         self.write_metadata_rows([{'item_key':'EXM-001:title', 'code':'EXM-001',

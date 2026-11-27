@@ -118,7 +118,7 @@
   text-align: left;
   cursor: pointer;
 }
-.peach-react [data-detail-tags] [data-pick]:is(:hover, [data-active], [aria-pressed="true"]) { background: var(--hover); color: var(--ink); }
+.peach-react [data-detail-tags] [data-pick]:is(:hover, [data-active], [aria-selected="true"]) { background: var(--hover); color: var(--ink); }
 .peach-react [data-detail-tags] [data-pick-name] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peach-react [data-detail-tags] [data-pick-count] { margin-left: auto; color: var(--muted); font-size: var(--fs-xs); }
 .peach-react [data-detail-tags] [data-pick] svg { width:var(--icon-inline);height:var(--icon-inline);flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--tag-color,var(--muted)); }

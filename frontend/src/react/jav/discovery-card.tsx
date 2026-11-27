@@ -20,7 +20,7 @@ import { joinList, t } from '../../i18n';
 import { useWorkContextMenu } from '../components/work-context-menu';
 import { useEntityNames } from '../use-entity-names';
 import { discoveryContext } from './discovery-context';
-import { StudioFilterLabel } from './jav-facets';
+import { StudioFilterLabel, StudioLibraryLink } from './jav-facets';
 
 /** 「查找资源」弹窗的预填：本机有封面用本机那张，否则用来源地址。 */
 export const resourcePrefill = (item: Discovery): DownloadPrefill =>
@@ -61,7 +61,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
   item: Discovery; layout: 'big' | 'small'; javImage: unknown; readOnly: boolean; navigate(path: string): void;
   tag?: string | readonly string[]; onTag?(tag: string): void; wanting?: boolean; onWant?(): void; onResource?(): void;
   badge?: ReactNode; onFilterPerson?(person: DiscoveryPerson): void;
-  studioFilter?: { selected: boolean; onPress(): void };
+  studioFilter?: { selected: boolean; onPress(): void; entityId?: number | null };
 }) {
   useEntityNames();
   const online = !!onFilterPerson;
@@ -73,7 +73,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
   const selected = selection?.selected.has(item.code);
   const compact = !online && Boolean(worksSelection?.dense);
   const people = discoveryCast(item.performer_refs, item.performers);
-  const performers = joinList(people.map(person => person.name));
+  const performers = joinList(people.map(castPersonName));
   const person = people[0];
   const name = person ? castPersonName(person) : '';
   const duration = online && item.duration ? fmtDur(item.duration) : '';
@@ -83,6 +83,18 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
   const open = () => {
     if (external) window.open(href, '_blank', 'noopener');
     else navigate(href);
+  };
+  const title = <><b>{item.code}</b> {item.title
+    ? <span lang={textLang(item.title)}>{item.title}</span> : t('catalog:javDiscovery.titleNotFound')}</>;
+  const linkProps = {
+    href,
+    ...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
+    onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!external && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0) {
+        event.preventDefault();
+        open();
+      }
+    },
   };
   return <article data-media-card="" data-jav-card="" data-rectangle-key={item.code || undefined} data-selected={selected ? '' : undefined} onMouseDown={suppressShiftTextSelection}
     onContextMenu={menuContext ? event => context.onContextMenu(event, menuContext) : undefined}
@@ -96,9 +108,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
     if (!(event.target as HTMLElement).closest('a,button,input,[role="dialog"]')) open();
   }}>
     {context.menu}
-    {artwork ? <a href={href} aria-label={t('catalog:javDiscovery.viewDetails', { code: item.code || item.title })}
-      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      onClick={event => { if (!external && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) { event.preventDefault(); open() } }}
+    {artwork ? <a {...linkProps} data-work-card-link="" tabIndex={-1} aria-label={t('catalog:javDiscovery.viewDetails', { code: item.code || item.title })}
       data-media-pic="" data-jav-cover-box="" className={COVER_BOX}>
       <ArtSlot artwork={{ kind: 'cover', html: artwork }} identity={discoveryArtwork(item, 'small', javImage)}
         relayout={root => relayoutCovers(root, layout)} />
@@ -106,20 +116,27 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
     </a>
       // 没有图时这一格放状态与动作键，不能是链接：键放在 `<a>` 里一按就跟着跳进详情。点空处仍由卡片自己进详情。
       : <div data-media-pic="" data-jav-cover-box="" className={COVER_BOX}><CoverWait item={item} readOnly={readOnly} /></div>}
-    {selection?.mode ? <button type="button" data-media-check="" aria-label={t('catalog:javDiscovery.select', { code: item.code })} aria-pressed={Boolean(selected)}>
+    {selection?.mode ? <button type="button" data-media-check="" tabIndex={-1} aria-label={t('catalog:javDiscovery.select', { code: item.code })} aria-pressed={Boolean(selected)}>
       <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check" /></svg></button> : null}
     <div data-media-meta="">
       <DiscoveryFaces item={item} limit={online ? 3 : undefined} />
       <div data-media-text="">
-        <h3 data-jav-title="" data-media-title="" title={`${item.code} · ${item.title || t('catalog:javDiscovery.titleNotFound')}`}><b>{item.code}</b> {item.title ? <span lang={textLang(item.title)}>{item.title}</span> : t('catalog:javDiscovery.titleNotFound')}</h3>
+        <h3 data-jav-title="" data-media-title="" title={`${item.code} · ${item.title || t('catalog:javDiscovery.titleNotFound')}`}>
+          {selection?.mode ? <button type="button" className="text-start focus-visible:outline-border-focus-ring"
+            aria-label={t('catalog:javDiscovery.select', { code: item.code })} aria-pressed={Boolean(selected)}>{title}</button>
+            : <a {...linkProps} data-work-card-link="" className="no-underline focus-visible:outline-border-focus-ring">{title}</a>}
+        </h3>
         <div data-media-byline="">
           <DiscoveryPerformerName person={person} name={name} title={performers} onFilter={onFilterPerson} icon />
           <CastPopover people={people} total={item.performer_total} assetId={item.asset_id ?? undefined}
             code={item.code} subscribe onFilter={onFilterPerson} />
           {item.release_date || studioFilter && item.studio_ref ? <span data-media-facts="">
             {item.release_date ? <time data-media-release="" dateTime={item.release_date}><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-calendar" /></svg>{item.release_date}</time> : null}
-            {studioFilter && item.studio_ref ? <button data-media-who="" data-inline-action="" type="button" aria-pressed={studioFilter.selected}
-              title={item.studio_ref.name} onClick={studioFilter.onPress}><StudioFilterLabel studio={item.studio_ref} /></button> : null}
+            {studioFilter && item.studio_ref ? <>
+              <button data-media-who="" data-inline-action="" type="button" aria-pressed={studioFilter.selected}
+                title={item.studio_ref.name} onClick={studioFilter.onPress}><StudioFilterLabel studio={item.studio_ref} /></button>
+              <StudioLibraryLink studio={{ name: item.studio_ref.name, entity_id: studioFilter.entityId }} />
+            </> : null}
           </span> : null}
         </div>
         <div data-jav-tags="" data-media-tags="">

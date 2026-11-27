@@ -57,6 +57,7 @@
     "description": "Find works in your library and beyond, translate titles and summaries, suggest tags, edit metadata, or organize your collection",
     "prompt": "What would you like to find or organize?",
     "fixedTasks": "Custom tasks",
+    "fixedTasksLoadFailed": "Could not load custom tasks",
     "manageFixedTasks": "Manage custom tasks",
     "fixedTaskInput": "Add text to process (optional)",
     "clearFixedTask": "Clear selected task",
@@ -222,7 +223,10 @@
     "execute": "Search",
     "save": "Save preset",
     "saved": "Saved",
-    "saveFailed": "This browser could not save the preset.",
+    "presetStorageFull": "The browser storage is full. Remove presets you no longer need, then try saving again.",
+    "presetStorageUnavailable": "The browser couldn't write to storage. Check this site's storage permissions, then try saving again.",
+    "librarySearchFailed": "Library search failed",
+    "externalSearchFailed": "Outside library search failed",
     "openLibrary": "Open in Library",
     "outsideHelp": "Outside-library search sends only this keyword to JavDB and filters out works already in your library.",
     "empty": "No matching works in this scope.",
@@ -317,6 +321,7 @@
     "viewsAndTags": "Views and tags"
   },
   "catalogFolders": {
+    "searchFailed": "Couldn't search folders",
     "addInSettings": "Add and scan directories in Library settings.",
     "allFolders": "All directories",
     "closeTree": "Close directory tree",
@@ -469,7 +474,9 @@
     "openSavedFollow": "Open saved follows",
     "refreshStatus": "Refresh status",
     "startStreaming": "Click to start streaming · {{size}}",
-    "stillUnavailable": "Still unavailable · Refresh"
+    "stillUnavailable": "Still unavailable · Refresh",
+    "sourceStatusFailed": "Could not confirm storage status",
+    "sourceStatusUnknown": "The server did not report whether this directory is online. Refresh its status again."
   },
   "detailMedia": {
     "fullVideo": "Full video",
@@ -654,6 +661,8 @@
     "followedCreatorLinked": "Linked followed creator {{author}} to {{name}}",
     "linkFollowedCreator": "Link followed creator",
     "loadingPhotos": "Loading photos",
+    "shufflePhotosFailed": "No new batch of photos was received.",
+    "shufflePhotosFailure": "Could not shuffle photos",
     "mediaType": "Media type",
     "noMatchingVideos": "No matching videos",
     "noMatchingVideosHint": "Clear filters to see all videos credited to this name.",
@@ -784,7 +793,11 @@
     "resources": "Torrents",
     "retryPreview": "Try the sample video again: {{reason}}",
     "sampleVideo": "Sample video",
-    "sampleVideoFailed": "Couldn't get the sample video"
+    "sampleVideoFailed": "Couldn't get the sample video",
+    "sampleVideoNetwork": "The video could not be loaded from the source. Check your connection and retry.",
+    "sampleVideoDecode": "The browser couldn't decode the source video. Return to the cover or check the source page.",
+    "sampleVideoUnsupported": "The browser doesn't support this video source, or the source didn't return a playable video. Return to the cover or check the source page.",
+    "sampleVideoUnknown": "The player didn't report a cause. Retry or return to the cover."
   },
   "javDiscover": {
     "clearFiltersHint": "Clear filters to see other videos.",
@@ -817,7 +830,8 @@
     "loadingProgress_other": "Loading metadata · {{completed}} of {{count, number}} videos",
     "progress_one": "Metadata: {{completed}} of {{count, number}} video",
     "progress_other": "Metadata: {{completed}} of {{count, number}} videos",
-    "retry": "Retry loading metadata now"
+    "retry": "Retry loading metadata now",
+    "requestFailed": "Could not request work metadata"
   },
   "javReleases": {
     "addSubscription": "Add subscription",
@@ -1019,7 +1033,9 @@
   },
   "playerMemory": {
     "loadFailed": "Couldn't load saved playback state. Try again.",
-    "saveFailed": "Couldn't save playback state. Try again."
+    "saveFailed": "Couldn't save playback state. Try again.",
+    "resumeSyncFailed": "The resume position has not synced to Peach. {{reason}}",
+    "resumeSyncUnconfirmed": "Peach did not confirm the save."
   },
   "playerMenu": {
     "copyFailed": "Couldn't copy. Copy the URL from the address bar.",
@@ -1618,7 +1634,7 @@
     "trashConfirm_other": "Moves {{assets, number}} works under {{count, number}} entries to the trash; roster entries and profiles stay.",
     "trashDone_one": "Moved {{count, number}} work to the trash",
     "trashDone_other": "Moved {{count, number}} works to the trash",
-    "trashRecovery": "You can undo this from the receipt or restore from the trash.",
+    "trashRecovery": "You can undo this in the completion notification or restore it from the trash.",
     "unfollowConfirm_one": "Stops new-release subscriptions for {{count, number}} person; releases already found stay.",
     "unfollowConfirm_other": "Stops new-release subscriptions for {{count, number}} people; releases already found stay.",
     "unfollowDone_one": "Unsubscribed {{count, number}} person from new releases",

@@ -89,13 +89,19 @@ export function ResourceSearch({ initialCode, reason, choose, onSearch, onWork }
     }
   };
   return (
-    <section aria-label={t('manage:resourceSearch.searchTorrents')} aria-busy={Boolean(action.busy)} className="flex min-w-0 flex-col gap-4">
+    <form aria-label={t('manage:resourceSearch.searchTorrents')} aria-busy={Boolean(action.busy)}
+      className="flex min-w-0 flex-col gap-4" onSubmit={event => { event.preventDefault(); search() }}
+      onKeyDown={event => {
+        if (event.key === 'Enter' && !event.defaultPrevented && event.target instanceof HTMLInputElement &&
+            !composingKey(event.nativeEvent)) {
+          event.preventDefault();
+          event.currentTarget.requestSubmit();
+        }
+      }}>
       {reason ? <Help>{t('manage:resourceSearch.goal', { reason })}</Help> : null}
       <Input label={t('manage:resourceSearch.byCode')} value={code} maxLength={80} placeholder={t('manage:resourceSearch.placeholder')} enterKeyHint="search"
         leadingIcon={action.busy ? SearchSpinner : RiSearchLine} ref={suggestions.bind}
-        isReadOnly={Boolean(action.busy)} aria-busy={Boolean(action.busy)} onChange={setCode} onKeyDown={(event) => {
-          if (event.key === 'Enter' && !composingKey(event.nativeEvent)) { event.preventDefault(); search() }
-        }} />
+        isReadOnly={Boolean(action.busy)} aria-busy={Boolean(action.busy)} onChange={setCode} />
       {suggestions.list}
       <div className="flex flex-col gap-1">
         <FieldLabel>{t('manage:resourceSearch.prefer')}</FieldLabel>
@@ -132,6 +138,6 @@ export function ResourceSearch({ initialCode, reason, choose, onSearch, onWork }
           }}>{selected === item.id ? t('manage:resourceSearch.magnetFilled') : t('manage:resourceSearch.useTorrent')}</Button></div>
         </li>)}
       </ul> : null}
-    </section>
+    </form>
   );
 }

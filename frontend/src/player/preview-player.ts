@@ -3,9 +3,10 @@ import { mountPlayerQualityControl, mountPlayerSeekPreview, mountPlayerSpinner }
 import { disposePlayer } from './dispose';
 import type { PlayerSource, VjsPlayer } from './types';
 import { ensureVideojs } from './videojs';
-import { interfaceLanguage } from '../i18n';
+import { requestErrorMessage } from '../core/request-error';
+import { interfaceLanguage, t } from '../i18n';
 
-export function mountPreviewPlayer(video: HTMLVideoElement, source: PlayerSource, failed: () => void): () => void {
+export function mountPreviewPlayer(video: HTMLVideoElement, source: PlayerSource, failed: (reason: string) => void): () => void {
   video.controls = false;
   let released = false;
   let player: VjsPlayer | null = null;
@@ -21,7 +22,13 @@ export function mountPreviewPlayer(video: HTMLVideoElement, source: PlayerSource
       },
     });
     const current = player;
-    current.on('error', () => { if (!released) failed() });
+    current.on('error', () => {
+      if (released) return;
+      const code = Number((current.error() as { code?: number } | null)?.code ?? video.error?.code);
+      const reason = code === 2 ? 'sampleVideoNetwork' : code === 3 ? 'sampleVideoDecode'
+        : code === 4 ? 'sampleVideoUnsupported' : 'sampleVideoUnknown';
+      failed(t('catalog:javDetail.' + reason));
+    });
     current.ready(() => {
       if (released || current.isDisposed()) return;
       mountPlayerQualityControl(current, video);
@@ -29,7 +36,7 @@ export function mountPreviewPlayer(video: HTMLVideoElement, source: PlayerSource
       mountPlayerSpinner(current);
     });
     current.src(source);
-  }).catch(() => { if (!released) failed() });
+  }).catch(cause => { if (!released) failed(requestErrorMessage(cause)) });
   return () => {
     released = true;
     disposePlayer(player);

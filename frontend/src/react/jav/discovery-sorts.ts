@@ -20,6 +20,11 @@ export const RELEASE_SORTS = [
 export type ReleaseSort = typeof RELEASE_SORTS[number][0] | 'random';
 export type DiscoveryDirection = 'asc' | 'desc';
 
+export function discoveryOrder(params: URLSearchParams): { sort: DiscoverySort; direction: DiscoveryDirection } {
+  const sort = DISCOVERY_SORTS.find(([key]) => key === params.get('sort'))?.[0] ?? 'taste';
+  return { sort, direction: params.get('dir') === 'asc' ? 'asc' : 'desc' };
+}
+
 export function discoveryScore(value: number | null | undefined): string {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(3) : '—';
 }

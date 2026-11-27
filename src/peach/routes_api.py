@@ -96,7 +96,7 @@ def ai_connections(request: Request, response: Response, _args=Depends(require_a
     response.headers["Cache-Control"] = "no-store"
     result = web_ai_library.connections(request.app.state)
     result["settings_editable"] = local_client(request)
-    if loopback_client(request):
+    if host_ai_client(request):
         oauth = ai_openai_oauth.status(request.app.state)
         providers = result["providers"]
         first_custom = next((index for index, provider in enumerate(providers) if provider.get("custom")), len(providers))
@@ -134,14 +134,14 @@ def ai_fixed_tasks(request: Request, response: Response, edit: bool = False, _ar
     else:
         _ai_access(request)
     response.headers["Cache-Control"] = "no-store"
-    return web_ai_custom_tasks.list_tasks(request.app.state, edit=edit, allow_oauth=loopback_client(request))
+    return web_ai_custom_tasks.list_tasks(request.app.state, edit=edit, allow_oauth=host_ai_client(request))
 
 
 @router.post("/api/ai-library/custom-tasks")
 def ai_configure_fixed_task(request: Request, response: Response, body: Any = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     response.headers["Cache-Control"] = "no-store"
-    return web_ai_custom_tasks.configure(request.app.state, _ai_payload(body), allow_oauth=loopback_client(request))
+    return web_ai_custom_tasks.configure(request.app.state, _ai_payload(body), allow_oauth=host_ai_client(request))
 
 
 @router.post("/api/ai-library/custom-tasks/run")
@@ -157,7 +157,7 @@ def ai_run_fixed_task(request: Request, response: Response, body: Any = Body(...
 
     try:
         result = web_ai_custom_tasks.run(
-            request.app.state, payload, allow_oauth=loopback_client(request), on_usage=receive_usage,
+            request.app.state, payload, allow_oauth=host_ai_client(request), on_usage=receive_usage,
             prompt_language=_ai_language(request, payload.get("prompt_language")),
         )
         return {**result, "usage": usage}
@@ -170,7 +170,7 @@ def ai_run_fixed_task(request: Request, response: Response, body: Any = Body(...
 def ai_usage_summary(request: Request, days: int = Query(30, ge=1, le=90), _args=Depends(require_auth)):
     _ai_access(request)
     try:
-        return ai_usage.summary(request.app.state.web_contract.follow_state_root, include_oauth=loopback_client(request), days=days)
+        return ai_usage.summary(request.app.state.web_contract.follow_state_root, include_oauth=host_ai_client(request), days=days)
     except (OSError, sqlite3.Error):
         LOGGER.exception("Could not read library AI usage")
         raise HTTPException(503, message_fields("api.aiLibrary.usageUnavailable")) from None
@@ -193,7 +193,7 @@ def ai_search_plan(request: Request, body: dict = Body(...), _args=Depends(requi
         usage = asdict(tokens) if tokens is not None else None
 
     try:
-        plan = web_ai_search.plan(request.app.state, body, allow_oauth=loopback_client(request), on_usage=receive_usage,
+        plan = web_ai_search.plan(request.app.state, body, allow_oauth=host_ai_client(request), on_usage=receive_usage,
                               prompt_language=_ai_language(request, body.get("prompt_language")))
         return {**plan, "usage": usage}
     except UserFacingError as exc:
@@ -215,7 +215,7 @@ def ai_search_models(request: Request, provider: str, _args=Depends(require_auth
     try:
         if provider != "openai-oauth":
             return web_ai_library.connection_models(request.app.state, {"provider": provider})
-        if not loopback_client(request):
+        if not host_ai_client(request):
             raise HTTPException(403, message_fields("api.configuration.openOnHost"))
         return web_ai_library.oauth_model_catalog(request.app.state)
     except UserFacingError as exc:
@@ -237,7 +237,7 @@ def ai_verify_connection(request: Request, body: Any = Body(...), _args=Depends(
 def ai_task_profile(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     try:
-        return web_ai_library.configure_task(request.app.state, body, allow_oauth=loopback_client(request))
+        return web_ai_library.configure_task(request.app.state, body, allow_oauth=host_ai_client(request))
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
 
@@ -254,7 +254,7 @@ def ai_connection_models(request: Request, body: Any = Body(...), _args=Depends(
 @router.post("/api/ai-library/openai/oauth")
 def ai_openai_sign_in(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
     _ai_access(request)
-    if not loopback_client(request):
+    if not host_ai_client(request):
         raise HTTPException(403, message_fields("api.configuration.openOnHost"))
     try:
         if body.get("disconnect") is True:
@@ -267,13 +267,14 @@ def ai_openai_sign_in(request: Request, body: dict = Body(...), _args=Depends(re
         result_url = str(request.base_url.replace(path=ai_openai_oauth.RESULT_PATH))
         return ai_openai_oauth.start(request.app.state, model, result_url=result_url)
     except web_ai_library.InferenceError as exc:
-        return JSONResponse(message_fields("api.aiLibrary." + exc.code, key="error"), status_code=400)
+        code = "oauthAuth" if exc.code == "auth" else exc.code
+        return JSONResponse(message_fields("api.aiLibrary." + code, key="error"), status_code=400)
 
 
 @router.post("/api/ai-library/openai/oauth/models")
 def ai_openai_models(request: Request, _args=Depends(require_auth)):
     _ai_access(request)
-    if not loopback_client(request):
+    if not host_ai_client(request):
         raise HTTPException(403, message_fields("api.configuration.openOnHost"))
     try:
         return web_ai_library.oauth_model_catalog(request.app.state)
@@ -290,10 +291,11 @@ def ai_asset_detail(request: Request, asset_id: int, _args=Depends(require_auth)
 @router.post("/api/ai-library/assets/{asset_id}")
 def ai_asset_suggest(request: Request, asset_id: int, body: dict = Body(...), _args=Depends(require_auth)):
     _ai_access(request)
-    if body.get("provider") == "openai-oauth" and not loopback_client(request):
+    allow_oauth = host_ai_client(request)
+    if body.get("provider") == "openai-oauth" and not allow_oauth:
         raise HTTPException(403, message_fields("api.configuration.openOnHost"))
     try:
-        return web_ai_library.suggest(request.app.state, asset_id, body, allow_oauth=loopback_client(request),
+        return web_ai_library.suggest(request.app.state, asset_id, body, allow_oauth=allow_oauth,
                                   prompt_language=_ai_language(request, body.get("prompt_language")))
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))

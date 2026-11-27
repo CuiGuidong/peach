@@ -113,7 +113,9 @@ export function SortKeys({ sorts, onSort, group = 'catalog', follow = false, fil
         const sort = sorts.find(item => item.key === key)!;
         return <button key={key} type="button" {...dragProps(key)} data-entity-sort={key} data-entity-press=""
           data-follow-sort={follow ? key : undefined} data-filter-active={filters?.[key]?.active ? '' : undefined}
-          aria-pressed={sort.pressed} aria-label={sort.ariaLabel || sort.label}
+          data-sort-current={sort.pressed} aria-label={sort.ariaLabel || sort.label}
+          aria-description={sort.pressed && sort.dir && (!sort.ariaLabel || sort.ariaLabel === sort.label)
+            ? t(sort.dir === 'asc' ? 'settings:shared.ascending' : 'settings:shared.descending') : undefined}
           aria-haspopup="dialog" aria-expanded={directionKey === key} onClick={event => {
             directionTrigger.current = event.currentTarget;
             setDirectionKey(key);

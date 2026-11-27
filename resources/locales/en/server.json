@@ -864,8 +864,8 @@
     "skipped": "Skipped ",
     "skipNoSite": "{{count}} with no official site to ask",
     "skipRecentMiss": "{{count}} the site recently reported missing",
-    "skipPaused": "{{count}} while the source cools down",
-    "skipDeferred": "{{count}} left for the next round (network quota used up)",
+    "skipPaused": "{{count}} because the source is temporarily unavailable",
+    "skipDeferred": "{{count}} deferred until the next round after reaching the request limit",
     "remainingNext": "{{count}} left, queued for the next round",
     "remainingLater": "{{count}} left for next time",
     "seedAliases": "Aliases {{count}}",
@@ -884,14 +884,14 @@
     "scheduled": "{{count}} items scheduled",
     "videoUpgraded": "Video metadata upgrade complete",
     "videosUpgraded": "Upgraded metadata for {{count}} videos",
-    "videosDeferred": "{{count}} postponed: directory unreadable or source cooling down",
+    "videosDeferred": "{{count}} postponed because the directory couldn't be read or the source was temporarily unavailable",
     "videosMalformed": "{{count}} failed: unrecognized path",
     "dimensionsMeasured": "Display dimensions re-measured",
     "deferredBy": "Postponed: {{reason}}",
     "deferMountMedia": "The video's directory is unreadable, will retry when the mount is back",
     "deferMountDimensions": "The video's directory is unreadable, will re-measure when the mount is back",
     "deferBilling": "Traffic on the metered source isn't confirmed yet, will re-measure later",
-    "deferCooling": "The metadata source is cooling down, will retry when it's available",
+    "deferCooling": "The metadata source is temporarily unavailable. Processing will resume when it is available",
     "faceModelFetched": "Face model downloaded",
     "matchModelFetched": "Face matching model downloaded",
     "faceModelsReady": "Face models are ready"
@@ -943,6 +943,8 @@
       "invalid_output": "The model returned no usable result. Try again or choose another model.",
       "usageUnavailable": "Could not read AI usage. Refresh to try again.",
       "permission_required": "Allow plan usage on the ChatGPT authorization page.",
+      "oauthAuth": "Peach could not read or update the saved ChatGPT authorization. Check access to the Peach data directory and try again.",
+      "oauthCallbackUnavailable": "Peach could not start the local authorization listener. Try connecting your ChatGPT plan again.",
       "expired": "The connection or candidate expired. Generate it again or reconnect.",
       "unavailable": "This model or plan cannot complete the request.",
       "alreadySaved": "This source text already has a translation in that language.",
@@ -1460,7 +1462,7 @@
       "backupExists": "A backup already exists in the same directory: {{name}}"
     },
     "javdbPublic": {
-      "budgetExceeded": "The metadata request budget for this run is used up",
+      "budgetExceeded": "This run reached its request count, data usage, or time limit",
       "imageSourcePaused": "The image source is temporarily unavailable. Try again later.",
       "sourcePaused": "The metadata source is temporarily unavailable. Try again later.",
       "notFound": "No metadata found for this code",
@@ -1609,7 +1611,7 @@
       "prefixNotUnique": "Set a single CloudDrive path prefix for this PikPak root in push discovery",
       "webdavResponseTooLarge": "The WebDAV response is over the size limit",
       "webdavNoResponse": "No network response from WebDAV",
-      "webdavTreeTooLarge": "The WebDAV directory walk is over the limit or loops",
+      "webdavTreeTooLarge": "Scanning the WebDAV directories reached the limit or encountered a directory loop",
       "webdavTooManyFiles": "The WebDAV directory has too many files",
       "targetParentNotDirectory": "The target parent path is not a directory",
       "webdavMkcolFailed": "WebDAV could not create the parent directory: HTTP {{status}}",
@@ -1635,7 +1637,7 @@
       "webdavSourceNotFound": "WebDAV source not found",
       "webdavTargetExists": "The WebDAV target already exists",
       "cloudParentMissing": "The official parent directory doesn't list the required directory",
-      "moveUnconfirmed": "Couldn't confirm the move. Kept the intent receipt and stopped; nothing is repeated or written to the database"
+      "moveUnconfirmed": "Couldn't confirm whether the files moved. Peach stopped and saved a record of the attempt, without moving the files again or updating the library"
     },
     "downloads": {
       "infohashInvalid": "The infohash in the magnet link is not 40 hex characters or 32 base32 characters",
@@ -1893,9 +1895,9 @@
       "requestBudgetSpent": "This run's fetch request limit is used up. Run it again to continue; existing images are kept",
       "timeBudgetSpent": "This run's fetch time limit is used up. Run it again to continue; existing images are kept",
       "downloadBudgetSpent": "This run's download limit is used up. Run it again to continue; existing images are kept",
-      "coolingDown": "The source is cooling down. Try again later; existing images are kept",
+      "coolingDown": "Peach has temporarily paused requests to the source. Try again later. Existing images are kept",
       "challengeTimedOut": "Verification timed out. Existing images are kept. Retry after the source recovers. For manual verification, select Keep window and switch to the scraping browser on the computer running Peach",
-      "rateLimited": "The source is rate limiting requests; the cooldown has been recorded. Existing images are kept",
+      "rateLimited": "The source is limiting requests. Try again later. Existing images are kept",
       "coolingDownNamed": "{{label}} is paused. Try again in about {{minutes}} min",
       "rateLimitedNamed": "{{label}} is rate limiting. Try again in about {{minutes}} min",
       "refusedNamed": "{{label}} refused requests from the current exit, most likely too many requests or a blocked exit. Paused for about {{minutes}} min; you can also give it another exit in the proxy",
@@ -1904,10 +1906,10 @@
       "browserModeInvalid": "The collection browser mode must be one of {{choices}}"
     },
     "downloadPostprocess": {
-      "noLandingPath": "The download task has no landing path",
-      "noVideoInLanding": "No recognizable video in the landing directory",
+      "noLandingPath": "The download service did not provide a location for the files",
+      "noVideoInLanding": "No recognizable video in the download directory",
       "mainBoundToOtherCode": "The full video is already linked to another code: {{code}}",
-      "configMismatchProbe": "The current collection doesn't match the storage settings, so downloaded media can't be probed",
+      "configMismatchProbe": "The current collection doesn't match the storage settings, so Peach can't read information about the downloaded files",
       "configMismatchCollect": "The current collection doesn't match the storage settings, so metadata for the download can't be fetched",
       "collectFailed": "Fetching metadata failed",
       "organizeIncomplete": "Organizing files didn't finish: {{reasons}}",
@@ -2371,8 +2373,8 @@
       "previewsNeedWriter": "Generating preview images requires a write connection to the shared collection.",
       "nfoCodeConflict": "The file name and NFO code conflict. Review it.",
       "notInLibrary": "The selected videos don't belong to the current library.",
-      "deadlineRetryLater": "External metadata wasn't found within the time limit. You can try again later",
-      "deadline": "External metadata wasn't found within the time limit",
+      "deadlineRetryLater": "The request for external metadata timed out. Try again later",
+      "deadline": "The request for external metadata timed out",
       "noAmaneSites": "This code's source chain has no sites queried through the amane bridge",
       "amaneBridgeFailed": "amane bridge: {{error}}",
       "amaneSitesSaidNo": "None of the sites queried through the amane bridge have this code",
@@ -2416,7 +2418,7 @@
       "someCoverSourcesUnfetched": "A cover is in place; these image sources did not answer: {{problems}}"
     },
     "followStream": {
-      "coolingDown": "{{provider}} is cooling down after rate limiting. Try again in {{seconds}} seconds.",
+      "coolingDown": "{{provider}} is limiting requests. Try again in {{seconds}} seconds.",
       "recentMiss": "The source media wasn't found just now. Try again later.",
       "noSuchMedia": "This media index doesn't exist.",
       "badMediaEntry": "The media entry has an unexpected format.",
@@ -2585,7 +2587,7 @@
       "emptyGenre": "The genre to add is empty."
     },
     "mediaProbe": {
-      "strmIsoNotProbed": "STRM and ISO files aren't probed."
+      "strmIsoNotProbed": "Peach skips reading video information from STRM and ISO files."
     },
     "platform": {
       "windowsDirectoryUnavailable": "Couldn't get the Windows system directory."
@@ -2835,12 +2837,12 @@
       "placeholder": "The source returned a \"coming soon\" placeholder image",
       "officialPlaceholderOnly": "The official cover URLs only return a \"coming soon\" placeholder: unreleased videos don't have official images yet, and older ones have most likely been taken down",
       "mibNotJav": "JAV cover sources don't apply to Korean MIB codes",
-      "noCandidates": "No source has a candidate",
+      "noCandidates": "No usable cover was found",
       "hostsUnreachable": "Can't connect to any official image host",
-      "deadline": "The time limit for this step is used up",
+      "deadline": "The request to the source timed out. Try again later",
       "dmmFailed": "DMM: {{error}}",
-      "coolingDown": "The cover source is cooling down. Try again later; existing images are kept",
-      "catalogUnfinished": "The official catalog lookup didn't finish, so no cover candidates were found yet",
+      "coolingDown": "Peach has temporarily paused requests to the cover source. Try again later. Existing images are kept",
+      "catalogUnfinished": "The official catalog lookup didn't finish, so Peach couldn't confirm whether a usable cover is available",
       "allAnimated": "All official candidates are animated images",
       "downloadsFailed": "Every usable candidate failed to download in full",
       "sizeChanged": "Size changed: log says {{expectedWidth}}x{{expectedHeight}}, now {{width}}x{{height}}",
@@ -2900,7 +2902,7 @@
       "loginRequired": "javdb requires sign-in",
       "identityAmbiguous": "javdb has several videos with this code. Check the source identity: {{identities}}",
       "detailCodeMismatch": "The code on the javdb detail page doesn't match the search result",
-      "budgetExceeded": "javdb metadata wasn't found within this run's limit"
+      "budgetExceeded": "The JavDB metadata lookup reached its limit"
     },
     "onepondo": {
       "unrecognizedCode": "This code isn't in {{label}} format",
@@ -2952,7 +2954,7 @@
       "selfCheckUnfinished": "The amane runtime self-check didn't finish. Try again on the Sources page"
     },
     "performerAliasFollowup": {
-      "coolingDown": "The source is cooling down",
+      "coolingDown": "Requests to the source are temporarily paused",
       "requestsUsedUp": "This item's request limit is used up",
       "networkFailed": "Network request failed: {{type}}",
       "rateLimited": "The source is rate limiting requests (429)",
@@ -3181,15 +3183,15 @@
       "resolveProgressLines": "Searching follow sources: source {{current}}/{{total}} · {{provider}} (line {{line}}/{{lines}})"
     },
     "webJavDiscovery": {
-      "byteBudget": "Data usage budget for this round is used up",
+      "byteBudget": "This run reached its data usage limit",
       "cancelled": "Metadata read canceled",
       "cancelling": "Canceling the metadata read",
       "complete": "Video metadata read",
       "reading": "Reading video metadata",
-      "requestBudget": "Request budget for this round is used up",
+      "requestBudget": "This run reached its request count limit",
       "sourceCooldown": "The source is temporarily unavailable; reading stopped",
       "stopped": "Stopped reading video metadata",
-      "timeBudget": "Time budget for this round is used up",
+      "timeBudget": "This run reached its time limit",
       "unfetched": "Video metadata not found"
     },
     "webLinks": {
@@ -3336,9 +3338,9 @@
       "stillOnDisk": "The file is still on disk"
     },
     "webFeeds": {
-      "cooling": "The source is cooling down; not fetched this round",
-      "deferredRest": "The other {{count}} feeds will be fetched after the cooldown",
-      "sourceCooling": "{{source}} is cooling down; not fetched this round"
+      "cooling": "Requests to the source are temporarily paused. It was skipped this time",
+      "deferredRest": "The other {{count}} feeds will be checked once requests resume",
+      "sourceCooling": "Requests to {{source}} are temporarily paused. It was skipped this time"
     },
     "webFollow": {
       "nameContainsEvidence": "One normalized name contains the other; confirm manually",
@@ -3426,7 +3428,7 @@
       "action": {
         "verifyToken": "checking the API token",
         "findTarget": "finding the target directory",
-        "refreshLanding": "refreshing the landing directory",
+        "refreshLanding": "refreshing the download directory",
         "readQuota": "checking the cloud download quota",
         "listOffline": "listing cloud download tasks",
         "createFolder": "creating the directory",
@@ -4337,7 +4339,7 @@
         "serverError": "The source's service is failing",
         "parseError": "Couldn't parse the metadata",
         "notFound": "The last lookup found nothing",
-        "cooling": "The source is cooling down",
+        "cooling": "Requests to the source are temporarily paused",
         "failed": "No metadata from the source",
         "parsed": "Metadata parsed",
         "parsedBefore": "Parsed before; recent parsing needs another check",
@@ -4487,7 +4489,7 @@
         "session": "Sign-in session",
         "cdn": "Image CDN"
       },
-      "cooldown": "The source is cooling down. Try again later.",
+      "cooldown": "Requests to the source are temporarily paused. Try again later.",
       "proxy": "The proxy connection failed. Check the Peach proxy.",
       "timeout": "The connection to the source timed out. Try again later or check the connection method.",
       "cdnUnreachable": "Can't connect. {{hint}}",
@@ -4510,7 +4512,7 @@
         "ok": "Reachable",
         "auth": "Sign-in or verification",
         "http": "HTTP error",
-        "cooldown": "Cooling down",
+        "cooldown": "Temporarily paused",
         "network": "Network failure",
         "skipped": "Not checked"
       }
@@ -4526,7 +4528,7 @@
       }
     },
     "followCheck": {
-      "coolingDown": "{{provider}} is cooling down after rate limiting. Retrying in {{seconds}} s; skipped this time"
+      "coolingDown": "{{provider}} was skipped this time because it is limiting requests. Try again in {{seconds}} seconds."
     },
     "followEvidence": {
       "runLabel": "Delete old snapshots",

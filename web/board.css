@@ -602,14 +602,15 @@ body,.disp{font-family:var(--board-font)}body{letter-spacing:0}body{font:var(--b
 .board-page-skeleton .mav{width:38px;height:38px;border-radius:50%}
 .follow-content-skeleton>.followphotowall .skeletoncard i{aspect-ratio:4/3}
 .related-skeleton{flex:none;width:100%;min-height:0}
-.related-skeleton>div{display:flex;gap:11px}
-.related-skeleton .skeletoncard{flex:0 0 216px}
+.related-skeleton>div{display:flex;gap:var(--detail-card-gap)}
+.related-skeleton .skeletoncard{flex:0 0 var(--detail-card-width);height:var(--detail-card-height);align-content:start;gap:6px}
+.related-skeleton .skeletoncard i{border-radius:var(--surface-radius)}
 .postercard-skeleton .skeletoncard{column-gap:10px;row-gap:3px}
 body[data-density="dense"] .catalog-skeleton .skeletoncard{padding-top:7px}
 body[data-density="dense"] .postercard-skeleton .skeletoncard b{height:1.35em}
 body[data-density="dense"] .postercard-skeleton .skeletoncard em{height:1.35em}
 body[data-density="dense"] .postercard-skeleton .skeletoncard u{height:30px}
-.skeleton,.skeletoncard i,.skeletoncard b,.skeletoncard em,.skeletoncard s,.skeletoncard u{background:var(--color-background-tertiary-default);border-radius:8px}.skeletoncard i{border-radius:12px}.postercard-skeleton .skeletoncard{gap:6px 12px}.postercard-skeleton .skeletoncard s{border-radius:50%}.review-skeleton .skeletoncard i{border-radius:8px}.index-skeleton .icell .ring{border-radius:50%}.entityskeletontext .skeleton{height:20px;border-radius:8px}.entityportrait.skeleton{border-radius:16px}.follow-content-skeleton .skeletoncard{padding-bottom:16px}
+.skeleton,.skeletoncard i,.skeletoncard b,.skeletoncard em,.skeletoncard s,.skeletoncard u{background:var(--color-background-tertiary-default);border-radius:8px}.skeletoncard i{border-radius:12px}.postercard-skeleton .skeletoncard{gap:6px 12px}.postercard-skeleton .skeletoncard s{border-radius:50%}.review-skeleton .skeletoncard i{border-radius:8px}.index-skeleton .icell .ring{border-radius:50%}.entityskeletontext .skeleton{height:20px;border-radius:8px}.follow-content-skeleton .skeletoncard{padding-bottom:16px}
 
 /* Board secondary：实体细边框、轻阴影和统一的三档控件尺寸。
    悬停只换填充，那圈线一动不动——按用户要求跟 BoardUI 的强调档对齐（2026-09-12 实测

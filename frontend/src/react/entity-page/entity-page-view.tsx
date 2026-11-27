@@ -21,6 +21,7 @@ import { EmptyState } from '../components/empty-state';
 import { runBulkAction } from '../components/bulk-action';
 import { deleteProfilesAction } from '../index/roster-actions';
 import { RetryNote } from '../components/grid-reveal';
+import { Note } from '../components/note';
 import { spriteGlyph } from '../components/sprite-glyph';
 import type { EntityBodyActions, EntityPhotos, EntityRoster } from '../entity-body/entity-body';
 import { EntityBodyPage } from '../entity-body/entity-body-page';
@@ -185,6 +186,7 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
   /* ── 照片墙 ── */
   const [seeds, setSeeds] = useState<Record<number, string>>({});
   const wallSet = mediaNow.set;
+  const [shuffleFailure, setShuffleFailure] = useState<{ set: number; message: string } | null>(null);
   const wallSeed = seeds[wallSet] || '';
   const wall = useInfiniteQuery({ ...photosOptions(kind, name, wallSet, wallSeed), enabled: view === 'photos' });
   const wallPage = wall.data?.pages[0];
@@ -410,10 +412,16 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
         await queryClient.fetchQuery(next).catch(() => null);
         return;
       }
+      setShuffleFailure(null);
       const seed = newSeed();
-      const next = await queryClient.fetchInfiniteQuery(photosOptions(kind, name, wallSet, seed)).catch(() => null);
-      if (!alive.current || !next?.pages[0] || next.pages[0].error) return;
-      setSeeds((current) => ({ ...current, [wallSet]: seed }));
+      try {
+        const next = await queryClient.fetchInfiniteQuery(photosOptions(kind, name, wallSet, seed));
+        const page = next.pages[0];
+        if (!page || page.error) throw new Error(page?.error || t('catalog:entityPage.shufflePhotosFailed'));
+        if (alive.current) setSeeds((current) => ({ ...current, [wallSet]: seed }));
+      } catch (error) {
+        if (alive.current) setShuffleFailure({ set: wallSet, message: errorMessage(error) });
+      }
     },
     setJavLayout: actions.setJavLayout,
     setPhotoLayout: actions.setPhotoLayout,
@@ -507,7 +515,13 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
           helpers={filterHelpers} />,
         hosts.filter)}
       {createPortal(
-        <EntityFolderWorkspace enabled={view === 'videos'}>{view === 'online'
+        <EntityFolderWorkspace enabled={view === 'videos'}>
+          {view === 'photos' && shuffleFailure?.set === wallSet
+            ? <Note tone="error" title={<span data-copy-key="catalog.entityPage.shufflePhotosFailure">{t('catalog:entityPage.shufflePhotosFailure')}</span>}
+              action={<Button size="small" variant="secondary" onClick={() => { void filterActions.reshuffle() }}>{t('catalog:shared.retryNow')}</Button>}>
+              {shuffleFailure.message}
+            </Note> : null}
+          {view === 'online'
           ? <EntityOnline view={online.view} media={online.media} result={online.result}
             data={online.data} visible={online.visible} context={online.context} photoSize={props.photoSize}
             photoLayout={props.photoLayout} imagesOnly={props.followImagesOnly} helpers={props.follow.helpers}

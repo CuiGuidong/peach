@@ -253,6 +253,7 @@ describe('关注页岛', () => {
         const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
         return {
           collection: [getComputedStyle(collection).opacity, getComputedStyle(collection).visibility],
+          collectionRadius: getComputedStyle(collection).borderTopRightRadius,
           actions: getComputedStyle(actions).opacity,
           hitCollection: hit?.closest('[data-follow-collection]') === collection,
           /* 计数与操作键都贴封面右上角那一格，上沿与右沿相对封面格的偏移。 */
@@ -265,6 +266,8 @@ describe('关注页岛', () => {
       assert.deepEqual(rest.collection, ['1', 'visible'], '不悬停时合并计数没有显示');
       assert.equal(rest.actions, '0', '不悬停时操作键已经露出来');
       assert.equal(rest.hitCollection, true, '不悬停时合并计数接不到指针');
+      assert.deepEqual(rest.collectionCorner, [6, 6]);
+      assert.equal(rest.collectionRadius, '8px');
 
       await card.locator('[data-follow-open]').hover();
       const hovered = await read();

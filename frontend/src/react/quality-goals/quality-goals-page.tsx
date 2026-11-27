@@ -22,7 +22,6 @@ import { LOC, fmtDur, fmtSize } from '@peach/legacy/core';
 
 import { Button } from '@/components/base/buttons/button';
 
-import { errorMessage } from '../../api';
 import { queueContentSkeletonHtml } from '../../queue-skeleton';
 import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-download-dialog';
 import type { QualityGoalsProps } from '../bundle';
@@ -34,7 +33,7 @@ import { useQueueSort } from '../components/queue-sort';
 import { useCatalogView } from '../catalog-grid/catalog-view';
 import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
 import { SortKeys } from '../entity-filter/entity-filter-page';
-import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { Page } from '../components/page';
 import { enterPageSelection, exitPageSelection, usePageSelection } from '../components/page-selection';
 import { SelectionDock } from '../components/selection-dock';
@@ -157,7 +156,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
   if (!data) {
     return (
       <Page>
-        <Note tone="error" title={t('manage:hdUpgrades.loadFailed')}>{goals.error ? errorMessage(goals.error) : t('manage:hdUpgrades.notFound')}</Note>
+        <QueryErrorNote titleKey="manage:hdUpgrades.loadFailed" query={goals} />
       </Page>
     );
   }
@@ -249,7 +248,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
         <Button size="small" variant="ghost" onClick={exitPageSelection}>{t('manage:hdUpgrades.clearSelection')}</Button>
       </SelectionDock>
       <JavBatchResources items={resources} close={() => setResources(null)} readOnly={false} receipt={toast} />
-      {goals.isError ? <Note tone="error">{errorMessage(goals.error)}</Note> : null}
+      {goals.isError ? <QueryErrorNote titleKey="manage:hdUpgrades.loadFailed" query={goals} /> : null}
       {/* 列表只取前 200 部；总数比这多时说清楚这一页不是全部。 */}
       {Number(data.total || 0) > items.length
         ? <p className="mt-6 text-center text-caption-1-regular text-text-secondary">

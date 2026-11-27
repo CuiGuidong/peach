@@ -14,7 +14,7 @@
 - 用户可添加多条独立的自定义服务商连接，选择 OpenAI Chat Completions 或 Anthropic Messages 兼容协议，并配置名称、基础地址、端口及 API Key。支持读取模型目录，也可填写服务商提供的模型 ID。任务配置、助手和 Peach 用量记录使用连接的独立标识。更换地址或协议需要重新填写该连接的凭据。
 - 保存后的 API Key 仅由服务端读取，Windows 用当前用户的 DPAPI 保存，其他系统使用权限为 `0600` 的本机凭据文件。连接接口只返回状态。公网域名、公开网络地址和代理转发请求均无法调用 AI 接口，即使持有有效登录。其他直连私网设备须先登录。Peach 主机通过回环或自己的监听地址访问时校验同源。非回环地址上的 API Key 提交需要 HTTPS。以相同操作系统身份运行的程序仍拥有该身份的文件和解密能力。
 - 「任务与提示词」允许覆盖全局指导、搜索与任务识别、翻译、文本标签、封面与单帧、时间轴、官方样张、元数据计划和整理计划。默认指导随界面语言，自定义内容按原文使用。模型接收当前操作的指导与固定契约，作品资料作为单独输入传入。元数据与整理提示词由搜索规划使用，写入仍由应用执行确认流程。
-- OpenAI 另外提供 ChatGPT 订阅连接。Peach 使用 OpenAI 的开源应用注册流程，在同一台主机接收回环回调，并将用户明确授予的订阅额度用于 Responses API。这是 Peach 自己获得的授权。现有 Codex 与 Claude 登录资料由各自运行时管理。[OpenAI 授权说明](https://developers.openai.com/siwc/token-sharing-open-source/sign-in)
+- OpenAI 另外提供 ChatGPT 订阅连接。在运行 Peach 的电脑上，通过该实例的 `.local`、直连私网地址或回环地址进入「AI 接入」即可授权。Peach 使用 OpenAI 的开源应用注册流程接收本机回环回调，随后返回发起授权的地址，并将用户明确授予的订阅额度用于 Responses API。这是 Peach 自己获得的授权。现有 Codex 与 Claude 登录资料由各自运行时管理。[OpenAI 授权说明](https://developers.openai.com/siwc/token-sharing-open-source/sign-in)
 - Claude 使用用户在 Claude Console 创建的 API Key。Anthropic 将个人订阅 OAuth 限定于原生应用的用途。Claude Platform OAuth 提供单独的组织计费测试版，需要登记 OAuth 应用、配置工作负载身份，并由合格 Claude 组织授权。[Claude Code 凭据政策](https://code.claude.com/docs/en/legal-and-compliance) · [Claude Platform OAuth](https://platform.claude.com/docs/en/manage-claude/oauth-apps/overview)
 - 作品详情提供翻译、文本标签与视觉标签任务。题材、角色和关系从已有的作品字段和资料快照取证。视觉可自动用已有时间轴缩略图或九宫格，也可手选一张封面或预览帧。界面在提交前显示接收方和张数上限。自动模式先筛去黑场和近重复图，按时间段与画面变化选至多 18 帧，必要时用已有的邻近缩略图补证，最多发送 24 张次。姿势与镜头观察独立于馆藏标签，体位和行为候选要求同一组的相邻帧证据。
 - 官方样张作为独立画面输入。使用番号已关联的发行方样张地址与现有图片缓存，最多分析 12 张，用于服装、外貌、布景等静态观察。证据引用样张编号，不从图片排序推断正片时间或行为顺序。

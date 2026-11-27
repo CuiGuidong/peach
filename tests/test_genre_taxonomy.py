@@ -52,6 +52,17 @@ def _catalog_vocabulary() -> set[str]:
 
 
 class GenreTaxonomyTests(unittest.TestCase):
+    def test_dmm_bilingual_categories_keep_one_label_per_meaning(self):
+        self.assertEqual(
+            map_genres(["アクメ・オーガズム", "Orgasm", "姉・妹", "Sister", "ナンパ",
+                        "Picking Up Girls", "搭訕", "Bride", "花嫁", "Wedding Dress",
+                        "妄想族", "Daydreamers"]),
+            (["高潮", "姐妹", "搭讪", "新娘", "婚纱"], []),
+        )
+        self.assertEqual(catalog_rules.tag_cat("姐妹"), "relationship")
+        self.assertEqual(catalog_rules.tag_cat("新娘"), "role")
+        self.assertEqual(map_genres(["姐弟", "探花", "妄想剧情"]), (["姐弟", "探花", "妄想剧情"], []))
+
     def test_office_role_and_uniform_keep_separate_dimensions(self):
         tags, unknown = map_genres(["OL", "Secretary", "Office Lady", "スーツ", "Business Suit"])
         self.assertEqual(tags, ["秘书OL", "OL制服"])

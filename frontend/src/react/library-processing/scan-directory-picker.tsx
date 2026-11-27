@@ -51,7 +51,11 @@ export function ScanDirectoryPicker({ libraryId, confirmButton, onSelect }: {
   };
   const failed = [roots, ...results].filter(result => result.isError);
   return <div className="flex min-w-0 flex-col gap-3">
-    {roots.isPending ? <p role="status" className="text-body-2-regular text-text-secondary">{t('manage:syncMenu.loadingDirectories')}</p> : null}
+    {roots.isPending ? <div role="status" data-skeleton="scan-directories" aria-label={t('manage:syncMenu.loadingDirectories')}>
+      {['w-32', 'w-40', 'w-28', 'w-36'].map(width => <div key={width} aria-hidden="true" className="flex h-8 items-center gap-2 px-3">
+        <span className="skeleton-sheen size-4 rounded-sm" /><span className={`skeleton-sheen h-3.5 rounded-sm ${width}`} />
+      </div>)}
+    </div> : null}
     {failed.length ? <Note tone="error" action={
       <Button size="small" variant="secondary" onClick={() => { failed.forEach(result => { void result.refetch() }) }}>
         {t('catalog:shared.retryNow')}

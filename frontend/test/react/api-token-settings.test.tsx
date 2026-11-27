@@ -1,7 +1,7 @@
 /* 访问口令与 HTTPS 证书分区：换口令先说清谁要重新登录，新口令只显示这一次；证书分区画出二维码与指纹。
  * 外观由预览与 e2e 量。 */
 import { notifyManager, QueryClientProvider } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { act, type ReactNode } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
 import * as legacyUi from '@peach/legacy/ui';
 
@@ -84,4 +84,13 @@ it('证书分区画出二维码、分段的指纹和下载链接', async () => {
     '00:01:02:03:04:05:06:07', '08:09:0A:0B:0C:0D:0E:0F', '10:11:12:13:14:15:16:17', '18:19:1A:1B:1C:1D:1E:1F']);
   expect(card.querySelector('a[download]')!.getAttribute('href')).toBe(state.download);
   expect(card.textContent).toContain('证书信任设置');
+  vi.stubGlobal('fetch', vi.fn(async () => Response.json({ detail: '二维码服务暂不可用' }, { status: 503 })));
+  await act(async () => { await queryClient.refetchQueries({ queryKey: ['ca-certificate'] }) });
+  expect(card.querySelector('svg[role="img"]')).toBeNull();
+  expect(card.querySelector('[role="alert"]')?.textContent).toContain('无法更新证书下载二维码');
+  serve({ ...state, qr: ['111'] });
+  await click(buttonNamed('重新获取二维码', card));
+  await settle();
+  expect(card.querySelector('[role="alert"]')).toBeNull();
+  expect(card.querySelector('svg[role="img"] path')?.getAttribute('d')).toBe('M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1z');
 });

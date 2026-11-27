@@ -79,6 +79,11 @@ const tasks = (label = '追更检查') => ({
     parent_run_id: null, root_run_id: null, followup_key: '', followup_depth: 0,
   }],
 });
+const taskReplies = {
+  '/api/tasks': tasks(),
+  '/api/background-issues': { issues: [] },
+  '/api/downloads': { available: true, providers: [], tasks: [] },
+};
 const configuration = {
   editable: true, notice: '', revision: 'rev-1', media_dirs: ['D:\\Media'], port: 9123, facts: [],
   startup: { available: true, enabled: false, silent: true, message: '', desktop: false, desktop_message: '' },
@@ -124,7 +129,7 @@ it('挂上就打开：先报换页，骨架与冷启动那张同键不重画，�
   const order: string[] = [];
   const actions = shellActions();
   vi.mocked(actions.surfaceChanged).mockImplementation((kind, path) => { order.push(`${kind} ${path}`) });
-  const api = serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } }, ['/api/tasks']);
+  const api = serve(taskReplies, ['/api/tasks']);
   api.fetched.mockImplementationOnce(((original) => (input: string, init?: RequestInit) => {
     order.push(`fetch ${input.split('?')[0]}`);
     return original(input, init);
@@ -142,7 +147,7 @@ it('挂上就打开：先报换页，骨架与冷启动那张同键不重画，�
 it('认领的写地址不重开，返回已访问地址重挂时使用缓存', async () => {
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
-  const api = serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } });
+  const api = serve(taskReplies);
   await boot(r);
   await until(() => painted(stats) !== null, '第一次画上');
   const page = painted(stats);
@@ -161,7 +166,7 @@ it('认领的写地址不重开，返回已访问地址重挂时使用缓存', a
 it('详情压在上面时页面不拆也不重开，关掉详情回到这一页照旧', async () => {
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
-  const api = serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } });
+  const api = serve(taskReplies);
   await boot(r);
   await until(() => painted(stats) !== null, '画上');
   const page = painted(stats);
@@ -177,7 +182,7 @@ it('详情压在上面时页面不拆也不重开，关掉详情回到这一页�
 it('后退落到压在这一页上的详情才挂上（中间去过别的页）时不开；关掉详情回来按地址打开一次', async () => {
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
-  const api = serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } });
+  const api = serve(taskReplies);
   await boot(r);
   await until(() => painted(stats) !== null, '画上');
   const overlay = { backgroundLocation: { pathname: '/tasks', search: '' }, overlay: 'item' };
@@ -200,7 +205,7 @@ it('走开时保留管理区宿主供目标页面切换，提交阶段没有同�
   const errors = vi.spyOn(console, 'error');
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
-  serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } });
+  serve(taskReplies);
   await boot(r);
   await until(() => painted(stats) !== null, '画上');
   await act(async () => { r.shellNavigate('/') });

@@ -75,6 +75,7 @@ export interface SyncedSettings {
   sourceBudgetGigabytes?: number;
   /** 没有别的封面时用 JavDB 带水印的图（#531），默认关。 */
   javdbCoverFallback?: boolean;
+  sourceTagsOriginal?: boolean;
 }
 
 export type SettingsPatch = Omit<SyncedSettings, 'tableLayouts'> & { tableLayouts?: Record<string, TableLayoutChange> };

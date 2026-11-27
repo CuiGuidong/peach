@@ -20,7 +20,7 @@
 
 /* ── 基础几何 ── */
 [data-sidebar-chip][data-online]{border-color:color-mix(in srgb,#5AC8D8 42%,transparent);background:color-mix(in srgb,#5AC8D8 10%,transparent)}
-[data-sidebar-nav] button[data-nav]{position:relative}
+[data-sidebar-nav] [data-nav]{position:relative}
 /* 页面正文给侧栏让出 `--railW`；`--railW` 本身由遗留层的 `:root` 给。 */
 html>body{padding-left:var(--railW)}
 @media (max-width:760px){
@@ -30,15 +30,17 @@ html>body{padding-left:var(--railW)}
 [data-sidebar-scroll]{height:100%;box-sizing:border-box;padding:16px 12px 60px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
 [data-sidebar-scroll]::-webkit-scrollbar{display:none}
 [data-sidebar-drawer][class~=open]{transform:none;box-shadow:18px 0 60px -24px #000}
-[data-sidebar-nav] button{padding-left:0}
+[data-sidebar-nav] :is(button,a[data-nav]){padding-left:0}
 [data-sidebar-nav] svg{width:24px;height:24px;margin:0 15px 0 24px}
 /* 标题行：品牌键在左、开合键在右。 */
 [data-sidebar-head]{display:flex;align-items:center;justify-content:space-between}
 [data-sidebar-nav]{--sidebar-reorder-ms:250;position:relative;display:flex;flex-direction:column;gap:3px;margin-bottom:18px}
-[data-sidebar-nav] button{padding-left:12px}
-[data-sidebar-nav] button{display:flex;align-items:center;gap:14px;padding:11px 14px;background:none;border:0;border-radius:var(--control-radius);cursor:pointer;text-align:left;font-size:var(--fs-lg);color:var(--muted)}
-[data-sidebar-nav] button:hover{background:var(--hover)}
-[data-sidebar-nav] button[aria-pressed="true"]{background:var(--hover);color:var(--ink)}
+[data-sidebar-nav] :is(button,a[data-nav]){padding-left:12px}
+[data-sidebar-nav] :is(button,a[data-nav]){display:flex;align-items:center;gap:14px;padding:11px 14px;background:none;border:0;border-radius:var(--control-radius);cursor:pointer;text-align:left;font-size:var(--fs-lg);color:var(--muted)}
+[data-sidebar-nav] :is(button,a[data-nav]):hover{background:var(--hover)}
+[data-sidebar-nav] a[data-nav]{text-decoration:none}
+[data-sidebar-nav] a[data-nav]:focus-visible{outline:2px solid var(--color-border-focus-ring);outline-offset:-2px}
+[data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed="true"],[aria-current="page"]){background:var(--hover);color:var(--ink)}
 [data-sidebar-nav] svg{width:var(--icon-inline);height:var(--icon-inline);flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 [data-sidebar-drawer] [data-sidebar-chip]{font-size:var(--fs-xs);padding:4px 10px}
 [data-sidebar-scrim]{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.42);opacity:0;pointer-events:none;display:none;transition:opacity .18s,display .18s allow-discrete}
@@ -95,15 +97,14 @@ html[data-theme-snapshot] :is([data-sidebar-drawer],[data-sidebar-glide]){backdr
 [data-sidebar-drawer][data-sidebar-drawer]>[data-sidebar-glide]{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:8px;will-change:translate,scale;background:linear-gradient(180deg,var(--glass-sheen),transparent 62%),var(--glass-pick-fill);backdrop-filter:var(--glass-pick);box-shadow:inset 0 0 0 1px var(--glass-rim),var(--glass-pick-shadow)}
 [data-sidebar-drawer][data-sidebar-drawer]>[data-sidebar-glide][hidden]{display:none}
 [data-sidebar-drawer][data-sidebar-drawer]>[data-sidebar-glide]{border-radius:10px;z-index:-1}
-[data-sidebar-nav] button{transition:scale calc(var(--spring-press-ms) * 1ms) var(--spring-press)}
-[data-sidebar-nav] button:active{scale:.96;transition:scale .06s ease-out}
-[data-sidebar-drawer][data-sidebar-drawer]{border-radius:26px}
-[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button:not([aria-pressed="true"]){color:var(--glass-text)}
+[data-sidebar-nav] :is(button,a[data-nav]){transition:scale calc(var(--spring-press-ms) * 1ms) var(--spring-press)}
+[data-sidebar-nav] :is(button,a[data-nav]):active{scale:.96;transition:scale .06s ease-out}
+[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):not(:is([aria-pressed="true"],[aria-current="page"])){color:var(--glass-text)}
 /* 按钮自己只管字色，填充归那块滑动的玻璃：两边都铺的话，静止态是一块不动的底压在滑过来的玻璃上。悬停也归
    它，指到哪一格滑过去，离开这一列再滑回当前项。`filter:none` 压掉后面那条当前项的 `brightness(1.08)`，
    否则这块玻璃连同身后的内容一起被推亮一档。 */
-[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button[aria-pressed="true"],[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button[aria-pressed="true"]:hover,[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button[aria-pressed="true"]:active{background:none;backdrop-filter:none;color:var(--glass-text);filter:none;box-shadow:none}
-[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button:hover{background:none;color:var(--glass-text)}
+[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed="true"],[aria-current="page"]),[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed="true"],[aria-current="page"]):hover,[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed="true"],[aria-current="page"]):active{background:none;backdrop-filter:none;color:var(--glass-text);filter:none;box-shadow:none}
+[data-sidebar-drawer][data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):hover{background:none;color:var(--glass-text)}
 @supports not (backdrop-filter:blur(1px)){
   [data-sidebar-drawer][data-sidebar-drawer],[data-sidebar-drawer][data-sidebar-drawer][class~=open]{background:var(--ground);animation:none}
 }
@@ -116,13 +117,13 @@ html[data-theme-snapshot] :is([data-sidebar-drawer],[data-sidebar-glide]){backdr
 html[class~=board-high-contrast] [data-sidebar-drawer][data-sidebar-drawer]{background:var(--ground);backdrop-filter:none;animation:none}
 [data-sidebar-drawer]{box-shadow:0 12px 40px var(--sidebar-drop)}
 body[class~=drawer-open]{--railW:296px}
-[data-sidebar-drawer]{left:12px;top:12px;bottom:12px;width:272px;background:var(--ground);backdrop-filter:none;border:1px solid var(--line);border-radius:24px;transform:translateX(calc(-100% - 16px));box-shadow:0 2px 4px #00000003;transition:none}
+[data-sidebar-drawer]{left:max(var(--shell-frame-gap),env(safe-area-inset-left));top:var(--shell-frame-top);bottom:var(--shell-frame-bottom);width:272px;background:var(--ground);backdrop-filter:none;border:1px solid var(--line);transform:translateX(calc(-100% - 16px));box-shadow:0 2px 4px #00000003;transition:none}
 [data-sidebar-drawer][class~=open]{transform:none;box-shadow:0 2px 4px #00000003}
 [data-sidebar-scroll]{padding:20px 12px 24px}
 [data-sidebar-drawer] [data-sidebar-nav]{gap:4px;margin:16px 0 24px}
-[data-sidebar-drawer] [data-sidebar-nav] button{height:40px;padding:8px 12px;gap:12px;font-size:14px;border-radius:10px;line-height:20px;font-weight:400}
+[data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]){height:40px;padding:8px 12px;gap:12px;font-size:14px;border-radius:10px;line-height:20px;font-weight:400}
 [data-sidebar-drawer] [data-sidebar-nav] svg{margin:0;width:var(--icon-inline);height:var(--icon-inline)}
-[data-sidebar-drawer] [data-sidebar-nav] button[aria-pressed="true"]{background:var(--board-blue);color:white;box-shadow:inset 0 1px 1px #ffffff50,0 1px 2px var(--sidebar-pick-drop)}
+[data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed="true"],[aria-current="page"]){background:var(--board-blue);color:white;box-shadow:inset 0 1px 1px #ffffff50,0 1px 2px var(--sidebar-pick-drop)}
 [data-sidebar-scrim][class~=on]{display:none}
 [data-sidebar-drawer] #brandHome{display:flex;gap:10px;align-items:center;margin-right:auto;text-decoration:none;color:var(--ink)}
 [data-sidebar-drawer] #brandHome [class~=mark]{width:28px;height:28px}
@@ -130,7 +131,7 @@ body[class~=drawer-open]{--railW:296px}
 [data-sidebar-drawer] #brandHome [class~=sub]{display:none}
 @media (max-width:760px){
   body[class~=drawer-open]{--railW:0px}
-  [data-sidebar-drawer]{top:64px;bottom:12px;width:min(320px,calc(100vw - 24px));border-radius:20px;z-index:97}
+  [data-sidebar-drawer]{width:min(320px,calc(100vw - 2 * var(--shell-frame-gap)))}
   /* 窄屏的抽屉盖在内容上面，身后常是整张视频封面：填充加厚到 --ground 的 86%，光斑、亮线和模糊照旧。 */
   [data-sidebar-drawer][data-sidebar-drawer]{--glass-fill:color-mix(in srgb,var(--ground) 86%,transparent)}
   [data-sidebar-scrim][class~=on]{display:block;top:56px}
@@ -138,17 +139,17 @@ body[class~=drawer-open]{--railW:296px}
 [data-sidebar-drawer] [data-sidebar-head] #filterBtn{display:grid;place-items:center;padding:0;width:36px;height:36px;flex:none;border-radius:8px;background:transparent}
 [data-sidebar-drawer] [data-sidebar-head] #filterBtn svg{width:20px;height:20px;margin:0}
 [data-sidebar-drawer] [data-sidebar-head]{gap:8px;min-height:36px}
-[data-sidebar-drawer] [data-sidebar-nav] button span{white-space:nowrap;min-width:0;max-width:190px;overflow:hidden;opacity:1;filter:blur(0);transition:max-width var(--board-motion),opacity var(--board-motion),filter var(--board-motion)}
+[data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]) span{white-space:nowrap;min-width:0;max-width:190px;overflow:hidden;opacity:1;filter:blur(0);transition:max-width var(--board-motion),opacity var(--board-motion),filter var(--board-motion)}
 /* 桌面：收起成一条 60 宽的图标列，展开到 260。 */
 @media (min-width:761px){
   html>body{--sidebar-visible-width:var(--sidebar-pull-width,60px);--railW:calc(var(--sidebar-visible-width) + 12px);--sidebar-resize-motion:.2s cubic-bezier(.22,1,.36,1);transition:padding-left var(--sidebar-resize-motion)}
   body[class~=drawer-open]{--sidebar-visible-width:var(--sidebar-width,260px);--railW:calc(var(--sidebar-visible-width) + 24px)}
-  [data-sidebar-drawer][data-sidebar-drawer]{width:var(--sidebar-visible-width);transform:none;transition:width var(--sidebar-resize-motion);border-radius:24px}
+  [data-sidebar-drawer][data-sidebar-drawer]{width:var(--sidebar-visible-width);transform:none;transition:width var(--sidebar-resize-motion)}
   [data-sidebar-drawer] [data-sidebar-scroll]{padding:12px}
-  [data-sidebar-drawer] [data-sidebar-nav] button{padding:8px;gap:8px;min-width:36px}
-  [data-sidebar-drawer] [data-sidebar-nav] button svg{width:var(--icon-inline);height:var(--icon-inline);flex:none}
-  [data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] button span{max-width:0;opacity:0;filter:blur(4px)}
-  [data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] button{gap:0}
+  [data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]){padding:8px;gap:8px;min-width:36px}
+  [data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]) svg{width:var(--icon-inline);height:var(--icon-inline);flex:none}
+  [data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] :is(button,a[data-nav]) span{max-width:0;opacity:0;filter:blur(4px)}
+  [data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] :is(button,a[data-nav]){gap:0}
   [data-sidebar-drawer]:not([class~=open]) [data-sidebar-group]{display:none}
   [data-sidebar-drawer]:not([class~=open]) [data-sidebar-head]{flex-direction:column-reverse}
   [data-sidebar-drawer]:not([class~=open]) #brandHome{margin:0}
@@ -157,14 +158,14 @@ body[class~=drawer-open]{--railW:296px}
 }
 /* 手机：抽屉从左侧滑入，遮罩只在抽屉打开时出现。 */
 @media (max-width:760px){
-  [data-sidebar-drawer][data-sidebar-drawer]{top:12px;bottom:12px;z-index:102;transform:translateX(calc(-100% - 16px));transition:transform var(--board-dialog-motion)}
+  [data-sidebar-drawer][data-sidebar-drawer]{z-index:102;transform:translateX(calc(-100% - 16px));transition:transform var(--board-dialog-motion)}
   [data-sidebar-drawer][data-sidebar-drawer][class~=open]{transform:translateX(0)}
   /* 暗色画在 ::before 上，遮罩本身 visibility:hidden：铺满视口的半透明层会被 iOS 26 的 Safari 当成压暗层
      给状态栏取色，一开侧栏状态栏就整块变暗。::before 不计入外壳的可见内容，点在暗色上仍然落到遮罩身上。 */
   [data-sidebar-scrim][data-sidebar-scrim][class~=on]{top:0;z-index:101;background:none;visibility:hidden}
   [data-sidebar-scrim][data-sidebar-scrim][class~=on]::before{content:'';position:absolute;inset:0;background:#0007;visibility:visible}
 }
-[data-sidebar-drawer][data-sidebar-drawer]{display:flex;flex-direction:column;overflow:hidden}
+[data-sidebar-drawer][data-sidebar-drawer]{display:flex;flex-direction:column;overflow:hidden;border-radius:var(--floating-radius)}
 [data-sidebar-drawer] [data-sidebar-scroll]{flex:1;min-height:0;scrollbar-width:none}
 [data-sidebar-drawer] [data-sidebar-scroll]::-webkit-scrollbar{display:none}
 [data-sidebar-drawer] [class~=ovtrack]{display:none}
@@ -178,7 +179,7 @@ body[class~=drawer-open]{--railW:296px}
   [data-sidebar-drawer]:not([class~=open]) [data-sidebar-head] #filterBtn{display:grid;width:36px;height:36px}
   [data-sidebar-drawer]:not([class~=open]) #brandHome{justify-content:center;flex:none;width:36px;height:36px;gap:0}
   [data-sidebar-drawer]:not([class~=open]) #brandHome [class~=mark]{width:28px;height:28px}
-  [data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] button{width:36px;height:36px;min-height:36px;padding:8px;justify-content:center}
+  [data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] :is(button,a[data-nav]){width:36px;height:36px;min-height:36px;padding:8px;justify-content:center}
 }
 /* 筛选分组：每组一个可折叠的 details，标题行是开合键。 */
 [data-sidebar-drawer] [data-sidebar-group][data-sidebar-kind]{border:0;padding:0;margin:4px 0 0}
@@ -188,10 +189,10 @@ body[class~=drawer-open]{--railW:296px}
 [data-sidebar-head] #brandHome [class~=mark]{display:grid;place-items:center;background:none;border-radius:0}
 [data-sidebar-head] [class~=mark] svg{width:20px;height:20px;stroke-width:2}
 /* 导航条目是「图标＋名字」，字形随名字的字号缩放；收起成图标列时名字只是收窄到 0，字号不变，图标也不跳。 */
-[data-sidebar-drawer] [data-sidebar-nav] button svg{width:var(--icon-inline);height:var(--icon-inline);stroke-width:2}
+[data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]) svg{width:var(--icon-inline);height:var(--icon-inline);stroke-width:2}
 [data-sidebar-home-logo]{width:var(--icon-inline);height:var(--icon-inline);object-fit:contain;flex:none}
-[data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] button:has([data-sidebar-home-logo]){padding:6px}
-[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button[aria-pressed=true]:hover,[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button[aria-pressed=true]:active{background:var(--board-blue);color:white;filter:brightness(1.08)}
+[data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] :is(button,a[data-nav]):has([data-sidebar-home-logo]){padding:6px}
+[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed=true],[aria-current=page]):hover,[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):is([aria-pressed=true],[aria-current=page]):active{background:var(--board-blue);color:white;filter:brightness(1.08)}
 [data-sidebar-toggle]>span{font-size:12px;line-height:20px;font-weight:500;color:var(--muted)}
 [data-sidebar-toggle] svg{order:2;margin-left:auto;width:var(--icon-inline);height:var(--icon-inline);flex:none;fill:none;stroke:currentColor;stroke-width:2;transform:rotate(0deg);transition:transform var(--motion-swap)}
 [data-sidebar-toggle][aria-expanded=true] svg{transform:rotate(90deg)}
@@ -210,10 +211,10 @@ body[class~=drawer-open]{--railW:296px}
 @media (prefers-reduced-motion:reduce){
   [data-sidebar-drawer] [data-sidebar-body] [data-sidebar-more] svg{transition:none}
 }
-[data-sidebar-drawer] [data-sidebar-nav] button{font:var(--board-body)}
+[data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]){font:var(--board-body)}
 [data-sidebar-head] #brandHome [class~=mark]{color:var(--glass-text)}
-[data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] button:has([data-sidebar-home-logo]){padding:8px}
-[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] button:not([aria-pressed=true]),[data-sidebar-head] #brandHome [class~=mark]{color:var(--color-text-secondary)}
+[data-sidebar-drawer]:not([class~=open]) [data-sidebar-nav] :is(button,a[data-nav]):has([data-sidebar-home-logo]){padding:8px}
+[data-sidebar-drawer][data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]):not(:is([aria-pressed=true],[aria-current=page])),[data-sidebar-head] #brandHome [class~=mark]{color:var(--color-text-secondary)}
 [data-sidebar-head] #brandHome:hover{background:var(--color-background-primary-hover);border-radius:var(--pill-radius)}
 [data-sidebar-drawer] [data-sidebar-group][data-sidebar-kind]>[data-sidebar-toggle]{box-sizing:border-box;display:flex;width:100%;min-height:36px;margin:0 0 4px;padding:8px 10px;gap:8px;border-radius:8px;list-style:none;color:var(--color-text-secondary);font:var(--board-caption)}
 [data-sidebar-toggle]::-webkit-details-marker{display:none}
@@ -235,7 +236,7 @@ body :is([data-sidebar-range] input)::-moz-range-thumb{width:18px;height:18px;bo
 /* 切换器展开时自己带一圈 2px 描边，导航首项又会抬起底：间距留小了两块底色挨着，读起来像切换器压在第一项上。 */
 [data-sidebar-drawer] [data-sidebar-nav]{margin-top:12px;gap:4px}
 [data-sidebar-drawer] #brandHome{height:36px;min-height:36px;box-sizing:border-box}
-[data-sidebar-drawer] [data-sidebar-nav] button{height:36px;min-height:36px}
+[data-sidebar-drawer] [data-sidebar-nav] :is(button,a[data-nav]){height:36px;min-height:36px}
 [data-sidebar-drawer] [data-sidebar-head] #filterBtn{border-radius:0;color:var(--color-text-secondary);transition:color .15s ease}
 [data-sidebar-drawer] [data-sidebar-head] #filterBtn:hover{background:var(--color-background-primary-hover);color:var(--color-text-primary)}
 @media (min-width:761px){
@@ -258,8 +259,8 @@ body :is([data-sidebar-range] input)::-moz-range-thumb{width:18px;height:18px;bo
 }
 
 /* 原帖的插入波纹：近邻先让开，位移和延迟由导航按落点距离计算。 */
-[data-sidebar-nav] button{--navigation-nudge-y:var(--sidebar-nudge,0px)}
-[data-sidebar-nav] button[data-dragging]{top:var(--sidebar-picked-top);left:0;width:100%}
+[data-sidebar-nav] :is(button,a[data-nav]){--navigation-nudge-y:var(--sidebar-nudge,0px)}
+[data-sidebar-nav] :is(button,a[data-nav])[data-dragging]{top:var(--sidebar-picked-top);left:0;width:100%}
 [data-sidebar-drawer]:has([data-sidebar-nav][data-reordering])>[data-sidebar-glide]{opacity:0}
 [data-sidebar-drop-line]{top:0;transform:translateY(var(--sidebar-line-top));left:10px;right:10px;height:2px}
 [data-sidebar-drop-line]>span{transform:scaleX(1)}

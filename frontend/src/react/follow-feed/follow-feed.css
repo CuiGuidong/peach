@@ -405,8 +405,8 @@ body:not([data-density="dense"]) .peach-react [data-follow-list]:not([data-follo
  * 排在计数下面。 */
 .peach-react [data-follow-corner] {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: var(--pic-badge-inset);
+  right: var(--pic-badge-inset);
   z-index: 7;
   display: flex;
   flex-direction: column;
@@ -421,7 +421,7 @@ body:not([data-density="dense"]) .peach-react [data-follow-list]:not([data-follo
   min-height: 28px;
   padding: 4px 9px;
   border: 0;
-  border-radius: var(--control-radius);
+  border-radius: var(--pic-inner-radius);
   background: rgb(12 8 8 / .72);
   color: #fff;
   font: inherit;
@@ -527,7 +527,7 @@ body:not([data-density="dense"]) .peach-react [data-follow-list]:not([data-follo
 .peach-react [data-follow-edition="voiced"] { color: var(--keep); background: color-mix(in srgb, var(--keep) 16%, transparent); }
 .peach-react [data-follow-edition="silent"] { color: var(--muted); border-style: dashed; }
 /* 来源与另见共用左上角的玻璃标记。 */
-.peach-react [data-follow-sources] { position: absolute; top: 6px; left: 6px; z-index: 2; display: flex; gap: 4px; max-width: calc(100% - 120px); }
+.peach-react [data-follow-sources] { position: absolute; top: var(--pic-badge-inset); left: var(--pic-badge-inset); z-index: 2; display: flex; gap: 4px; max-width: calc(100% - 120px); }
 .peach-react [data-follow-sources] [data-media-badge] { position: static; flex: none; }
 .peach-react [data-follow-sources] > [data-follow-badges] { flex: 0 1 auto; }
 .peach-react [data-follow-sources] [data-follow-seealso-label] { display: none; }

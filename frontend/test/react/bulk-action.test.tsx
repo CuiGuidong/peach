@@ -33,7 +33,7 @@ describe('runBulkAction', () => {
     const receipt = vi.fn();
     const pending = runBulkAction(action({ run: async () => undo }), [1, 2, 3], { receipt });
     await settle();
-    expect(dialog().textContent).toContain('将标记选中的 3 项。完成后可在回执里撤销。');
+    expect(dialog().textContent).toContain('将标记选中的 3 项。完成后可在结果提示中撤销。');
     accept();
     expect(await pending).toBe(true);
     expect(receipt).toHaveBeenCalledWith('已标记 3 项', { undo });

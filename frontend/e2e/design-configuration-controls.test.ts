@@ -136,7 +136,7 @@ describe('设计决定：配置控件', () => {
         const managementSurface = navigation.locator('[data-pill-thumb]');
         const managementOriginal = await managementSurface.elementHandle();
         assert.ok(managementOriginal);
-        await navigation.getByRole('button', { name: '任务中心', exact: true }).click();
+        await navigation.getByRole('link', { name: '任务中心', exact: true }).click();
         await page.waitForURL((url) => url.pathname === '/tasks');
         await page.getByRole('heading', { name: '任务中心', exact: true }).waitFor();
         assert.equal(await managementOriginal.evaluate((node) => node.isConnected), true);
@@ -146,13 +146,14 @@ describe('设计决定：配置控件', () => {
       } finally { await opened.close(); }
     });
 
-    it(`页面页签复用 PillTabList 选中层并保留方向键导航（${viewport.name}）`, { timeout: 60_000 }, async () => {
+    it(`资料类型链接共用滑动选中层，支持 Tab 和 Enter 导航（${viewport.name}）`, { timeout: 60_000 }, async () => {
       const opened = await visit(browser, '/studios', viewport);
       try {
         const page = opened.page;
         await page.emulateMedia({ reducedMotion: 'no-preference' });
-        const tabs = page.getByRole('tablist', { name: '资料类型' });
-        const surface = tabs.locator(':scope > span[aria-hidden="true"]');
+        const navigation = page.getByRole('navigation', { name: '资料类型' });
+        const surface = navigation.locator('[data-pill-thumb]');
+        const selectedLink = navigation.locator('a[aria-current="page"]');
         await surface.waitFor();
         const original = await surface.elementHandle();
         assert.ok(original);
@@ -160,25 +161,31 @@ describe('设计决定：配置控件', () => {
           properties: getComputedStyle(node).transitionProperty }));
         assert.match(style.properties, /transform/);
         assert.ok(style.duration.split(',').every((value) => value.trim() === '0.3s'));
-        await tabs.getByRole('tab', { name: '事务所', exact: true }).click();
+        await navigation.getByRole('link', { name: '事务所', exact: true }).click();
         await page.waitForURL((url) => url.pathname === '/agencies');
-        await tabs.getByRole('tab', { name: '事务所', selected: true }).waitFor();
+        assert.equal(await selectedLink.getAttribute('href'), '/agencies');
         // 等的就是开头取到的那一块选中层滑到位并停下：读它自己的父元素，不按标签名另找一排。
         await page.waitForFunction((thumb) => {
-          const selected = thumb.parentElement!.querySelector('[aria-selected="true"]')!.getBoundingClientRect();
+          const selected = thumb.parentElement!.querySelector('[aria-current="page"]')!.getBoundingClientRect();
           const pane = thumb.getBoundingClientRect();
           return thumb.getAnimations().length === 0
             && Math.abs(selected.left - pane.left) <= 1 && Math.abs(selected.width - pane.width) <= 1;
         }, original);
         assert.equal(await original.evaluate((node) => node.isConnected), true);
-        const selected = await tabs.getByRole('tab', { selected: true }).boundingBox();
+        const selected = await selectedLink.boundingBox();
         const pane = await surface.boundingBox();
         assert.ok(selected && pane && Math.abs(selected.x - pane.x) <= 1 && Math.abs(selected.width - pane.width) <= 1);
-        await tabs.getByRole('tab', { selected: true }).press('ArrowLeft');
+        await selectedLink.focus();
+        await page.keyboard.press('Shift+Tab');
+        assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('href')), '/series');
+        await page.keyboard.press('Enter');
         await page.waitForURL((url) => url.pathname === '/series');
-        await tabs.getByRole('tab', { name: '系列', selected: true }).press('ArrowLeft');
+        await selectedLink.focus();
+        await page.keyboard.press('Shift+Tab');
+        assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('href')), '/studios');
+        await page.keyboard.press('Enter');
         await page.waitForURL((url) => url.pathname === '/studios');
-        await tabs.getByRole('tab', { name: '厂牌', selected: true }).waitFor();
+        assert.equal(await selectedLink.getAttribute('href'), '/studios');
         await page.emulateMedia({ reducedMotion: 'reduce' });
         assert.equal(await surface.evaluate((node) => getComputedStyle(node).transitionDuration), '0s');
         assert.deepEqual((await layout(page)).offenders, []);

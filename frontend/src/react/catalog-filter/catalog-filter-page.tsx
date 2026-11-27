@@ -76,6 +76,8 @@ function Glass(props: CatalogFilterProps) {
   }, [helpers]);
 
   const loading = !props.tiers;
+  const facetPending = loading && props.tiersPending;
+  const facetError = loading ? props.tiersError : undefined;
   useLayoutEffect(() => {
     // 首次加载按两行占位；已有内容刷新时沿用已测量的排布，不拿骨架宽度重新合行。
     if (loading || props.trash) { setSingleRow(false); return }
@@ -111,18 +113,21 @@ function Glass(props: CatalogFilterProps) {
       bottom={props.trash ? <TrashHead {...props} /> : <Head {...props} filters={
           <>
             <FilterDropdown id="home-performers" orderKey="performer" label={t('catalog:shared.performers')} active={!!selectedPerformer}
+              pending={facetPending} error={facetError} withAvatar
               choices={(props.tiers?.performers || []).map(person => ({
                 id: person.name, label: entityDisplayName('performer', person.name, person.id), selected: person.name === selectedPerformer,
                 searchTerms: [person.name], leading: <ColumnFilterAvatar person={person} />,
               }))} onSelect={name => actions.chooseFacet('performer', name)}
               onClear={selectedPerformer ? () => actions.clearFilter('performer') : undefined} />
             <FilterDropdown id="home-studios" orderKey="studio" label={t('catalog:shared.label')} active={!!selectedStudio}
+              pending={facetPending} error={facetError} withAvatar
               choices={(props.tiers?.studios || []).map(studio => ({
                 id: studio.name, label: studio.name, selected: studio.name === selectedStudio,
                 leading: <ColumnFilterStudioAvatar studio={studio} />,
               }))} onSelect={name => actions.chooseFacet('studio', name)}
               onClear={selectedStudio ? () => actions.clearFilter('studio') : undefined} />
             <FilterDropdown id="home-tags" orderKey="tags" label={t('catalog:shared.tags')}
+              pending={facetPending} error={facetError}
               choices={tags} onSelect={actions.toggleTag}
               onClear={tags.some(tag => tag.selected) ? () => actions.toggleTag('') : undefined} />
           </>

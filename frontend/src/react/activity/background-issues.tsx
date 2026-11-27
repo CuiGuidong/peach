@@ -8,8 +8,7 @@
  * 的主动作，和分区底部操作条一样排在最右；没有重试的行，链接也落在同一个位置。
  *
  * 时间分两种：服务自己记下的起点写「自 … 起」；服务不记失败时刻的，写这一次运行里第一次
- * 读到它的时刻「发现于 …」，两者不混用。没有问题时整段不画，取数失败也不画：服务连不上时
- * 页面顶上已经有一条读取失败。 */
+ * 读到它的时刻「发现于 …」，两者不混用。只有确认没有问题才隐藏整段。 */
 import { useId } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RiArrowRightLine } from '@remixicon/react';
@@ -17,48 +16,35 @@ import { RiArrowRightLine } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
 import { LinkButton } from '@/components/base/buttons/link-button';
 
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiSend, errorMessage } from '../../api';
 import { withBackoff } from '../../polling';
 import { codedText } from '../../core/server-text';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { busyProps } from '../settings/use-action';
-import { momentText } from './tasks';
+import { BACKGROUND_ISSUES_KEY, fetchBackgroundIssues, momentText, type BackgroundIssue } from './tasks';
 import { t } from '../../i18n';
 
-export const BACKGROUND_ISSUES_URL = '/api/background-issues';
-export const BACKGROUND_ISSUES_KEY = ['background-issues'] as const;
+export { BACKGROUND_ISSUES_URL, type BackgroundIssue } from './tasks';
 /** 后台问题每 30 秒读一次；读失败按连续失败次数退避。 */
 export const backgroundIssuesInterval = withBackoff<{ issues: BackgroundIssue[] }>(() => 30_000);
-
-export interface BackgroundIssue {
-  key: string;
-  title: string;
-  href: string;
-  /** 链接文案，写具体去处，例如「打开推送设置」。 */
-  link_label: string;
-  /** 服务自己记下的起点；不记的服务是 null。 */
-  since: string | null;
-  /** 这一次运行里第一次读到这一项的时刻。 */
-  noticed_at: string;
-  retry: string | null;
-  retry_available: boolean;
-}
 
 export function BackgroundIssues() {
   const id = useId();
   const query = useQuery({
     queryKey: BACKGROUND_ISSUES_KEY,
-    queryFn: ({ signal }) => apiGet<{ issues: BackgroundIssue[] }>(BACKGROUND_ISSUES_URL, signal),
+    queryFn: ({ signal }) => fetchBackgroundIssues(signal),
     refetchInterval: backgroundIssuesInterval,
   });
   const issues = query.data?.issues || [];
-  if (!issues.length) return null;
+  if (!issues.length && !query.error) return null;
   return (
     <section aria-labelledby={id} className="flex min-w-0 flex-col gap-3">
       <h3 id={id} className="text-title-2-medium text-text-primary">{t('manage:backgroundIssues.title')}</h3>
-      <ul className="flex min-w-0 flex-col gap-3">
+      {query.error ? <QueryErrorNote titleKey="manage:backgroundIssues.loadFailed" query={query} /> : null}
+      {issues.length ? <ul className="flex min-w-0 flex-col gap-3">
         {issues.map((issue) => <li key={issue.key}><IssueRow issue={issue} /></li>)}
-      </ul>
+      </ul> : null}
     </section>
   );
 }

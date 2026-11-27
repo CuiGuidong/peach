@@ -366,7 +366,7 @@ describe('首页筛选条', () => {
       await page.locator('[data-sort-direction-menu]').waitFor();
       assert.equal(counts.items.length, before, '打开排序菜单时不重取作品');
       await page.locator('[data-sort-direction-menu] [data-filter-option="desc"]').click();
-      await page.locator(`${FILTER} [data-entity-sort="new"][aria-pressed="true"]`).waitFor({ timeout: 2_000 });
+      await page.locator(`${FILTER} [data-entity-sort="new"][data-sort-current="true"]`).waitFor({ timeout: 2_000 });
       await until(() => counts.items.length > before, '换排序之后没有重取列表');
       await settle(page);
       assert.deepEqual(counts.items.slice(before).map((url) => url.searchParams.get('sort')), ['new'],
@@ -410,7 +410,7 @@ describe('首页筛选条', () => {
       const before = counts.items.length;
       const homeIds = await page.locator('#grid [data-media-card]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id')));
       if (viewport.mobile) await page.locator('#filterBtn').click();
-      await page.locator('button[data-nav="jav"]:visible').first().click();
+      await page.locator('a[data-nav="jav"]:visible').first().click();
       await page.waitForFunction(() => location.pathname === '/' && new URLSearchParams(location.search).get('jav') === '1');
       await page.getByRole('tab', { name: '馆藏', exact: true, selected: true }).waitFor();
       await page.locator('#grid [data-media-card]').first().waitFor();
@@ -461,7 +461,7 @@ describe('首页筛选条', () => {
       await settle(page);
       const beforeHome = counts.items.length;
       if (viewport.mobile) await page.locator('#filterBtn').click();
-      await page.locator('button[data-nav=""]:visible').first().click();
+      await page.locator('a[data-nav=""]:visible').first().click();
       await page.waitForFunction(() => location.pathname === '/' && !new URLSearchParams(location.search).has('jav'));
       await page.locator(`${FILTER} input[name="home-layout"]`).first().waitFor({ state: 'attached' });
       await page.locator(READOUT, { hasText: '个符合' }).waitFor();

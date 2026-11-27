@@ -146,8 +146,8 @@ export function FollowManagePage(props: FollowManageProps) {
             }}>{t('follow:followFeed.addFollow')}</Button> : undefined}>
             {t('follow:followManagePage.emptyBody')}
           </EmptyState> : null}
-          {/* 列表还没到时只画与整页骨架同一张的列表占位，订阅源那张卡等列表到了再出：同一次进入只有一段等待。 */}
-          {!empty && follow.data && (!feeds.data || subscribed > 0) ? <FeedSources readOnly={readOnly} toast={toast}
+          {/* 订阅读数负责反馈首次等待，确认有订阅或读取失败后才显示订阅区。 */}
+          {!empty && (subscribed > 0 || feeds.isError) ? <FeedSources readOnly={readOnly} toast={toast}
             selection={{ ids: feedSelected, onChange: setFeedSelected, onActivate: () => setSelected(new Set()) }} /> : null}
           {follow.data ? sources.length > 0 && <SourceList data={data} sort={sort} dir={dir} page={page} layout={layout}
             pageSize={pageSize} selected={selected} selecting={selecting} readOnly={readOnly} toast={toast}

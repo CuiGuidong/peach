@@ -66,6 +66,18 @@ function searchTargets(scope: Scope, filters: Filters, library: string) {
   return { params, outside };
 }
 
+function searchRequests(turn: Turn, filters: Filters) {
+  const { params, outside } = searchTargets(turn.scope, filters, turn.library ?? '');
+  const requests: { key: SearchSource; url: string }[] = [];
+  if (params.size) {
+    params.set('limit', '20');
+    params.set('count', '0');
+    requests.push({ key: 'library', url: '/api/items?' + params });
+  }
+  if (outside) requests.push({ key: 'external', url: '/api/ai-library/external-search?' + new URLSearchParams({ q: outside }) });
+  return requests;
+}
+
 function searchSteps(turn: Turn | null, filters: Filters | null, results: Results, state: 'busy' | 'stopped' | 'error' | 'settled') {
   if (!turn) return [];
   const steps: SearchStep[] = [];
@@ -222,15 +234,7 @@ export function LibraryAssistant() {
       setFilters(chosen);
       if (answer !== undefined) return { turn: submitted, filters: chosen, results: {}, answer };
       if (work) return { turn: submitted, filters: chosen, results: {}, work };
-      const { params, outside } = searchTargets(submitted.scope, chosen, submitted.library ?? '');
-      const requests: { key: 'library' | 'external'; url: string }[] = [];
-      if (params.size) {
-        params.set('limit', '20');
-        params.set('count', '0');
-        requests.push({ key: 'library', url: '/api/items?' + params });
-      }
-      if (outside) requests.push({ key: 'external', url: '/api/ai-library/external-search?' + new URLSearchParams({ q: outside }) });
-      const reply = Object.fromEntries(await Promise.all(requests.map(async ({ key, url }) => {
+      const reply = Object.fromEntries(await Promise.all(searchRequests(submitted, chosen).map(async ({ key, url }) => {
         const reply = await apiGet<SearchResult>(url, signal).catch(cause => ({ items: [], error: errorMessage(cause) }));
         if (!signal.aborted) setResults(previous => ({ ...previous, [key]: reply }));
         return [key, reply] as const;
@@ -243,6 +247,19 @@ export function LibraryAssistant() {
     }, cause => {
       action.setError(errorMessage(cause));
     });
+  };
+  const retryResult = (source: SearchSource) => {
+    const request = turn && filters && searchRequests(turn, filters).find(row => row.key === source);
+    if (!turn || !request || busy) return;
+    const put = (result: SearchResult) => {
+      setResults(current => ({ ...current, [source]: result }));
+      const next = messages.map(entry => entry.turn.id === turn.id
+        ? { ...entry, results: { ...entry.results, [source]: snapshotSearchResult(result) } } : entry);
+      setMessages(next);
+      if (chatId && historyLimit) updateRecent(recent.map(entry => entry.id === chatId ? { ...entry, messages: next } : entry));
+    };
+    void action.run('result:' + source, signal => apiGet<SearchResult>(request.url, signal), put,
+      cause => put({ items: [], error: errorMessage(cause) }));
   };
   const submitQuery = () => {
     const text = query.trim();
@@ -295,6 +312,7 @@ export function LibraryAssistant() {
     if (demo) { simulation.stop(); return; }
     if (!turn || !busy) return;
     action.cancel();
+    if (action.busy.startsWith('result:')) return;
     setStopped(true);
     record({ turn, filters, results, stopped: true }, usage);
   };
@@ -316,7 +334,11 @@ export function LibraryAssistant() {
   };
   const updatePresets = (next: Preset[]) => {
     try { localStorage.setItem(PRESET_KEY, JSON.stringify(next)); }
-    catch { action.setError(copy('saveFailed')); return; }
+    catch (cause) {
+      const detail = cause instanceof DOMException && cause.name === 'QuotaExceededError' ? 'presetStorageFull' : 'presetStorageUnavailable';
+      action.setError(copy(detail));
+      return;
+    }
     setPresets(next);
   };
   const saved = presets.some(row => row.scope === scope && JSON.stringify(row.filters) === JSON.stringify(panelFilters));
@@ -391,6 +413,12 @@ export function LibraryAssistant() {
         <ConversationUsagePopover usage={usage} pending={planning} provider={fixed ? fixedConnection?.id : (selection ?? fallback)?.provider} />
       </div>
       {turn && setupAction ? <div className="basis-full px-1.5">{setupAction}</div> : null}
+      {!setupError && fixedTasks.error ? <Note tone="error" className="basis-full"
+        title={<span data-copy-key="catalog.libraryAssistant.fixedTasksLoadFailed">{copy('fixedTasksLoadFailed')}</span>}
+        action={<Button type="button" size="small" variant="secondary" disabled={fixedTasks.isFetching}
+          onClick={() => void fixedTasks.refetch()}>{t('catalog:shared.retryNow')}</Button>}>
+        {errorMessage(fixedTasks.error)}
+      </Note> : null}
       {fixed && !fixedConnection && !setupError ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary">
         {t('settings:aiLibrary.taskConnectionMissing')}
       </p> : !fixed && hasPlanner ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary"
@@ -445,8 +473,10 @@ export function LibraryAssistant() {
     </div> : null}
     {stopped ? <Help role="status"><span data-copy-key="catalog.libraryAssistant.stopped">{copy('stopped')}</span></Help> : null}
     {resultKey ? <div data-ai-search-results="" className="flex min-w-0 flex-col gap-4">
-      {results.library ? <SearchWorks result={results.library} source="library" /> : null}
-      {results.external ? <SearchWorks result={results.external} source="external" /> : null}
+      {results.library ? <SearchWorks result={results.library} source="library"
+        retry={turn && filters ? () => retryResult('library') : undefined} retrying={action.busy === 'result:library'} /> : null}
+      {results.external ? <SearchWorks result={results.external} source="external"
+        retry={turn && filters ? () => retryResult('external') : undefined} retrying={action.busy === 'result:external'} /> : null}
     </div> : null}
     </>}
   </AssistantWorkspace>;

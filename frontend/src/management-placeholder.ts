@@ -65,7 +65,7 @@ const PLACEHOLDERS: Record<string, () => string> = {
    `SettingsCard`，一行 44px）。分组名与来源要等数据，目录按内置的六组画，每组几行取常见的数。 */
 function sourcesSkeletonHtml(): string {
   const entry = '<span class="skeleton" style="height:36px;border-radius:8px"></span>';
-  const row = '<div class="skeleton rounded-2xl" style="height:44px"></div>';
+  const row = '<div class="overflow-hidden rounded-2xl" data-source-skeleton-card><div class="skeleton" style="height:44px"></div></div>';
   const group = (rows: number) => `<section class="flex min-w-0 flex-col gap-3"><h3 class="px-3 text-title-3-medium"><span class="skeleton skeleton-text" style="width:5em"></span></h3><div class="flex flex-col gap-2">${row.repeat(rows)}</div></section>`;
   return `<div data-skeleton="sources" role="status" aria-label="${esc(t('manage:scrapingSources.loading'))}"><div class="peach-react" aria-hidden="true" inert>
     <div class="mx-auto flex w-full max-w-board flex-col gap-8"><p class="text-body-2-regular text-text-secondary">${esc(t('manage:scrapingSources.proxyHint'))}</p>

@@ -260,7 +260,7 @@ it('全是 0 的分布图与没有分段的径向图都换成说明卡', async (
   const panel = host.querySelector('[role=tabpanel]')!;
   expect(panel.querySelector('section[aria-label="媒体库"] p')?.textContent)
     .toBe('把媒体目录归进媒体库后，这里会按库显示视频数。');
-  expect(panel.querySelector('section[aria-label="画质"] p')?.textContent).toBe('探测画质后，这里会显示画质分布。');
+  expect(panel.querySelector('section[aria-label="画质"] p')?.textContent).toBe('读取视频分辨率后，这里会显示画质分布。');
 });
 
 it('计数取不到时读「未知」，不白屏也不读成 NaN', async () => {
@@ -323,7 +323,7 @@ it('覆盖率那一层的每条进度用同一对分子分母，不另算一遍'
   await click(tabNamed(host, '内容标签'));
   const bars = [...host.querySelectorAll('[role=meter]')];
   expect(bars.map((bar) => bar.getAttribute('aria-label'))).toEqual([
-    '有创作者：3 / 4', '有番号：2 / 4', '有厂牌：1 / 4', '已抽帧：4 / 4', '已探测时长：4 / 4',
+    '有创作者：3 / 4', '有番号：2 / 4', '有厂牌：1 / 4', '已抽帧：4 / 4', '已读取时长：4 / 4',
   ]);
 });
 

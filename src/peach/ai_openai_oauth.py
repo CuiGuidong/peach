@@ -253,7 +253,7 @@ def start(state, model: str = DEFAULT_MODEL, *, result_url: str) -> dict:
         try:
             server = _CallbackServer(("127.0.0.1", 0), Callback)
         except OSError:
-            raise InferenceError("network") from None
+            raise InferenceError("oauthCallbackUnavailable") from None
         attempt = _Attempt(
             state=secrets.token_urlsafe(32), nonce=secrets.token_urlsafe(32),
             verifier=secrets.token_urlsafe(48), model=model, client_id=saved.get("client_id", _DYNAMIC_CLIENT),

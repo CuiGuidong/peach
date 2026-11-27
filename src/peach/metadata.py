@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 from .catalog_rules import (
     DIGIT_LABEL_PATTERN, SUFFIXED_CODE_PATTERN, same_release_code, code_query_variants, code_serial_pattern,
     normalise_code_key, tokyo_hot_code)
-from .genre_taxonomy import map_genres, unmapped_genre_warning
+from .genre_taxonomy import map_genres, source_genres, unmapped_genre_warning
 from .http import body_text
 from .javdb import login_page as javdb_login_page
 from .entities import (
@@ -575,7 +575,7 @@ def extract_catalog_evidence(payload: dict) -> dict[str, dict]:
     return {field: with_codes(value) for field, value in out.items() if candidate_text_is_valid(value)}
 
 
-def extract_peach_fields(payload: dict, genre_decisions=None) -> dict[str, dict]:
+def extract_peach_fields(payload: dict, genre_decisions=None, *, source_tags=False) -> dict[str, dict]:
     """Map raw provider data to reviewable Peach truth-field candidates.
 
     `genre_decisions` 是用户在复核页收录过的来源 genre（见 `genre_taxonomy.map_genres`）。
@@ -617,12 +617,16 @@ def extract_peach_fields(payload: dict, genre_decisions=None) -> dict[str, dict]
     # Peach 还没决定怎么归类」伪装成「来源没给标签」，正是官方 tag 长期缺口的成因。
     # 原文另存一份结构化的：复核页要拿它做「收录成哪个中文标签」的按钮，从那句中文
     # 提示里再拆回词来是把显示当接口用。
-    mapped, unmapped = map_genres(payload.get("genres") or [], genre_decisions)
+    genres = payload.get("genres") or []
+    mapped, unmapped = (
+        (source_genres(genres, genre_decisions), []) if source_tags else map_genres(genres, genre_decisions)
+    )
     if mapped or unmapped:
         out["tags"] = {
             "value": mapped,
             "display_value": "、".join(mapped),
             "unmapped_genres": unmapped,
             "warnings": [unmapped_genre_warning(unmapped)] if unmapped else [],
+            **({"source_tags_original": True} if source_tags else {}),
         }
     return {field: with_codes(value) for field, value in out.items() if candidate_text_is_valid(value)}

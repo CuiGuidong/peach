@@ -2,8 +2,12 @@
   "aiLibrary": {
     "oauthTitle": "ChatGPT 订阅",
     "oauthHelp": "在运行 Peach 的这台电脑上授权，用符合条件的 ChatGPT 订阅调用模型。授权会在浏览器中完成。",
-    "oauthLocalAddress": "ChatGPT 订阅授权需要从运行 Peach 的电脑上打开本机地址（localhost 或 127.0.0.1）。当前地址可以继续配置 API Key。",
-    "oauthError": "连接 ChatGPT 失败，请重新发起授权。",
+    "oauthHostRequired": "请在运行 Peach 的电脑上打开这个实例的「AI 接入」，然后连接 ChatGPT 订阅。授权回调需要在那台电脑上完成。",
+    "oauthError": "未能完成 ChatGPT 授权，请重新连接。",
+    "oauthPermissionRequired": "请重新连接，并在 ChatGPT 授权页允许使用订阅额度。",
+    "oauthExpired": "授权已超时，请重新连接 ChatGPT 订阅。",
+    "oauthNetwork": "Peach 无法连接 ChatGPT。请检查运行 Peach 的电脑是否能访问 ChatGPT，再重新连接。",
+    "retryConnections": "重新读取连接",
     "oauthDisconnect": "断开连接",
     "oauthRevocationUnconfirmed": "本机连接已移除，未确认 ChatGPT 端是否已撤销授权。",
     "oauthContinue": "前往 ChatGPT 授权",
@@ -63,6 +67,7 @@
       }
     },
     "usage": {
+      "historyLoadFailed": "Peach 用量记录读取失败",
       "title": "AI 用量",
       "accessUnavailable": "当前入口无法查看用量。",
       "loadUnavailable": "未能读取 AI 用量。",
@@ -91,7 +96,14 @@
       "adminKeyRequired": "在 Peach 服务端配置 {{key}} 后，自动读取组织用量。",
       "accountDisconnected": "连接 DeepSeek 后自动读取账户余额。",
       "accountDenied": "服务商拒绝读取账户数据，请检查密钥的用量权限。",
-      "accountFailed": "暂时无法读取服务商账户数据。",
+      "accountFailed": "服务商账户数据读取失败",
+      "accountConnection": "运行 Peach 的设备无法连接服务商。请检查该设备的网络或代理。",
+      "accountCredentials": "Peach 无法读取账户凭据。请在运行 Peach 的设备上检查服务商配置。",
+      "accountEndpoint": "已配置自定义服务地址。请在服务商账户页查看用量或余额。",
+      "accountIncomplete": "服务商未返回完整的账户数据。可以重试，或到服务商账户页核对。",
+      "accountStatus": "服务商返回 HTTP {{status}}。可以重试，或到服务商账户页核对。",
+      "accountTimeout": "等待服务商返回账户数据超时。",
+      "accountUnsupported": "此服务没有可用的账户数据接口。",
       "accountCustom": "Peach 记录这条连接中由本应用发起的请求。账户总用量请到服务商处查看。",
       "accountLoading": "正在读取服务商账户数据…",
       "subscriptionHelp": "请在 ChatGPT 用量页查看共享订阅额度。Peach 用量来自模型回执。",
@@ -307,6 +319,7 @@
     "weekly": "每周"
   },
   "browserAdd": {
+    "loadFailed": "浏览器添加设置读取失败",
     "channel": "浏览器添加的下载渠道",
     "channelUnavailable": "已启用的下载渠道不可用，请选择渠道并更新令牌。",
     "copyPairing": "复制配对信息",
@@ -331,7 +344,10 @@
     "help": "其他设备首次打开 HTTPS 地址会提示证书不受信任，在那台设备上安装并信任 Peach 的 CA 证书即可。证书不含私钥。",
     "iosDevices": "iPhone／iPad",
     "iosSteps": "用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」安装它，再到「设置 → 通用 → 关于本机 → 证书信任设置」打开这张证书的完全信任。",
-    "qrHelp": "二维码在页面开着时每 10 分钟更新。Android 打不开 .local 地址时，改用局域网 IP 打开本页再扫码。",
+    "qrHelp": "二维码会在过期前更新。Android 打不开 .local 地址时，改用局域网 IP 打开本页再扫码。",
+    "qrRefreshFailed": "无法更新证书下载二维码",
+    "qrRetry": "重新获取二维码",
+    "qrRefreshing": "正在更新二维码…",
     "qrLabel": "手机扫码下载本机 CA 证书",
     "title": "其他设备信任 HTTPS 证书",
     "validUntil": "有效期至",
@@ -352,7 +368,7 @@
     "cloudDriveUrlHelp": "CloudDrive2 在另一台设备上时，填那台设备的服务地址。",
     "createDirectory": "新建这个目录",
     "createOrPick": "先新建这个目录，或填写已有目录。",
-    "detectedAddress": "探测到 {{address}}，保存配置后生效",
+    "detectedAddress": "找到服务地址 {{address}}，保存后生效",
     "directoryCreated": "已新建目录",
     "directoryMissing": "这个目录不存在。",
     "editionPreferences": "优先下载的版本",
@@ -550,6 +566,7 @@
     "switchToSmall": "切换为小图"
   },
   "deviceSessions": {
+    "loadFailed": "已登录设备读取失败",
     "daysAgo": "{{count, number}} 天前",
     "empty": "还没有浏览器用访问密码登录过。",
     "hoursAgo": "{{count, number}} 小时前",
@@ -835,6 +852,7 @@
     "spot3": "光晕三"
   },
   "indexers": {
+    "loadFailed": "资源搜索索引器读取失败",
     "add": "添加索引器",
     "apiKeyLabel": "索引器 {{index}} API key",
     "apiKeySaved": "已保存 API key",
@@ -1063,6 +1081,15 @@
     "title": "女优名称",
     "unavailable": "名称偏好读取失败，请重新打开设置。"
   },
+  "sourceTags": {
+    "help": "Peach 优选会合并同义词并统一标签写法。来源原文保留站点用词，适用于后续采集，以及在线目录、发现、新作和库外详情。",
+    "original": "来源原文",
+    "peach": "Peach 优选",
+    "saveFailed": "保存抓取标签设置",
+    "saved": "已保存抓取标签设置",
+    "title": "抓取标签",
+    "unavailable": "未取得抓取标签设置，请重新打开设置。"
+  },
   "photoLayout": {
     "fixed": "固定比例",
     "masonry": "瀑布流"
@@ -1274,7 +1301,7 @@
     "deferReasonCount": "{{reason}} {{count, number}} 部",
     "deferReasons": {
       "mount": "所在目录读不到",
-      "cooldown": "资料来源冷却中",
+      "cooldown": "资料来源暂不可用",
       "cost": "计费来源未确认",
       "retry": "等待自动重试"
     },
@@ -1321,6 +1348,7 @@
     "waitingCount_other": "{{count, number}} 项修复等你确认"
   },
   "retention": {
+    "loadFailed": "保留期限读取失败",
     "backups": "账本自动备份",
     "backupsHelp": "写入前留下的整库备份保留最近几份，24 小时内的都留。",
     "copies": "{{count, number}} 份",

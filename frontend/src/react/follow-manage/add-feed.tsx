@@ -7,8 +7,8 @@ import { Button } from '@/components/base/buttons/button';
 import { apiGet } from '../../api';
 import type { FaceRef } from '../../card-art/markup';
 import { cardClass } from '../components/card';
+import { ActionSpinner } from '../components/action-spinner';
 import { Note } from '../components/note';
-import { TaskProgress } from '../components/task-progress';
 import { FieldLabel, Help } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import { followFeedPages, lookupFeedActor, suggestFeedActors, type FeedLookup, type FeedSubscription } from './follow-manage';
@@ -161,18 +161,19 @@ export function AddFeed({ readOnly, toast, onAdded, initialName = '' }: AddFeedP
   const selected = rows.filter(row => row.selectable && row.picked);
   const where = result && selected.length ? destination(result, selected) : null;
   const canSelect = rows.some(row => row.selectable);
+  const subscribing = action.busy === 'follow';
 
   return (
     /* 和「添加关注」那一块同一个形：一张填充卡，标题在卡里。 */
     <section id="add-jav-subscription" ref={section} aria-label={TITLE}
       className={cardClass({ padding: 'none', className: 'flex scroll-mt-24 flex-col gap-4 px-6 py-5 max-sm:px-4' })}>
-      <h3 className="text-title-2-medium text-text-primary">{TITLE}</h3>
+      <h3 className="text-title-2-medium text-text-primary"><span data-copy-key="follow.addJavFeed.title">{TITLE}</span></h3>
       <FollowSearch label={t('follow:addJavFeed.actressName')} placeholder={PLACEHOLDER}
         suggestionsLabel={t('follow:addJavFeed.suggestions')} value={name} setValue={setName} search={search}
         kind="performer" suggest={performerSuggestions} suggestOnline={onlineSuggestions}
-        readOnly={readOnly} busy={Boolean(action.busy)} />
+        readOnly={readOnly} busy={Boolean(action.busy)} lookup={{ pending: action.busy === 'lookup' }} />
 
-      {action.busy === 'lookup' ? <TaskProgress embedded kind="radar" label={t('follow:addJavFeed.searching')} /> : null}
+      {action.busy === 'lookup' ? <Help role="status">{t('follow:addJavFeed.searching')}</Help> : null}
 
       {action.error ? <Note tone="error" title={t('follow:addJavFeed.notCompleted')}>{action.error}</Note> : null}
 
@@ -184,7 +185,8 @@ export function AddFeed({ readOnly, toast, onAdded, initialName = '' }: AddFeedP
           </Note> : null}
           {rows.length ? <>
             <FieldLabel>{t('follow:addCreatorSource.results')}</FieldLabel>
-            <SearchResults label={t('follow:addJavFeed.searchResults')} items={rows} onPick={(id, on) => setPicked(now => {
+            <SearchResults label={t('follow:addJavFeed.searchResults')}
+              items={subscribing ? rows.map(row => ({ ...row, selectable: false })) : rows} onPick={(id, on) => setPicked(now => {
               const next = new Set(now);
               if (on) next.add(id); else next.delete(id);
               return next;
@@ -192,10 +194,11 @@ export function AddFeed({ readOnly, toast, onAdded, initialName = '' }: AddFeedP
           </> : !result.unavailable && !result.dmm_unavailable ? <Help>{t('follow:addJavFeed.noMatch')}</Help> : null}
           {canSelect ? <Help role="status">{where?.text ?? t('follow:addJavFeed.pickCardsHint')}</Help> : null}
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary" size="small" onClick={close}>{t('follow:shared.close')}</Button>
+            <Button variant="secondary" size="small" disabled={subscribing} onClick={close}>{t('follow:shared.close')}</Button>
             {canSelect ? (
               <Button variant="primary" size="small" disabled={readOnly || !where || where.blocked}
-                {...busyProps(action.busy === 'follow')} onClick={add}>{t('follow:addJavFeed.subscribePicked', { count: selected.length })}</Button>
+                leadingIcon={subscribing ? ActionSpinner : undefined}
+                {...busyProps(subscribing)} onClick={add}>{t('follow:addJavFeed.subscribePicked', { count: selected.length })}</Button>
             ) : null}
           </div>
         </div>

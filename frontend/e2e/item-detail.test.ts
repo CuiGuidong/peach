@@ -98,6 +98,14 @@ describe('作品详情岛', () => {
       await received;
       const media = page.locator('#stage [data-item-media]');
       const initialHeight = await media.evaluate(node => node.getBoundingClientRect().height);
+      const placeholder = page.locator('#stage .related-skeleton .skeletoncard').first();
+      await placeholder.waitFor();
+      const pendingCard = await placeholder.evaluate(node => ({
+        width: (node as HTMLElement).offsetWidth,
+        height: (node as HTMLElement).offsetHeight,
+        radius: getComputedStyle(node.querySelector('i')!).borderTopLeftRadius,
+        gap: getComputedStyle(node.parentElement!).columnGap,
+      }));
       release();
       const reasons = '#stage [data-item-related] [aria-label^="查看推荐理由"]';
       await page.locator(reasons).first().waitFor();
@@ -111,6 +119,13 @@ describe('作品详情岛', () => {
       const finalHeight = await media.evaluate(node => node.getBoundingClientRect().height);
       assert.ok(Math.abs(initialHeight - finalHeight) <= 1, `${initialHeight} → ${finalHeight}`);
       const card = page.locator('#stage [data-item-related] [data-media-card]').first();
+      const readyCard = await card.evaluate(node => ({
+        width: (node as HTMLElement).offsetWidth,
+        height: (node as HTMLElement).offsetHeight,
+        radius: getComputedStyle(node.querySelector('[data-media-pic]')!).clipPath.match(/round ([^ )]+)/)?.[1],
+        gap: getComputedStyle(node.parentElement!).columnGap,
+      }));
+      assert.deepEqual(pendingCard, readyCard, '推荐骨架与就绪卡片的外框、封面圆角和间距一致');
       await card.hover();
       const shape = await card.evaluate(node => ({
         shadow:getComputedStyle(node).boxShadow,
@@ -476,22 +491,35 @@ describe('作品详情岛', () => {
     }
   });
 
-  it('来源不可读取：说明块代替播放器，刷新状态后显示读取结果', { timeout: 60_000 }, async () => {
-    const opened = await openItemPage(browser, `/assets/${ITEM.offline}`, DESKTOP);
-    try {
-      const page = opened.page;
-      const gate = page.locator('#stage [data-item-gate="offline"]');
-      assert.match(await gate.innerText(), /媒体目录无法访问/);
-      assert.equal(await page.locator('#stage .vjs-tech').count(), 0, '脱盘的条目挂了播放器');
-      await page.locator('#offlineRetry').click();
-      await page.locator('#offlineRetry', { hasText: '仍无法读取 · 刷新' }).waitFor();
-      assert.deepEqual(opened.problems, []);
-    } finally {
-      await opened.close();
-    }
-  });
-
   for (const viewport of [DESKTOP, MOBILE]) {
+    it(`${viewport.name}：目录刷新失败后，原因完整显示在媒体区内`, { timeout: 60_000 }, async () => {
+      const opened = await openItemPage(browser, `/assets/${ITEM.offline}`, viewport);
+      try {
+        const page = opened.page;
+        const gate = page.locator('#stage [data-item-gate="offline"]');
+        assert.match(await gate.innerText(), /媒体目录无法访问/);
+        assert.equal(await page.locator('#stage .vjs-tech').count(), 0, '脱盘的条目挂了播放器');
+        await page.locator('#offlineRetry').click();
+        await page.locator('#offlineRetry', { hasText: '仍无法读取 · 刷新' }).waitFor();
+        assert.deepEqual(opened.problems, []);
+        await page.route(url => url.pathname === '/api/sources', route => route.fulfill({ status: 503, json: { detail: '目录探测暂不可用' } }));
+        await page.locator('#offlineRetry').click();
+        const alert = gate.getByRole('alert').filter({ hasText: '目录探测暂不可用' });
+        await alert.waitFor();
+        const { width, panelWidth, fits } = await alert.evaluate(node => {
+          const note = node.getBoundingClientRect();
+          const panel = node.closest('[data-item-gate]')!.getBoundingClientRect();
+          return { width: note.width, panelWidth: panel.width,
+            fits: note.top >= panel.top && note.bottom <= panel.bottom };
+        });
+        assert.ok(width >= Math.min(240, panelWidth / 2), '错误提示应有足够宽度显示多字一行');
+        assert.ok(fits, '错误提示应完整显示在媒体区内');
+        assert.equal(await page.locator('#stage .vjs-tech').count(), 0, '未确认在线时不打开播放器');
+      } finally {
+        await opened.close();
+      }
+    });
+
     it(`${viewport.mobile ? '手机' : '桌面'}来源状态：权限原因可见，未取得状态不判脱盘`, { timeout: 60_000 }, async () => {
       const opened = await openItemPage(browser, `/assets/${ITEM.offline}`, viewport);
       try {
