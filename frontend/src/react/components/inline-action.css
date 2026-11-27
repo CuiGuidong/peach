@@ -6,16 +6,18 @@
 :is([data-inline-action], [data-inline-popover-trigger])::before {
   content: '';
   position: absolute;
-  inset: -2px -4px;
+  inset: 0;
   z-index: -1;
   border-radius: var(--radius-sm);
+  background-color: var(--inline-action-fill, transparent);
+  box-shadow: 0 0 0 2px var(--inline-action-fill, transparent);
   pointer-events: none;
 }
 :is([data-inline-action], [data-inline-popover-trigger]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible)::before {
-  background-color: color-mix(in srgb, var(--inline-action-ink, var(--color-text-primary)) 12%, transparent);
+  --inline-action-fill: color-mix(in srgb, var(--inline-action-ink, var(--color-text-primary)) 12%, transparent);
 }
 :is([data-inline-action], [data-inline-popover-trigger]):not(:disabled, [aria-disabled="true"]):is(:active, [aria-expanded="true"])::before {
-  background-color: color-mix(in srgb, var(--inline-action-ink, var(--color-text-primary)) 18%, transparent);
+  --inline-action-fill: color-mix(in srgb, var(--inline-action-ink, var(--color-text-primary)) 18%, transparent);
 }
 [data-inline-action=""]:focus-visible {
   outline: 2px solid var(--color-border-focus-ring);

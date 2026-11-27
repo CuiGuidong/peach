@@ -323,10 +323,10 @@ body .feednewcard:has(.meta :is(a[href],button):hover) .pic{filter:none}
 .feednewcard .meta .s{display:grid;grid-auto-rows:minmax(1.35em,auto);gap:2px;
   line-height:1.35;white-space:nowrap;min-height:calc(2lh + 2px)}
 .feednewcard .meta .s>span{min-width:0}
-.feednewcredits{display:flex;align-items:center;gap:4px}
-.feednewcredits>[data-feed-performer-credit]{min-width:0}
+.feednewcard .feednewcredits{display:flex;align-items:center;gap:4px;line-height:inherit}
+.feednewcredits>[data-feed-performer-credit]{display:flex;min-width:0}
 .feednewcredits :is(a[data-media-who],[data-cast-trigger]){pointer-events:auto}
-.feednewcredits>[data-cast-trigger]{position:relative;z-index:2}
+.feednewcredits>[data-cast-trigger]{position:relative;z-index:2;display:flex}
 /* 占位卡直接套真卡的 `.t` 与 `.s`：标题块是两行 2.7em，下面那行放一个零宽字符，行高
    跟真卡那行字同一套规则，到货那一下整行不跳。 */
 .feednewskeleton{pointer-events:none}

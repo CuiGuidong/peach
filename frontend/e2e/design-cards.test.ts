@@ -739,7 +739,14 @@ describe('设计决定：作品卡、管理页与复核', () => {
         await page.locator('.peach-guide-popover').waitFor();
         assert.equal(await dialog.isVisible(), false, '章节点击后仍停留在中间介绍页');
         const playbackGuide = page.locator('.peach-guide-popover');
-        for (let step = 0; step < 4; step += 1) await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();
+        const nextPlaybackStep = playbackGuide.getByRole('button', { name: '下一步', exact: true });
+        for (let step = 0; step < 3; step += 1) await nextPlaybackStep.click();
+        await page.waitForURL(url => url.searchParams.get('browse') === 'folders');
+        await page.locator('[data-folder-mode-toggle].driver-active-element').waitFor();
+        await nextPlaybackStep.click();
+        await page.locator('#stage [data-item-title].driver-active-element').waitFor();
+        assert.equal(new URL(page.url()).searchParams.has('browse'), false);
+        await nextPlaybackStep.click();
         await page.locator('#stage .vjs-control-bar.driver-active-element').waitFor();
         assert.deepEqual(await page.locator('#stage video.vjs-tech').evaluate(video => ({ paused: (video as HTMLVideoElement).paused, src: (video as HTMLVideoElement).currentSrc })), { paused: true, src: '' });
         await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();

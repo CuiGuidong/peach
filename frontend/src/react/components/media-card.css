@@ -114,7 +114,8 @@ body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] 
 .peach-react [data-media-card][data-library]:not([data-pending-delete], [data-variant="resource"]):is(:hover, :has(:focus-visible)) {
   --card-hover-surface: var(--library-hover);
 }
-.peach-react [data-media-card]:is(:hover, :has(:focus-visible)):not(:has([data-media-meta] :is(a[href], button):not([data-media-title], [data-open]):is(:hover, :focus-visible))) {
+.peach-react [data-media-card]:is(:hover, :has(:focus-visible)):not(:where(:has([data-media-meta] :is(a[href], button):not([data-media-title], [data-open]):is(:hover, :focus-visible)))) {
+  --card-hover-active: 1;
   background: var(--card-hover-surface);
   box-shadow: 0 0 0 8px var(--card-hover-surface);
 }

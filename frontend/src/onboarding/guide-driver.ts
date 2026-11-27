@@ -73,10 +73,11 @@ export function createGuideSession(options: {
   const origin = document.activeElement as HTMLElement | null;
   const navigate = (route: string) => {
     const target = new URL(route, location.origin);
-    const changed = location.pathname !== target.pathname
-      || (Boolean(target.search) && location.search !== target.search) || (Boolean(target.hash) && location.hash !== target.hash);
-    if (!changed) return;
-    if (new URLSearchParams(location.search).has('edit')) target.searchParams.set('edit', '');
+    const current = new URL(location.href);
+    const editing = current.searchParams.has('edit');
+    if (editing) current.searchParams.delete('edit');
+    if (current.pathname === target.pathname && current.search === target.search && current.hash === target.hash) return;
+    if (editing) target.searchParams.set('edit', '');
     navigating = true;
     try { options.navigate(`${target.pathname}${target.search}${target.hash}`) }
     finally { navigating = false }

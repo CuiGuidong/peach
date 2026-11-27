@@ -110,9 +110,8 @@ body[data-detail-open] [class~=glowlayer]::before{animation-play-state:paused,pa
   white-space:nowrap;text-overflow:ellipsis}
 .peach-react [data-detail-continuation] [data-media-card][data-variant="next"]:is(:hover,:focus-within){background:transparent;box-shadow:none}
 [data-detail-continuation] [data-media-card][data-variant="next"]::before{content:"";position:absolute;inset:-8px;z-index:-1;
-  border-radius:calc(var(--surface-radius) + 8px);background:var(--library-hover,var(--hover));opacity:0;pointer-events:none;
+  border-radius:calc(var(--surface-radius) + 8px);background:var(--library-hover,var(--hover));opacity:var(--card-hover-active,0);pointer-events:none;
   transition:opacity .15s ease}
-[data-detail-continuation] [data-media-card][data-variant="next"]:is(:hover,:focus-within)::before{opacity:1}
 .peach-react [data-detail-continuation] [data-media-card][data-variant="next"][data-longhover]{transform:none;filter:none}
 [data-detail-continuation]:has(>[data-mix-queue]) [data-media-card][data-variant="next"] [data-media-pic]{aspect-ratio:16/9}
 [data-mix-queue]{min-width:0;max-height:76vh;display:flex;flex-direction:column;border-left:1px solid var(--line-soft);
