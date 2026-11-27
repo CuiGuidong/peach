@@ -457,6 +457,7 @@ describe('库外 JAV 作品详情', () => {
         }
         await withPageDiagnostics(page, '展开作品资源列表', async () => {
           await resourcesToggle.click();
+          await page.locator('[data-want-magnets]').scrollIntoViewIfNeeded();
           await page.getByText('EXM-001 示例资源 1', { exact: false }).waitFor({ state: 'visible' });
         });
         assert.equal(await page.locator('[data-jav-resources] [data-resource-protocol]:visible').count(), 3);
