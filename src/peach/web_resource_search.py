@@ -54,6 +54,11 @@ def q_resource_search(contract, args, *, edition_preferences: tuple[str, ...] = 
     if edition_preferences:
         options["priority"] = lambda row: edition_rank(row, code, edition_preferences)
     indexed = _SEARCH.run(Indexers(service.credentials).load(), code, filters, sorted(excluded), **options)
+    return _combine_search_results(direct, indexed, code, filters.goal, edition_preferences)
+
+
+def _combine_search_results(direct: dict, indexed: dict, code: str, goal: str,
+                            edition_preferences: tuple[str, ...]) -> dict:
     combined = list(direct["items"])
     for row in indexed.get("items", ()):
         combined.append({
@@ -68,7 +73,7 @@ def q_resource_search(contract, args, *, edition_preferences: tuple[str, ...] = 
     return {
         "ok": bool(direct["items"]) or indexed.get("ok", False),
         "state": "ready" if ready else indexer_state,
-        "items": rank_candidates(combined, filters.goal, code=code, edition_preferences=edition_preferences),
+        "items": rank_candidates(combined, goal, code=code, edition_preferences=edition_preferences),
         "warnings": warnings, **parallel("warning", warnings),
         "warning_sources": (direct.get("warning_sources") or [""] * len(direct["warnings"])) + [""] * len(indexer_warnings),
         "trace": direct["trace"] + (["indexer fallback: queried"] if indexed.get("state") != "unavailable" else []),

@@ -255,7 +255,7 @@ class MagnetChainTests(unittest.TestCase):
             (404, '请求失败（HTTP 404）'),
         ]
         for failure, expected in cases:
-            def request(*_):
+            def request(*_, failure=failure):
                 if isinstance(failure, Exception):
                     raise failure
                 return HttpResponse(failure, {}, b'')

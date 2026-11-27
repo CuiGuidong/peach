@@ -263,7 +263,7 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
       <AgentThinking variant="spin" showTimer={false} label={t('settings:aiLibrary.modelsLoading')} />
     </div> : null}
     {catalog.error ? <Note tone="error" action={
-      <Button type="button" size="small" variant="secondary" isDisabled={catalog.isFetching} onClick={() => void catalog.refetch()}>
+      <Button type="button" size="small" variant="secondary" disabled={catalog.isFetching} onClick={() => void catalog.refetch()}>
         {copy('retryModels')}
       </Button>
     }>{errorMessage(catalog.error)}</Note> : null}
